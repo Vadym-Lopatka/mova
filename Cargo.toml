@@ -39,7 +39,7 @@ md-5 = "0.10"
 # mova campaign (clojure-lsp): `java.security.MessageDigest/getInstance
 # "SHA-256"` (`hostclass::mk_message_digest`) -- same RustCrypto family
 # and `digest::Digest` trait as `md-5` above, so no new trait import.
-sha2 = "0.10"
+sha2 = "0.11"
 # lsp/io: `clojure-lsp.diff`'s `DiffUtils/
 # diff`+`generateUnifiedDiff` (java-diff-utils) -- `similar`'s `TextDiff::
 # unified_diff` is the direct equivalent, git-style unified-diff format
