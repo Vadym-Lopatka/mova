@@ -15,7 +15,7 @@ triomphe = { version = "0.1", default-features = false, features = ["std"] }
 imbl = { path = "vendor/imbl" }
 champ = { path = "vendor/champ" }
 miette = { version = "7", features = ["fancy"] }
-rustyline = "15"
+rustyline = "18"
 libc = "0.2"
 regex = "1"
 # lsp/io (reuse of Rust crates):
