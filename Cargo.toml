@@ -35,7 +35,7 @@ ureq = { version = "3", default-features = false, features = ["rustls"] }
 # `classpath.clj`/`config.clj` use (native `mova.md5/hex-digest` in
 # `src/builtins/io.rs`, not yet wired into any overlay -- see that native's
 # doc comment).
-md-5 = "0.10"
+md-5 = "0.11"
 # mova campaign (clojure-lsp): `java.security.MessageDigest/getInstance
 # "SHA-256"` (`hostclass::mk_message_digest`) -- same RustCrypto family
 # and `digest::Digest` trait as `md-5` above, so no new trait import.
