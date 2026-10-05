@@ -1,0 +1,3 @@
+PASS stop-idempotent
+RESULT report-after-close nil
+RESULT error-after-close nil

@@ -1,0 +1,117 @@
+OK	clojure.lang.MapEntry
+OK	clojure.lang.MapEntry
+OK	clojure.lang.MapEntry
+OK	clojure.lang.PersistentVector
+OK	clojure.lang.PersistentVector
+OK	clojure.lang.PersistentVector
+OK	clojure.lang.PersistentVector
+OK	clojure.lang.PersistentVector
+OK	clojure.lang.MapEntry
+OK	nil
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	:hit
+OK	0
+OK	true
+OK	true
+OK	true
+OK	true
+OK	false
+OK	false
+OK	true
+OK	false
+OK	false
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	false
+OK	false
+OK	false
+OK	:a
+OK	1
+OK	:a
+OK	20
+OK	:a
+OK	1
+OK	:a
+OK	1
+OK	:a
+OK	1
+OK	:dflt
+OK	:dflt
+OK	:a
+OK	1
+OK	nil
+OK	:dflt
+OK	true
+OK	false
+OK	:a
+OK	1
+OK	1
+OK	(:a 1)
+OK	:a
+OK	1
+OK	1
+OK	(1)
+OK	(1)
+OK	(1 :a)
+OK	(1 :a)
+OK	2
+OK	[:a 1]
+OK	[:a 1]
+OK	[:a 1]
+OK	{:a 1}
+OK	[:a 1]
+OK	(:a 1)
+OK	":a1"
+OK	(:a 1)
+OK	[:a 1 :x]
+OK	[:z 1]
+OK	[:a :z]
+OK	[:a 1 :z]
+OK	[:a 2]
+OK	[:a]
+OK	[1]
+OK	nil
+OK	{:a 1}
+OK	{:a 1, :b 2}
+OK	[[:a 1]]
+OK	{:a 1}
+OK	[[:a 1]]
+OK	{:a 1}
+OK	[:a 1]
+OK	[:a 1]
+OK	([1 :a] [2 :b])
+OK	"[:a 1]"
+OK	"[:a 1]"
+OK	"[[:a 1]]"
+OK	"[:a 1]"
+OK	[true]
+OK	[clojure.lang.MapEntry]
+OK	[clojure.lang.MapEntry]
+OK	[:a 1]
+OK	clojure.lang.MapEntry
+OK	clojure.lang.MapEntry
+OK	clojure.lang.MapEntry
+OK	clojure.lang.MapEntry
+OK	clojure.lang.Keyword
+OK	java.lang.Long
+OK	[:a 1]
+OK	true
+OK	:a
+OK	1
+OK	2
+OK	:a
+OK	"(1 2)"
+OK	":a"
+OK	"(1 2)"
+OK	true

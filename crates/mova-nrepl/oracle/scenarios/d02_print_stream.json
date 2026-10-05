@@ -1,0 +1,147 @@
+{
+ "name": "d02_print_stream",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 10
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/buffer-size": 10
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(range 3000)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 1
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 0
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 4096
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 10,
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "(print \"o\") (range 5)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 3
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "\"\u00e9\u65e5\u672c\"",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 3
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "",
+    "nrepl.middleware.print/buffer-size": 10
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "0",
+    "nrepl.middleware.print/buffer-size": 10
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "(range 50)",
+    "session": "$s1",
+    "nrepl.middleware.print/stream?": "false",
+    "nrepl.middleware.print/buffer-size": 10
+   }
+  }
+ ]
+}

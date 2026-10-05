@@ -1,0 +1,164 @@
+;; ====================================================================
+;; seeded-gen.mova -- SPEC-W6a's oracle-diffed corpus for SEEDED
+;; generation.
+;;
+;; `smoke.mova`'s rule was "generative forms must print PROPERTIES,
+;; never values: the two hosts have different PRNGs". After W6a they do
+;; not: `clojure.test.check.random` is a Rust-native, bit-exact
+;; transcription of upstream's splitmix64 (`src/splitrandom.rs`), so
+;; every seeded draw mova makes is the same draw the JVM makes.
+;;
+;; This file exists to PROVE that end to end, and it is the strongest
+;; statement of it available: the raw RNG, then generators built on it,
+;; then `clojure.spec.alpha`'s own generators, then a failing
+;; `quick-check`'s shrink result -- all under fixed seeds, all printed
+;; as VALUES, and the whole stdout byte-identical to real Clojure
+;; 1.13.0-alpha6 + test.check 1.1.1. See RUNNING.md for the recipe.
+;;
+;; Rules for whoever extends this file:
+;;   * every generative form must be SEEDED (`gen/generate g size seed`,
+;;     `quick-check ... :seed n`); an unseeded one reads the clock and
+;;     will diff spuriously,
+;;   * print through `pr-str` and keep the shapes vectors, so nothing
+;;     depends on how either host prints a lazy seq,
+;;   * pick deterministic keys out of a quick-check result map; the
+;;     timing keys (`:time-elapsed-ms`, `:failed-after-ms`) are not,
+;;   * `sort` any generated SET before printing. Set/hash-map ITERATION
+;;     ORDER is a property of each host's hash table, not of the RNG,
+;;     and the two differ. (Measured while writing this file: the only
+;;     diff in the whole corpus was set print order, with identical
+;;     MEMBERS on both sides -- which is itself evidence the draws
+;;     agree, but not evidence a byte-diff can carry.)
+;; ====================================================================
+
+(set! *print-namespace-maps* false)
+
+(require '[clojure.test.check :as chk]
+         '[clojure.test.check.generators :as gen]
+         '[clojure.test.check.properties :as prop]
+         '[clojure.test.check.random :as random]
+         '[clojure.spec.alpha :as s])
+
+;; --------------------------------------------------------------------
+;; 1. The raw RNG: make-random / rand-long / rand-double / split /
+;;    split-n. If anything below this line ever diverges, this section
+;;    says whether the arithmetic or the generator machinery moved.
+;; --------------------------------------------------------------------
+(println "== 1 raw random ==")
+(doseq [seed [0 1 -1 42 -42 123456789]]
+  (let [r (random/make-random seed)
+        [a b] (random/split r)]
+    (println seed
+             (random/rand-long r)
+             (pr-str (random/rand-double r))
+             (random/rand-long a)
+             (random/rand-long b)
+             (pr-str (mapv random/rand-long (random/split-n r 4)))
+             (pr-str (mapv random/rand-double (random/split-n r 3))))))
+
+;; A thousand-deep split chain: one wrong shift anywhere shows up here
+;; even if a single split happened to agree.
+(println "chain"
+         (loop [r (random/make-random 42) i 0]
+           (if (= i 1000)
+             (random/rand-long r)
+             (recur (second (random/split r)) (inc i)))))
+
+;; --------------------------------------------------------------------
+;; 2. Seeded `gen/generate` over the scalar generators.
+;; --------------------------------------------------------------------
+(println "== 2 seeded generate, scalars ==")
+(doseq [seed [1 2 3 42]]
+  (println seed
+           (pr-str (gen/generate gen/large-integer 30 seed))
+           (pr-str (gen/generate gen/small-integer 30 seed))
+           (pr-str (gen/generate gen/nat 30 seed))
+           (pr-str (gen/generate gen/boolean 30 seed))
+           (pr-str (gen/generate gen/keyword 30 seed))
+           (pr-str (gen/generate gen/symbol 30 seed))
+           (pr-str (gen/generate gen/string-alphanumeric 30 seed))
+           (pr-str (gen/generate gen/char-alpha 30 seed))
+           (pr-str (gen/generate gen/uuid 30 seed))
+           (pr-str (gen/generate (gen/double* {:infinite? false :NaN? false}) 30 seed))))
+
+;; --------------------------------------------------------------------
+;; 3. Seeded `gen/generate` over the COMBINATORS -- `vector`/`list`/`set`
+;;    lean on `split`, `tuple` on `split-n`, and `bind`/`such-that` on
+;;    both, so this is where a wrong split ORDER (halves swapped) would
+;;    surface even though section 1 still agreed.
+;; --------------------------------------------------------------------
+(println "== 3 seeded generate, combinators ==")
+(doseq [seed [1 7 42]]
+  (println seed
+           (pr-str (gen/generate (gen/vector gen/small-integer) 20 seed))
+           (pr-str (gen/generate (gen/vector gen/small-integer 5) 20 seed))
+           (pr-str (gen/generate (gen/list gen/nat) 20 seed))
+           (pr-str (gen/generate (gen/tuple gen/nat gen/boolean gen/keyword) 20 seed))
+           (pr-str (sort (gen/generate (gen/set gen/nat) 20 seed)))
+           (pr-str (gen/generate (gen/elements [:a :b :c :d :e]) 20 seed))
+           (pr-str (gen/generate (gen/one-of [gen/nat gen/boolean gen/keyword]) 20 seed))
+           (pr-str (gen/generate (gen/such-that even? gen/nat) 20 seed))
+           (pr-str (gen/generate (gen/fmap #(* 2 %) gen/nat) 20 seed))
+           (pr-str (gen/generate (gen/bind gen/nat #(gen/vector (gen/return %) 3)) 20 seed))
+           (pr-str (gen/generate (gen/shuffle [1 2 3 4 5 6]) 20 seed))))
+
+;; A bigger, size-swept draw: 200-element vectors are ~200 splits each.
+(println "== 3b sweep ==")
+(doseq [size [5 20 50 100]]
+  (println size (pr-str (gen/generate (gen/vector gen/small-integer) size 99))))
+
+;; --------------------------------------------------------------------
+;; 4. `clojure.spec.alpha`'s generators, seeded through `s/gen`. This is
+;;    the whole point of the wave: a spec's generator is reproducible
+;;    across hosts.
+;; --------------------------------------------------------------------
+(s/def ::id nat-int?)
+(s/def ::name string?)
+(s/def ::tag keyword?)
+
+(println "== 4 seeded s/gen ==")
+(doseq [seed [3 11 42]]
+  (println seed
+           (pr-str (gen/generate (s/gen int?) 20 seed))
+           (pr-str (gen/generate (s/gen (s/tuple int? boolean? keyword?)) 20 seed))
+           (pr-str (gen/generate (s/gen (s/coll-of int? :count 5)) 20 seed))
+           (pr-str (sort (gen/generate (s/gen (s/coll-of ::tag :kind set? :min-count 1)) 20 seed)))
+           (pr-str (gen/generate (s/gen (s/or :i int? :k keyword?)) 20 seed))
+           (pr-str (gen/generate (s/gen (s/and int? even?)) 20 seed))
+           (pr-str (sort-by key (gen/generate (s/gen (s/keys :req-un [::id ::name])) 20 seed)))
+           (pr-str (gen/generate (s/gen (s/cat :n int? :k keyword?)) 20 seed))
+           (pr-str (gen/generate (s/gen (s/map-of ::tag ::id :count 3)) 20 seed))))
+
+;; --------------------------------------------------------------------
+;; 5. A DELIBERATELY FAILING `quick-check` with a fixed `:seed`. This
+;;    pins the search AND the shrink: the trial the property first fails
+;;    on, how deep the shrink went and what it shrank to are all
+;;    functions of the RNG stream.
+;; --------------------------------------------------------------------
+(defn qc-report
+  "The deterministic half of a quick-check result map -- everything
+  except the wall-clock keys (`:time-elapsed-ms`, `:failed-after-ms`),
+  which are not reproducible on any host."
+  [res]
+  [(:result res)
+   (:pass? res)
+   (:num-tests res)
+   (:seed res)
+   (:fail res)
+   (-> res :shrunk (select-keys [:total-nodes-visited :depth :result :smallest]))])
+
+(println "== 5 seeded quick-check ==")
+(doseq [seed [42 7 1234]]
+  (println seed
+           (pr-str (qc-report (chk/quick-check 100 (prop/for-all [n gen/nat] (< n 5)) :seed seed)))))
+
+(doseq [seed [42 7]]
+  (println seed
+           (pr-str (qc-report (chk/quick-check 200
+                                               (prop/for-all [v (gen/vector gen/small-integer)]
+                                                 (< (count v) 4))
+                                               :seed seed)))))
+
+;; A property that PASSES, to pin the num-tests/seed round trip too.
+(println "pass"
+         (pr-str (qc-report (chk/quick-check 500 (prop/for-all [n gen/nat] (>= n 0)) :seed 42))))

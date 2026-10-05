@@ -1,0 +1,5507 @@
+{
+"scenario": "i01_completions",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "clojure.string/blank?",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/capitalize",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/ends-with?",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/escape",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/includes?",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/index-of",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/join",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/last-index-of",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/lower-case",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/re-quote-replacement",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/replace",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/replace-first",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/reverse",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/split",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/split-lines",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/starts-with?",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/trim",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/trim-newline",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/triml",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/trimr",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure.string/upper-case",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "join",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "clojure.string/join",
+"ns": "clojure.string",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "*'",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "*1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*2",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*3",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*agent*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*allow-unresolved-vars*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*assert*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*clojure-version*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*command-line-args*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*compile-files*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*compile-path*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*compiler-options*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*data-readers*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*default-data-reader-fn*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*dyn-b05*",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*e",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*err*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*file*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*flush-on-newline*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*fn-loader*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*in*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*math-context*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*ns*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*out*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*print-dup*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*print-length*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*print-level*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*print-meta*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*print-namespace-maps*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*print-readably*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*read-eval*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*reader-resolver*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*repl*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*source-path*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*suppress-read*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*unchecked-math*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*use-context-classloader*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*verbose-defrecords*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "*warn-on-reflection*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "+",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "+'",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "-",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "-'",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "->",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "->>",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "->ArrayChunk",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "->Eduction",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "->Vec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "->VecNode",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "->VecSeq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "-cache-protocol-fn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "-reset-methods",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "..",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "/",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "<",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "<=",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "=",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "==",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": ">",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": ">=",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "EMPTY-NODE",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "Inst",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "NaN?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "PrintWriter-on",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "StackTraceElement->vec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "Throwable->map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "abc-b03",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "abs",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "accessor",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aclone",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "add-classpath",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "add-tap",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "add-watch",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "agent",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "agent-error",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "agent-errors",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aget",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "alength",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "alias",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "all-ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "alter",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "alter-meta!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "alter-var-root",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "amap",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "ancestors",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "and",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "any?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "apply",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "areduce",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "array-map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "as->",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "aset",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-boolean",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-byte",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-char",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-double",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-float",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-long",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "aset-short",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "assert",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "assoc",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "assoc!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "assoc-in",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "associative?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "atom",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "await",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "await-for",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "await1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bases",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bean",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bigdec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bigint",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "biginteger",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "binding",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "bit-and",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-and-not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-clear",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-flip",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-or",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-set",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-shift-left",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-shift-right",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-test",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bit-xor",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "boolean",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "boolean-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "boolean?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "booleans",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bound-fn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "bound-fn*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bound?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bounded-count",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "butlast",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "byte",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "byte-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bytes",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "bytes?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "case",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "cast",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "cat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "catch",
+"type": "special-form"
+},
+{
+"candidate": "char",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "char-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "char-escape-string",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "char-name-string",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "char?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chars",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk-append",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk-buffer",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk-cons",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk-first",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk-next",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunk-rest",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "chunked-seq?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "cl-a",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "class",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "class?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clear-agent-errors",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "clojure-version",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "coll?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "comment",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "commute",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "comp",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "comparator",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "compare",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "compare-and-set!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "compile",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "complement",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "completing",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "concat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "cond",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "cond->",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "cond->>",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "condp",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "conj",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "conj!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "cons",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "constantly",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "construct-proxy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "contains?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "count",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "counted?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "create-ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "create-struct",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "cycle",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "dec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "dec'",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "decimal?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "declare",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "dedupe",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "def",
+"type": "special-form"
+},
+{
+"candidate": "default-data-readers",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "definline",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "definterface",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defmacro",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defmethod",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defmulti",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defn-",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defonce",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defprotocol",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defrecord",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "defstruct",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "deftype",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "delay",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "delay?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "deliver",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "denominator",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "deref",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "derive",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "descendants",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "destructure",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "disj",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "disj!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "dissoc",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "dissoc!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "distinct",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "distinct?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "do",
+"type": "special-form"
+},
+{
+"candidate": "doall",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "dorun",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "doseq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "dosync",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "dotimes",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "doto",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "double",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "double-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "double?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "doubles",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "drop",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "drop-last",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "drop-while",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "eduction",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "empty",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "empty?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ensure",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ensure-reduced",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "enumeration-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "error-handler",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "error-mode",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "eval",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "even?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "every-pred",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "every?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ex-cause",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ex-data",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ex-info",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ex-message",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "extend",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "extend-protocol",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "extend-type",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "extenders",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "extends?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "f",
+"ns": "user",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "f-b03",
+"ns": "user",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "false",
+"type": "special-form"
+},
+{
+"candidate": "false?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "fff",
+"ns": "user",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ffirst",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "file-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "filter",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "filterv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "find",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "find-keyword",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "find-ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "find-protocol-impl",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "find-protocol-method",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "find-var",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "first",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "flatten",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "float",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "float-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "float?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "floats",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "flush",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "fn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "fn?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "fnext",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "fnil",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "for",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "force",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "format",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "frequencies",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "future",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "future-call",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "future-cancel",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "future-cancelled?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "future-done?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "future?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "gen-class",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "gen-interface",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "gensym",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "get",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "get-in",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "get-method",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "get-proxy-class",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "get-thread-bindings",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "get-validator",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "group-by",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "halt-when",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "hash",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "hash-combine",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "hash-map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "hash-ordered-coll",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "hash-set",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "hash-unordered-coll",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ident?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "identical?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "identity",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "if",
+"type": "special-form"
+},
+{
+"candidate": "if-let",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "if-not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "if-some",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "ifn?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "import",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "in-ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "inc",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "inc'",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "indexed?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "infinite?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "init-proxy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "inst-ms",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "inst-ms*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "inst?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "instance?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "int-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "int?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "integer?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "interleave",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "intern",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "interpose",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "into",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "into-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ints",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "io!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "isa?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "iterate",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "iteration",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "iterator-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "juxt",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "keep",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "keep-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "keys",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "keyword",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "keyword?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "last",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "lazy-cat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "lazy-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "let",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "letfn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "lfv",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "lfw",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "line-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "list",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "list*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "list?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "load",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "load-file",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "load-reader",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "load-string",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "loaded-libs",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "locking",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "long",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "long-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "longs",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "loop",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "m-b03",
+"ns": "user",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "memfn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "memoize",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "merge",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "merge-with",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "meta",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "method-sig",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "methods",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "min",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "min-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mix-collection-hash",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mod",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "monitor-enter",
+"type": "special-form"
+},
+{
+"candidate": "monitor-exit",
+"type": "special-form"
+},
+{
+"candidate": "munge",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "name",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "namespace",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "namespace-munge",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nat-int?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "neg-int?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "neg?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "new",
+"type": "special-form"
+},
+{
+"candidate": "newline",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "next",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nfirst",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nil",
+"type": "special-form"
+},
+{
+"candidate": "nil?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nnext",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nosess",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "not-any?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "not-empty",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "not-every?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "not=",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "ns-aliases",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-imports",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-interns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-name",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-publics",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-refers",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-resolve",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-unalias",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ns-unmap",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nth",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nthnext",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "nthrest",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "num",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "number?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "numerator",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "object-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "odd?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "or",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "parents",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "parse-boolean",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "parse-double",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "parse-long",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "parse-uuid",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "partial",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "partition",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "partition-all",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "partition-by",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "partitionv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "partitionv-all",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pcalls",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "peek",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "persistent!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pmap",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pop",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pop!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pop-thread-bindings",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pos-int?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pos?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pr",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pr-agent",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pr-str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "prefer-method",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "prefers",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "primitives-classnames",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "print",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "print-ctor",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "print-dup",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "print-method",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "print-simple",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "print-str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "printf",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "println",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "println-str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "prn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "prn-str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "promise",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "proxy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "proxy-call-with-super",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "proxy-mappings",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "proxy-name",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "proxy-super",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "push-thread-bindings",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "pv1",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pv2",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pv3",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pv4",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pv5",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pv6",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pv7",
+"ns": "user",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "pvalues",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "qualified-ident?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "qualified-keyword?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "qualified-symbol?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "quot",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "quote",
+"type": "special-form"
+},
+{
+"candidate": "rand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rand-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rand-nth",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "random-sample",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "random-uuid",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "range",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ratio?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rational?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rationalize",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "re-find",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "re-groups",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "re-matcher",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "re-matches",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "re-pattern",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "re-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "read",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "read+string",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "read-line",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "read-string",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reader-conditional",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reader-conditional?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "realized?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "record?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "recur",
+"type": "special-form"
+},
+{
+"candidate": "reduce",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reduce-kv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reduced",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reduced?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reductions",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ref",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ref-history-count",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ref-max-history",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ref-min-history",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "ref-set",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "refer",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "refer-clojure",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "reify",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "release-pending-sends",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rem",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "remove",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "remove-all-methods",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "remove-method",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "remove-ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "remove-tap",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "remove-watch",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "repeat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "repeatedly",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "replace",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "replicate",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "req!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "require",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "requiring-resolve",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reset!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reset-meta!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reset-vals!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "resolve",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rest",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "restart-agent",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "resultset-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reverse",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "reversible?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rseq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "rsubseq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "run!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "satisfies?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "second",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "select-keys",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "send",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "send-off",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "send-via",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "seq-to-map-for-destructuring",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "seq?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "seqable?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "seque",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sequence",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sequential?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set!",
+"type": "special-form"
+},
+{
+"candidate": "set-agent-send-executor!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set-agent-send-off-executor!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set-error-handler!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set-error-mode!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set-validator!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "set?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "short",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "short-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "shorts",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "shuffle",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "shutdown-agents",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "simple-ident?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "simple-keyword?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "simple-symbol?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "slurp",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "some",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "some->",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "some->>",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "some-fn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "some-vals",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "some?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sort",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sort-by",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sorted-map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sorted-map-by",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sorted-set",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sorted-set-by",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sorted?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "special-symbol?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "spit",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "split-at",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "split-with",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "splitv-at",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "stream-into!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "stream-reduce!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "stream-seq!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "stream-transduce!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "string?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "struct",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "struct-map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "subs",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "subseq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "subvec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "supers",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "swap!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "swap-vals!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "symbol",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "symbol?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "sync",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "tagged-literal",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "tagged-literal?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "take",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "take-last",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "take-nth",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "take-while",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "tap>",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "test",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "the-ns",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "thread-bound?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "throw",
+"type": "special-form"
+},
+{
+"candidate": "time",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "to-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "to-array-2d",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "trampoline",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "transduce",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "transient",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "tree-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "true",
+"type": "special-form"
+},
+{
+"candidate": "true?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "try",
+"type": "special-form"
+},
+{
+"candidate": "type",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-add",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-add-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-byte",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-char",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-dec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-dec-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-divide-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-double",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-float",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-inc",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-inc-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-long",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-multiply",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-multiply-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-negate",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-negate-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-remainder-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-short",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-subtract",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unchecked-subtract-int",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "underive",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unquote",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "unquote-splicing",
+"ns": "clojure.core",
+"priority": 0,
+"type": "var"
+},
+{
+"candidate": "unreduced",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "unsigned-bit-shift-right",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "update",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "update-in",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "update-keys",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "update-proxy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "update-vals",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "uri?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "use",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "uuid?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "val",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vals",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "var",
+"type": "special-form"
+},
+{
+"candidate": "var-get",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "var-set",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "var?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vary-meta",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vec",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vector",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vector-of",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vector?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "volatile!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "volatile?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vreset!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "vswap!",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-first",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-let",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-some",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "while",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-bindings",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-bindings*",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "with-in-str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-loading-context",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-local-vars",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-meta",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "with-open",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-out-str",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-precision",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-redefs",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "with-redefs-fn",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "xml-seq",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "zero?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "zipmap",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "zz",
+"ns": "user",
+"priority": 0,
+"type": "var"
+}
+],
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"message": "Cannot invoke \"Object.toString()\" because \"s\" is null",
+"session": "<uuid:1>",
+"status": [
+"done",
+"completions-error",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [],
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [],
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "System",
+"package": "java.lang",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "com.sun.org.apache.xml.internal.serializer.utils.SystemIDResolver",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "com.sun.org.apache.xml.internal.utils.SystemIDResolver",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "com.sun.source.doctree.SystemPropertyTree",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "com.sun.tools.jnativescan.SystemClassResolver",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.SystemColor",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.SystemTray",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.datatransfer.SystemFlavorMap",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.desktop.SystemEventListener",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.desktop.SystemSleepEvent",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.desktop.SystemSleepListener",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.awt.peer.SystemTrayPeer",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.lang.System",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "javax.sound.midi.SysexMessage",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "javax.xml.catalog.SystemEntry",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "javax.xml.catalog.SystemSuffix",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.foreign.SystemLookup",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.foreign.abi.x64.sysv.SysVx64Linker",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.jrtfs.SystemImage",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.module.SystemModuleFinders",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.module.SystemModules",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.module.SystemModulesMap",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.org.jline.reader.impl.completer.SystemCompleter",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.org.jline.terminal.spi.SystemStream",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.platform.SystemMetrics",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.internal.util.SystemProps",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.javadoc.internal.doclets.formats.html.taglets.SystemPropertyTaglet",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.tools.jlink.internal.plugins.SystemModulesPlugin",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "jdk.vm.ci.services.SystemProperties",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "sun.jvm.hotspot.memory.SystemDictionary",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "sun.jvm.hotspot.tools.SysPropsDumper",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "sun.jvm.hotspot.ui.SysPropsPanel",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "sun.jvm.hotspot.utilities.SystemDictionaryHelper",
+"priority": 0,
+"type": "class"
+}
+],
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "System/getLogger",
+"priority": 0,
+"type": "static-method"
+},
+{
+"candidate": "System/getProperties",
+"priority": 0,
+"type": "static-method"
+},
+{
+"candidate": "System/getProperty",
+"priority": 0,
+"type": "static-method"
+},
+{
+"candidate": "System/getSecurityManager",
+"priority": 0,
+"type": "static-method"
+},
+{
+"candidate": "System/getenv",
+"priority": 0,
+"type": "static-method"
+}
+],
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "java.io.File",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileCleanable",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileDescriptor",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileFilter",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileInputStream",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileNotFoundException",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileOutputStream",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FilePermission",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FilePermissionCollection",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileReader",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileSystem",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FileWriter",
+"priority": 0,
+"type": "class"
+},
+{
+"candidate": "java.io.FilenameFilter",
+"priority": 0,
+"type": "class"
+}
+],
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": ":keys",
+"type": "keyword"
+},
+{
+"candidate": ":keys!",
+"type": "keyword"
+},
+{
+"candidate": ":keys-pred",
+"type": "keyword"
+},
+{
+"candidate": ":keyword",
+"type": "keyword"
+}
+],
+"id": "14",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "15",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "clojure.string",
+"file": "clojure/string.clj",
+"priority": 0,
+"type": "namespace"
+}
+],
+"id": "16",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "17",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/my-comp-var"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "my-comp-var",
+"ns": "user",
+"priority": 0,
+"type": "var"
+}
+],
+"id": "19",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "20",
+"ns": "comp.ns",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "20",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "s/union",
+"ns": "clojure.set",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "21",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [],
+"id": "22",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "when-first",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-let",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "when-some",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+}
+],
+"id": "23",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "if",
+"type": "special-form"
+},
+{
+"candidate": "if-let",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "if-not",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "if-some",
+"ns": "clojure.core",
+"priority": 0,
+"type": "macro"
+},
+{
+"candidate": "ifn?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "24",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"completions": [
+{
+"candidate": "macroexpand",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "macroexpand-1",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-array",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "make-hierarchy",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-entry?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map-indexed",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "map?",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapcat",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "mapv",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+},
+{
+"candidate": "max-key",
+"ns": "clojure.core",
+"priority": 0,
+"type": "function"
+}
+],
+"id": "25",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "26",
+"op": "complete",
+"session": "<uuid:1>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+}
+]
+}

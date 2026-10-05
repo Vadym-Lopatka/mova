@@ -1,0 +1,54 @@
+OK	"abc"
+OK	"a1b"
+OK	"123"
+OK	""
+OK	""
+OK	"xy"
+OK	":a"
+OK	":ns/a"
+OK	"sym"
+OK	"truefalse"
+OK	"1.5"
+OK	"\"hello\""
+OK	"[1 2 3]"
+OK	"{:a 1}"
+OK	":a"
+OK	"sym"
+OK	"nil"
+OK	"\"with \\\"quotes\\\"\""
+OK	"\"tab\\tnewline\\n\""
+OK	"foo"
+OK	"foo"
+OK	"sym"
+OK	"already-a-string"
+OK	:foo
+OK	:ns/foo
+OK	true
+OK	foo
+OK	ns/foo
+OK	true
+OK	"hello"
+OK	"world"
+OK	""
+OK	""
+OK	"a,b,c"
+OK	"abc"
+OK	"1-2-3"
+OK	"HELLO"
+OK	"hello"
+OK	"padded"
+OK	true
+OK	false
+OK	true
+OK	false
+OK	true
+OK	false
+OK	"bonono"
+OK	"hello there"
+OK	5
+OK	0
+OK	"p,q"
+OK	"3"
+OK	true
+OK	"HELLO"
+OK	"a-b"

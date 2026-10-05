@@ -1,0 +1,94 @@
+{
+"scenario": "g02_stdin_eof",
+"doc": "empty stdin closes *in* for that session",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"need-input"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "\"\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (IOException) at java.io.PushbackReader/ensureOpen (PushbackReader.java:74).\nStream closed\n",
+"id": "14",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.io.IOException",
+"id": "14",
+"root-ex": "class java.io.IOException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

@@ -1,0 +1,131 @@
+{
+"scenario": "d04_print_keys",
+"doc": "::keys sent from a client; hung evals get no reply (timeouts recorded)",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "nil",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "nil",
+"session": "<uuid:1>",
+"status": [
+"done"
+],
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "nil",
+"session": "<uuid:2>",
+"value": {
+"a": 1
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "nil",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:3>",
+"value": {
+"a": 1
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:3>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:4>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:4>",
+"status": [
+"done"
+],
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"$timeout": "waiting done on id 5"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "nil",
+"out": "1",
+"session": "<uuid:5>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "nil",
+"session": "<uuid:5>",
+"value": []
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "nil",
+"session": "<uuid:5>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"$timeout": "waiting done on id 7"
+}
+}
+]
+}

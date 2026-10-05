@@ -1,0 +1,99 @@
+{
+ "name": "d04_print_keys",
+ "doc": "::keys sent from a client; hung evals get no reply (timeouts recorded)",
+ "sessions": [
+  "s1",
+  "s2",
+  "s3",
+  "s4",
+  "s5",
+  "s6",
+  "s7"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/keys": [
+     "value",
+     "ns"
+    ]
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "{:a 1}",
+    "session": "$s2",
+    "nrepl.middleware.print/keys": [
+     "ns"
+    ]
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "{:a 1}",
+    "session": "$s3",
+    "nrepl.middleware.print/keys": []
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "{:a 1}",
+    "session": "$s4",
+    "nrepl.middleware.print/keys": [
+     "value"
+    ]
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "{:a 1}",
+    "session": "$s5",
+    "nrepl.middleware.print/keys": "value"
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(print 1)",
+    "session": "$s6",
+    "nrepl.middleware.print/keys": [
+     "ns"
+    ]
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "{:a 1}",
+    "session": "$s7",
+    "nrepl.middleware.print/keys": [
+     "value",
+     "ns"
+    ],
+    "nrepl.middleware.print/print": "clojure.core/prn"
+   },
+   "timeout": 3
+  }
+ ],
+ "settle": 1.0
+}

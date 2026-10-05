@@ -1,0 +1,14 @@
+;; procs/sink.mova -- the pipeline's exit point.
+;;
+;; `out-ch` defined here (not in topology.mova, not in main.rs) is this
+;; proc's CONTRACT with the host: whatever the host does to read results
+;; back out of the running flow, it reads them from this channel, by this
+;; name. topology.mova only wires :plugin-stage's :out into :sink's :in --
+;; it never needs to know a channel is involved at all.
+
+(def out-ch (chan 64))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [state _cid msg] (>!! out-ch msg) [state {}])}))

@@ -1,0 +1,137 @@
+{
+ "name": "c02_output_big",
+ "doc": "chunk boundaries (1024-byte buffer) and ordering vs value",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(print (apply str (repeat 5000 \"a\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(println (apply str (repeat 5000 \"b\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(dotimes [i 3000] (println i))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(print (apply str (repeat 1024 \"c\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(print (apply str (repeat 1025 \"d\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(print (apply str (repeat 1023 \"e\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(dotimes [i 300] (print \"ab\"))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(dotimes [i 600] (print \"abc\"))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(print (apply str (repeat 3000 \"\u65e5\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(print (apply str (repeat 1500 \"\u00e9\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "(binding [*out* *err*] (print (apply str (repeat 3000 \"f\"))))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "(dotimes [i 2000] (print \"x\") (when (zero? (mod i 500)) (flush)))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(print (apply str (repeat 2048 \"g\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(print (apply str (repeat 2047 \"h\")))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "(print (apply str (repeat 1023 \"i\"))) (print \"jj\")",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "16",
+    "code": "(dotimes [i 3000] (print i \" \"))",
+    "session": "$s1"
+   }
+  }
+ ]
+}

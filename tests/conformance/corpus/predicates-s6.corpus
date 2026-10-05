@@ -1,0 +1,29 @@
+;; predicates-s6.corpus -- S6 (assert/namespace/uuid batch): the predicate
+;; family from `tests/clojure-suite/vendor/predicates.clj`'s own
+;; `pred-val-table` truth table that wasn't already covered by the
+;; pre-existing `predicates.corpus` -- `boolean?`, `ident?`, `inst?` (see
+;; `uuid.corpus`/`uri.corpus` for `uuid?`/`uri?`, and the pre-existing
+;; `predicates.corpus` for `int?`/`pos-int?`/`neg-int?`/`nat-int?`/
+;; `double?`/`indexed?`/`seqable?`/`decimal?`/`bytes?`, all of which
+;; already existed in `predicates.rs` before this task). A NEW file
+;; (rather than appending to the existing `predicates.corpus`) per this
+;; task's file-ownership rule: only NEW corpus files, never edits to ones
+;; a parallel agent might also be touching.
+(boolean? true)
+(boolean? false)
+(boolean? 1)
+(boolean? nil)
+(boolean? "true")
+(ident? :foo)
+(ident? :a/b)
+(ident? 'foo)
+(ident? 'a/b)
+(ident? "foo")
+(ident? 5)
+(ident? nil)
+(ident? [])
+(inst? (java.util.Date.))
+(inst? (java.util.Date. 0))
+(inst? 1)
+(inst? nil)
+(inst? "2020-01-01")

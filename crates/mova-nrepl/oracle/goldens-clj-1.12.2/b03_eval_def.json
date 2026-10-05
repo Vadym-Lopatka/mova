@@ -1,0 +1,139 @@
+{
+"scenario": "b03_eval_def",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/abc-b03"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "42"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "41"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/f-b03"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "8"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/m-b03"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

@@ -1,0 +1,4 @@
+OK	clojure.lang.PersistentArrayMap
+ERR	IllegalAccessError
+ERR	ClassCastException
+ERR	ClassCastException

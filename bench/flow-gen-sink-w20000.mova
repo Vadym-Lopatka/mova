@@ -1,0 +1,93 @@
+;; flow-gen-sink-w2000.mova -- same gen->sink topology as flow-gen-sink.mova
+;; (future-thread producer -> external in-port -> counting sink), but the
+;; sink burns a jank-based async benchmark's WORK=2000-iteration LCG loop per message, using
+;; the IDENTICAL multiplier/increment constants as
+;; the benchmark's bench_app.jank.template's `burn-portable`:
+;;   acc' = (acc * 6364136223846793005) + 1442695040888963407
+;; N and WORK match jank's W=2000 scenario exactly (run_bench_v3.sh's
+;; SCENARIOS: "2000 50000 5000" -- N=50000, WORK=2000; WARMUP not applied
+;; here, see flow-gen-sink.mova's header note).
+;;
+;; CAVEAT (documented, not hidden -- see bench/RESULTS-vs-jank.md): jank's
+;; burn-portable wraps at i64 exactly like the C++/JVM/bb reference loops
+;; (verified bit-identical there). mova's `+`/`*` have no int64-wraparound
+;; or bigint path (ARCHITECTURE.md's documented deviation) -- they silently
+;; promote to f64 on overflow, and this multiplier overflows i64 on the very
+;; first iteration. So from iteration 2 onward this loop is IEEE-754 double
+;; arithmetic, not wrapping i64 arithmetic: the constants and the iteration
+;; count (one multiply + one add per iteration, same op shape) are
+;; identical to jank's, but the numeric path diverges. This measures
+;; comparable interpreter arithmetic-dispatch overhead, not a bit-identical
+;; checksum.
+;;
+;;   ./target/release/mova bench/flow-gen-sink-w2000.mova
+
+(def N 5000)
+(def WORK 20000)
+(def done (promise))
+
+;; NOTE: patched for bench measurement -- `acc` seeded as `(double seed)`
+;; instead of the raw int `seed`. mova's `+`/`*` were measured (this
+;; session) to now THROW a hard "long overflow" arithmetic error on i64
+;; overflow rather than silently promoting to f64 as this file's own
+;; header CAVEAT above describes and as the "IEEE-754 double arithmetic
+;; from iteration 2 onward" intent requires -- a numeric-semantics change
+;; unrelated to the doorbell-wake fix (reproduced identically on both
+;; pre-fix and post-fix binaries). Without this patch, `burn` throws on
+;; every single message, flow's transform-error handling silently
+;; swallows it and keeps the OLD state (see tests/flow_test.rs's
+;; `transform_error_emits_shaped_map_keeps_state_and_continues`), so `c`
+;; never reaches N and `done` never fires -- a deterministic hang with
+;; zero connection to the flow scheduler or Doorbell. Seeding as a double
+;; keeps the same op shape/iteration count (this file's stated measurement
+;; target) while restoring the float path the header already documents.
+(defn burn [k seed]
+  (loop [i 0 acc (double seed)]
+    (if (< i k)
+      (recur (inc i) (+ (* acc 6364136223846793005) 1442695040888963407))
+      acc)))
+
+(def gen
+  (flow/map->step
+   {:describe (fn [] {:outs {:out {}}})
+    :init (fn [{:keys [n]}]
+            (let [tick (chan 1024)
+                  running (atom true)]
+              (future
+                (loop [i 0]
+                  (when (and @running (< i n))
+                    (>!! tick i)
+                    (recur (inc i)))))
+              {:running running
+               :tick tick
+               :clojure.core.async.flow/in-ports {:tick tick}}))
+    :transition (fn [s t]
+                  (when (= t :clojure.core.async.flow/stop)
+                    (reset! (:running s) false)
+                    (close! (:tick s)))
+                  s)
+    :transform (fn [s _ msg] [s {:out [msg]}])}))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}}})
+    :init (fn [_] {:c 0})
+    :transform (fn [{:keys [c]} _ msg]
+                 (burn WORK msg)
+                 (let [c2 (inc c)]
+                   (when (= c2 N) (deliver done c2))
+                   [{:c c2} {}]))}))
+
+(def fl (flow/create-flow
+         {:procs {:gen {:proc (flow/process gen) :args {:n N}}
+                  :sink {:proc (flow/process sink)}}
+          :conns [[[:gen :out] [:sink :in]]]}))
+
+(def t0 (time-ms))
+(flow/start fl)
+(flow/resume fl)
+(deref done)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-gen-sink-w20000" N elapsed rate)
+(flow/stop fl)

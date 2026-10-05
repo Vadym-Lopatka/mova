@@ -1,0 +1,186 @@
+;; clojure.data workalike (wave-C small sweep item 2). Ported from real
+;; Clojure 1.13.0-alpha6's clojure/data.clj (.oracle/clojure-src/src/clj/
+;; clojure/data.clj), but NOT byte-identical -- upstream dispatches
+;; `equality-partition`/`diff-similar` via `extend-protocol` on
+;; `java.util.Set`/`java.util.List`/`java.util.Map`, and mova's protocol
+;; dispatch is EXACT-CLASS-only (src/types.rs's `class_key`, no interface
+;; ancestor walk) -- a `Value::Set` reports its own concrete class
+;; ("clojure.lang.PersistentHashSet"), never "java.util.Set", so an
+;; `extend-protocol` on the java.util interface would silently never fire
+;; for mova's own collections. Measured 2026-08-21: vendoring the file
+;; byte-identical gets as far as "Unable to resolve symbol: java.util.Set"
+;; (the class doesn't even exist as a resolvable symbol), and adding it as
+;; a inert class row would make the symbol resolve while the dispatch
+;; still silently missed -- worse than a loud error. Per the owner's
+;; interop directive (interop targets Rust types, java.* is a veneer,
+;; never JVM emulation deeper than measurably demanded), this companion
+;; reimplements the same OBSERVABLE algorithm with plain `cond` branching
+;; on mova's own predicates instead of protocol-per-interface dispatch --
+;; `EqualityPartition`/`Diff` are themselves documented upstream as
+;; "Implementation detail. Subject to change," so nothing here is public
+;; API being dropped.
+;;
+;; `(diff (HashSet. [1 2]) (HashSet. [2 3]))` -- vendor/data.clj's ONE
+;; `are` row that constructs a `java.util.HashSet` -- used to be an
+;; out-of-scope "Known gap" here (mova had no `java.util.HashSet`
+;; constructor at all). Both halves have since closed: C10 added the
+;; constructor (accepting any already-realized collection), and W3f
+;; widened it further to accept ANY seqable (a plain vector literal, as
+;; this exact row passes) via `builtins::collections::materialize`; this
+;; file's own `equality-partition` (below) now also recognizes a
+;; `java.util.HashSet` receiver as `:set` (`host-hashset?`) so `diff`
+;; treats it as one instead of an opaque atom. Every row in this file
+;; (17 of 17) is now expected to conform.
+;;
+;; THIS IS TEST INFRASTRUCTURE, NOT PART OF THE SHIPPED LANGUAGE -- same
+;; status as mova-edn-companion.mova/mova-stacktrace-companion.mova (see
+;; those files' own headers), and wired in by tools/clojure-suite-run.bb
+;; the same way: `materialize-companion-clojure-data` writes this source,
+;; verbatim, as `(ns clojure.data)` plus this body, to
+;; `<scratch>/clojure/data.mova` -- a real, `require`-able module on
+;; mova's module path -- so `data.clj`'s `(:use clojure.data clojure.
+;; test)` resolves instead of failing with "could not locate namespace
+;; clojure.data". Not spliced into anything (no `clojure.test` shim names
+;; referenced) -- plain self-contained module, same shape as the other
+;; two companions. No `(:require [clojure.set ...])` needed -- `set/...`
+;; resolves as a pre-registered short alias for `clojure.set` globally
+;; (measured: `(set/union #{1} #{2})` works with no require in a fresh
+;; process), same as every other vendored/companion file in this suite
+;; that reaches for `clojure.set`.
+
+(declare diff)
+
+(defn- java-array?
+  "mova has no built-in `array?` (neither does real Clojure -- data.clj's
+  own Object arm gets there via `.getClass .isArray` reflection instead,
+  and mova's `(class an-array)` deliberately prints a FRIENDLY
+  `<component>/<dims>` name rather than the JVM's bracket signature --
+  see `types::array_class_print_name`'s doc -- so a string-prefix check
+  on `(class x)` can't distinguish it either). `alength` is `Value::
+  Array`-exact (src/builtins/arrays.rs's `as_array` throws `expected an
+  array` on anything else), so probing it through `try` is a precise,
+  zero-new-builtin array test."
+  [x]
+  (try (do (alength x) true) (catch _ false)))
+
+(defn- atom-diff
+  "Internal helper for diff."
+  [a b]
+  (if (= a b) [nil nil a] [a b nil]))
+
+;; for big things a sparse vector class would be better
+(defn- vectorize
+  "Convert an associative-by-numeric-index collection into
+   an equivalent vector, with nil for any missing keys"
+  [m]
+  (when (seq m)
+    (reduce
+     (fn [result [k v]] (assoc result k v))
+     (vec (repeat (apply max (keys m)) nil))
+     m)))
+
+(defn- diff-associative-key
+  "Diff associative things a and b, comparing only the key k."
+  [a b k]
+  (let [va (get a k)
+        vb (get b k)
+        [a* b* ab] (diff va vb)
+        in-a (contains? a k)
+        in-b (contains? b k)
+        same (and in-a in-b
+                  (or (not (nil? ab))
+                      (and (nil? va) (nil? vb))))]
+    [(when (and in-a (or (not (nil? a*)) (not same))) {k a*})
+     (when (and in-b (or (not (nil? b*)) (not same))) {k b*})
+     (when same {k ab})]))
+
+(defn- diff-associative
+  "Diff associative things a and b, comparing only keys in ks."
+  [a b ks]
+  (reduce
+   (fn [diff1 diff2]
+     (doall (map merge diff1 diff2)))
+   [nil nil nil]
+   (map
+    (partial diff-associative-key a b)
+    ks)))
+
+(defn- diff-sequential
+  [a b]
+  (vec (map vectorize (diff-associative
+                        (if (vector? a) a (vec a))
+                        (if (vector? b) b (vec b))
+                        (range (max (count a) (count b)))))))
+
+(defn- as-set-value
+  [s]
+  (if (set? s) s (into #{} s)))
+
+;; W3f (small-tail sweep): the "Known gap" this file's own header used to
+;; document -- `(diff (HashSet. [1 2]) (HashSet. [2 3]))` -- was framed
+;; around "mova has no `java.util.HashSet` constructor", which closed
+;; separately (C10). The REMAINING half, closed here: `set?` correctly
+;; stays `false` for a `java.util.HashSet` (it isn't `IPersistentSet` on
+;; the real JVM either, so widening `set?` itself would be a wrong,
+;; over-general fix), but THIS companion's own `equality-partition` --
+;; already a deliberate reimplementation of upstream's `java.util.Set`/
+;; `Map`/`List` protocol dispatch using mova's own predicates (see this
+;; file's header) -- can recognize the one additional host-collection
+;; shape this suite's own test data actually constructs directly, same
+;; spirit as the existing `java-array?` arm just below.
+(defn- host-hashset? [x] (instance? java.util.HashSet x))
+
+(defn- equality-partition
+  [x]
+  (cond
+    (nil? x) :atom
+    (or (set? x) (host-hashset? x)) :set
+    (or (sequential? x) (java-array? x)) :sequential
+    (map? x) :map
+    :else :atom))
+
+(defn- diff-similar
+  [a b part]
+  (case part
+    :set (let [aval (as-set-value a)
+               bval (as-set-value b)]
+           [(not-empty (set/difference aval bval))
+            (not-empty (set/difference bval aval))
+            (not-empty (set/intersection aval bval))])
+    :sequential (diff-sequential a b)
+    ;; upstream calls `(set/union (keys a) (keys b))` here; real Clojure's
+    ;; own 2-arg `union` is NOT actually a set union when given non-set
+    ;; seqs (`(keys m)` returns a seq, not a set) -- it degrades to
+    ;; `(reduce conj s2 s1)`, which for two seqs produces a plain
+    ;; possibly-DUPLICATED list, not a deduplicated set (measured on the
+    ;; oracle: `(set/union (keys {:a 1 :b 2}) (keys {:b 3 :c 4}))` =>
+    ;; `(:c :b :a :b)`, `:b` twice). mova's `clojure.set/union` is
+    ;; stricter -- it requires actual sets and throws otherwise -- so
+    ;; this uses `into (set ...) ...` to get an honestly-deduplicated key
+    ;; set directly; `diff-associative-key` is idempotent per key
+    ;; (re-visiting a key contributes the identical diff again), so
+    ;; de-duplicating here changes nothing observable, only skips
+    ;; redundant work upstream's accidental duplication would have done.
+    :map (diff-associative a b (into (set (keys a)) (keys b)))
+    (atom-diff a b)))
+
+(defn diff
+  "Recursively compares a and b, returning a tuple of
+  [things-only-in-a things-only-in-b things-in-both].
+  Comparison rules:
+
+  * For equal a and b, return [nil nil a].
+  * Maps are subdiffed where keys match and values differ.
+  * Sets are never subdiffed.
+  * All sequential things are treated as associative collections
+    by their indexes, with results returned as vectors.
+  * Everything else (including strings!) is treated as
+    an atom and compared for equality."
+  [a b]
+  (if (= a b)
+    [nil nil a]
+    (let [pa (equality-partition a)
+          pb (equality-partition b)]
+      (if (= pa pb)
+        (diff-similar a b pa)
+        (atom-diff a b)))))

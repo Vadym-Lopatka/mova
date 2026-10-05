@@ -1,0 +1,139 @@
+OK	{:a 1, :b 2, :c 3}
+OK	{3 :c, 2 :b, 1 :a}
+OK	{1 :a, 2 :b, 3 :c}
+OK	([1 :a] [2 :b] [3 :c])
+OK	(1 2 3)
+OK	(:a :b :c)
+OK	[1 :a]
+OK	[3 :c]
+OK	3
+OK	true
+OK	:b
+OK	:not-found
+OK	{1 :a, 3 :c}
+OK	clojure.lang.PersistentTreeMap
+OK	"{1 :a, 2 :b}"
+OK	"{1 :a}"
+OK	:a
+OK	[1 :a]
+OK	nil
+OK	{1 :b}
+OK	(1)
+OK	true
+OK	true
+OK	true
+OK	true
+OK	#{1 2 3}
+OK	#{3 2 1}
+OK	true
+OK	false
+OK	true
+OK	false
+OK	false
+OK	(1 2 3 4 5)
+OK	1
+OK	3
+OK	#{1 3}
+OK	(1 3)
+OK	clojure.lang.PersistentTreeSet
+OK	"#{1 2 3}"
+OK	"#{2 1}"
+OK	true
+OK	#{1}
+OK	(1)
+OK	true
+OK	true
+OK	(1 2 3)
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+OK	#{[]}
+OK	#{nil}
+OK	#{nil 1}
+OK	#{nil 2}
+OK	(nil 1 2)
+OK	#{nil}
+OK	#{#{}}
+OK	{3 :c}
+OK	([1 :a] [3 :c])
+OK	#{2 4}
+OK	(2 4)
+OK	{}
+OK	([7 :g] [3 :c] [1 :a])
+OK	([:b 2] [:a 1])
+OK	(3 2 1)
+OK	(3 2 1)
+OK	([:b 2] [:c 3])
+OK	(3 4 5)
+OK	([:b 2] [:a 1])
+OK	([2 :b] [3 :c])
+OK	([3 :c] [2 :b])
+OK	(3 4)
+OK	nil
+OK	[0 1 2 3]
+OK	[[1 2] [3 4]]
+OK	[1 2 3]
+OK	"[1 2 3]"
+OK	clojure.core.Vec
+OK	true
+OK	true
+OK	true
+OK	3
+OK	[1 2 3]
+OK	true
+OK	[]
+OK	[]
+OK	[]
+OK	[]
+OK	[]
+OK	[]
+OK	[]
+OK	[100]
+OK	[-100]
+ERR	IllegalArgumentException
+ERR	IllegalArgumentException
+OK	[1]
+OK	[\A]
+OK	"[\\A]"
+OK	[1 2 3]
+OK	[97 98 99]
+ERR	NullPointerException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	IllegalArgumentException
+ERR	IllegalArgumentException
+OK	[1 99 3]
+OK	clojure.core.Vec
+OK	[1 1 3]
+OK	2
+OK	2
+OK	:not-found
+OK	3
+OK	[1 2]
+OK	clojure.core.Vec
+OK	[2 3]
+OK	15
+OK	(1 2 3)
+OK	(3 2 1)
+OK	(5 4 3 2 1 0)
+OK	[1 2 3]
+OK	[1 2 3]
+OK	clojure.core.Vec
+OK	[]
+OK	clojure.core.Vec
+OK	[1]
+ERR	ClassCastException
+OK	1
+OK	:a
+OK	-1
+OK	-1
+OK	-1
+OK	-1

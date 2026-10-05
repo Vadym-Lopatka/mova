@@ -1,0 +1,18 @@
+;; L5/W3 fence #2 — `sleep-ms` is VIRTUAL time in sim.
+;;
+;; Run under the boundary contract (`sim_probe file`), so the whole program is
+;; the body of ONE root task. `sleep-ms` from a task in sim is no longer a
+;; `thread::sleep`: it arms a one-shot chan on the shared timer service and
+;; takes from it (`park_tick`'s shape), so the task PARKS, the shard goes
+;; idle, and the advance rule jumps virtual time onto the deadline.
+;;
+;; Two 30-second sleeps, deliberately SEQUENTIAL (the root sleeps first, and
+;; only then spawns the worker) so the expected total is unambiguous: 60 000
+;; virtual milliseconds. Both shapes are covered — one sleep in the root task,
+;; one in an ordinary `go` block. The wall clock must barely move; in real
+;; mode this same program takes a full minute, which is why the test driving
+;; this file only runs it under sim.
+(do
+  (sleep-ms 30000)
+  (let [worker (go (do (sleep-ms 30000) :worker-slept))]
+    [:root-slept (<!! worker)]))

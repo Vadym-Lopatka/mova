@@ -1,0 +1,10 @@
+ERR	{:message "long overflow", :type :error/arithmetic}
+ERR	{:message "long overflow", :type :error/arithmetic}
+ERR	{:message "long overflow", :type :error/arithmetic}
+ERR	{:message "long overflow", :type :error/arithmetic}
+ERR	{:message "long overflow", :type :error/arithmetic}
+ERR	{:message "Value out of range for byte: 130", :type :error/type}
+ERR	{:message "Value out of range for short: 40000", :type :error/type}
+OK	5.0E-324
+OK	5.0E-324
+OK	3.4028234663852886E38

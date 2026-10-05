@@ -1,0 +1,70 @@
+;;RUNS 5
+;;DIVERGENT
+;; 11-multi-input-scheduling: a proc with two data in-ports :a/:b. Both
+;; ports are FULLY populated (via `deref`'d flow/inject calls, per the
+;; deref-as-ordering-recipe from scenario 03) BEFORE `flow/resume` is
+;; called -- while the proc is still paused, nothing is read from either
+;; port, so this eliminates every race: at resume time port :a already
+;; holds its whole flood (buf-or-n sized to fit it, so the injecting
+;; thread never blocks) plus a trailing :a-marker, and port :b already
+;; holds its single :b-msg. From that point on both engines' read
+;; decisions are pure functions of already-buffered state.
+;;
+;; This is EXPECTED DIVERGENT, by design:
+;; - Gold (impl.clj:288-295): the running-state read loop takes
+;;   `(async/alts!! read-chans :priority true)` over a vector built by
+;;   `reduce-kv` iterating the proc's `ins` map in ITS insertion order
+;;   (a `:ins {:a {} :b {}}` describe literal is a small PersistentArrayMap,
+;;   so :a always sorts before :b) -- with `:priority true`, alts!! always
+;;   prefers the first ready channel in that fixed vector. Since :a stays
+;;   non-empty until its whole flood is drained, gold NEVER reads :b until
+;;   :a's channel is completely empty: :b-msg comes out dead last.
+;; - mova (src/builtins/flow.rs:1674-1716): the running-state read loop
+;;   round-robins across the read-set via `rr_index`, advancing after
+;;   every successful receive. With both :a and :b ready from the start,
+;;   this alternates strictly A,B,A,B,... -- :b-msg comes out SECOND.
+;; Both behaviors are internally deterministic (verified 5/5 identical
+;; runs each side against the exact bodies below); they just disagree
+;; with each other, which is the whole point of this scenario. See
+;; DIVERGENCES.md for mova's recorded expected output and FINDINGS.md
+;; finding 2 for the fuller writeup.
+
+(def N 200)
+
+(def step
+  (flow/map->step
+   {:describe (fn [] {:ins {:a {} :b {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def out-ch (chan (+ N 10)))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process step)
+                      :chan-opts {:a {:buf-or-n (+ N 5)} :b {:buf-or-n 10}}}
+                  :s {:proc (flow/process sink)}}
+          :conns [[[:p :out] [:s :in]]]}))
+(def chans (flow/start fl))
+
+(def a-batch (conj (vec (repeat N :flood)) :a-marker))
+(deref (flow/inject fl [:p :a] a-batch))
+(deref (flow/inject fl [:p :b] [:b-msg]))
+
+(flow/resume fl)
+
+;; Every one of these N+2 messages is already sitting fully buffered
+;; (see the deref'd injects above, done before resume), so delivery is
+;; guaranteed and a plain blocking drain is safe -- same convention as
+;; 00-smoke.mova's `(repeatedly n #(<!! ch))`.
+(def total (+ N 2))
+(def results (vec (repeatedly total #(<!! out-ch))))
+
+(def b-pos (count (take-while #(not= % :b-msg) results)))
+(println "RESULT total-drained" (count results))
+(println "RESULT b-position" b-pos)
+
+(flow/stop fl)

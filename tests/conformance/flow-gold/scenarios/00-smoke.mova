@@ -1,0 +1,41 @@
+;;RUNS 5
+;;TIMEOUT-MS 30000
+;; 00-smoke: minimal 3-proc pipeline (gen -> square -> sink), harness
+;; end-to-end smoke test. See SPEC.md's "Scenario format" for the body
+;; rules this (and every other scenario) follows: no require/ns forms,
+;; fully-qualified keywords, (flow/process (flow/map->step {...})) steps,
+;; only (println ...) output, deterministic RESULT lines, (flow/stop ...)
+;; at the end.
+(def gen-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def square-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [(* m m)]}])}))
+
+(def sink-ch (chan 20))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! sink-ch m) [s {}])}))
+
+(def fl
+  (flow/create-flow
+   {:procs {:gen {:proc (flow/process gen-step)}
+            :sq {:proc (flow/process square-step)}
+            :sink {:proc (flow/process sink-step)}}
+    :conns [[[:gen :out] [:sq :in]]
+            [[:sq :out] [:sink :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(flow/inject fl [:gen :in] [1 2 3 4 5])
+
+(println "RESULT squares" (vec (repeatedly 5 #(<!! sink-ch))))
+
+(flow/stop fl)

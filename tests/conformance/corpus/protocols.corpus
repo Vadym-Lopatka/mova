@@ -1,0 +1,31 @@
+;; protocols.corpus -- defprotocol/extend-type/extend-protocol/satisfies?/
+;; extenders/protocol-fn dispatch (S3). One session (later forms depend on
+;; earlier defs). Promoted from pending/protocols.corpus when the S3 type
+;; system landed; measured rules pinned here: nil is its own dispatch row
+;; (never caught by Object), exact class beats Object, extenders is nil
+;; when fresh, re-defprotocol conforms as a form (impl PRESERVATION across
+;; re-defprotocol still diverges -- see pending/protocols.corpus).
+(defprotocol Doc123 "A doc" (m1 [x] "method doc"))
+(defprotocol Speak (speak [this] [this greeting]))
+(defrecord Pt123 [x y])
+(extend-type Pt123 Speak (speak ([this] "hi") ([this greeting] greeting)))
+(speak (->Pt123 1 2))
+(speak (->Pt123 1 2) "hello")
+(satisfies? Speak (->Pt123 1 2))
+(satisfies? Speak 1)
+(defprotocol FreshP (fp [x]))
+(extenders FreshP)
+(extend-type Pt123 FreshP (fp [x] :ok))
+(extenders FreshP)
+(defprotocol Nilable123 (describe123 [x]))
+(extend-protocol Nilable123 nil (describe123 [x] "nil!") Object (describe123 [x] "obj"))
+(describe123 nil)
+(describe123 5)
+(defprotocol P2X (pm2x [x]))
+(extend-type Long P2X (pm2x [x] :long))
+(pm2x 1)
+(defprotocol P2X (pm2x [x]) (pm2y [x]))
+;; C14 (protocols): promoted from pending/protocols.corpus:7 -- a
+;; protocol method fn's var meta now carries `:protocol` (the defining
+;; protocol's own var), matching real Clojure.
+(do (defprotocol DocB (mb [x])) (= (:protocol (meta (var mb))) (var DocB)))

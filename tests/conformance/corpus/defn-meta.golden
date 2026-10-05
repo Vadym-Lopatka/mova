@@ -1,0 +1,48 @@
+OK	nil
+OK	[dm-f0 nil]
+OK	nil
+OK	"doc1"
+OK	nil
+OK	"1.1"
+OK	nil
+OK	["doc3" "1.1" :bar]
+OK	nil
+OK	3
+OK	nil
+OK	["doc5" "1.2"]
+OK	nil
+OK	true
+OK	nil
+OK	[true "doc7" "1.3"]
+OK	nil
+OK	{:weird true}
+OK	nil
+OK	nil
+OK	false
+OK	nil
+OK	"1.0"
+OK	nil
+OK	2
+OK	nil
+OK	"positional-doc"
+OK	nil
+OK	2
+OK	nil
+OK	[1 2]
+OK	nil
+OK	"attrmap-doc"
+OK	nil
+OK	["doc-m1" "1.0" true]
+OK	nil
+OK	[5 5]
+OK	"1.4"
+OK	nil
+OK	[true dm-m0]
+OK	nil
+OK	([n])
+OK	nil
+OK	([a] [a b] [a b & {:as m}])
+OK	nil
+OK	([supplied])
+OK	nil
+OK	([x y])

@@ -1,0 +1,13 @@
+[package]
+name = "p2-measure"
+version = "0.0.1"
+edition = "2021"
+license = "EPL-1.0"
+
+[dependencies]
+mova-nrepl = { path = "../../crates/mova-nrepl" }
+
+[workspace]
+
+[profile.release]
+opt-level = 3

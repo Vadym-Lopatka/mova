@@ -1,0 +1,14 @@
+ERR	{:message "invalid destructuring pattern: :keys!", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :strs!", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :syms!", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :foo/keys!", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :keys!", :type :error/other}
+ERR	{:message "destructuring: :keys/:strs entries must be symbols", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :keys!", :type :error/other}
+OK	[1 2]
+ERR	{:message "invalid destructuring pattern: :keys!", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :defaults", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :select", :type :error/other}
+ERR	{:message ":or keys must be symbols", :type :error/other}
+ERR	{:message ":or keys must be symbols", :type :error/other}
+ERR	{:message "invalid destructuring pattern: :keys!", :type :error/other}

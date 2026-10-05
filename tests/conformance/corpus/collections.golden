@@ -1,0 +1,160 @@
+OK	[1 2 3]
+OK	[1 2 3 4]
+OK	(3 1 2)
+OK	(1 2 3)
+OK	3
+OK	{:a 1, :b 2}
+OK	2
+OK	{:a 1, :b 2, :c 3}
+OK	2
+OK	[:x 2 3]
+OK	[1 2 3 4]
+OK	{:b 2}
+OK	2
+OK	1
+OK	nil
+OK	:default
+OK	2
+OK	nil
+OK	:nope
+OK	2
+OK	:nope
+OK	1
+OK	3
+OK	:default
+OK	2
+OK	3
+OK	3
+OK	2
+OK	3
+OK	0
+OK	0
+OK	0
+OK	true
+OK	false
+OK	true
+OK	false
+OK	true
+OK	false
+OK	(:a :b :c)
+OK	(1 2 3)
+OK	1
+OK	nil
+OK	nil
+OK	nil
+OK	(2 3)
+OK	()
+OK	()
+OK	()
+OK	(0 1 2 3)
+OK	(1)
+OK	(1 2 3)
+OK	[1 2 3]
+OK	[1 2 3 4]
+OK	(1 2 3)
+OK	3
+OK	{:a 1, :b 2}
+OK	1
+OK	true
+OK	false
+OK	true
+OK	true
+OK	true
+OK	[]
+OK	{}
+OK	3
+OK	1
+OK	nil
+OK	[1 2]
+OK	(2 3)
+OK	[2 3]
+OK	[3 4 5]
+OK	{:a 2}
+OK	2
+OK	[2 2 3]
+OK	{:a 1, :b 1}
+OK	{:a {:b 1}}
+OK	1
+OK	42
+OK	:missing
+OK	{:a {:b 2}}
+OK	2
+OK	[1 2 3]
+OK	[]
+OK	{:a 1}
+OK	2
+OK	(1 2 3)
+OK	3
+OK	(1 2 3)
+OK	3
+OK	(1 2 3)
+OK	()
+OK	(1 2 3)
+OK	nil
+OK	nil
+OK	(\a \b)
+OK	[1 2 3]
+OK	[1]
+OK	(2 3)
+OK	nil
+OK	nil
+OK	1
+OK	:default
+OK	1
+OK	:default
+OK	:a
+OK	nil
+OK	20
+OK	2
+OK	nil
+OK	true
+OK	false
+OK	true
+OK	false
+OK	true
+OK	false
+OK	true
+OK	false
+OK	5
+OK	[1 2 3 4]
+OK	(3 2 1)
+OK	[3 2 1]
+OK	[1 2 3 4]
+OK	{:x 1, :y 2, :z 3}
+OK	2
+OK	false
+OK	false
+OK	2
+OK	nil
+OK	false
+OK	{1 2, 1.0 1}
+OK	{1 [1], 1.0 [1.0], 2 [2]}
+OK	nil
+OK	true
+OK	-1
+OK	0
+OK	-1
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	false
+OK	:a
+OK	1
+OK	[:a 1]
+OK	nil
+OK	9
+OK	(1 1.0 2)
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	1
+OK	(1 2)
+OK	1
+OK	#{1 3}
+OK	{:b 2}
+OK	[1 2]

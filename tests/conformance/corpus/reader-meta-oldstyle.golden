@@ -1,0 +1,9 @@
+OK	foo
+OK	{:x 1}
+OK	{:kw true}
+OK	{:tag Tag}
+OK	{:tag "str-tag"}
+OK	[1 2 3]
+OK	{:a 1}
+OK	42
+OK	{:has-meta true, :name name-oldstyle-meta}

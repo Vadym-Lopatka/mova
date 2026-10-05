@@ -1,0 +1,7 @@
+OK	nil
+OK	usetest123
+OK	:back
+OK	true
+OK	#uuid "550e8400-e29b-41d4-a716-446655440000"
+OK	{"a" 1}
+OK	{:a 2}

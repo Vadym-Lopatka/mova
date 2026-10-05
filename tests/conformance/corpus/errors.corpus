@@ -1,0 +1,19 @@
+;; errors.corpus -- C3g (typed, multi-clause `catch`): promoted out of
+;; tests/conformance/pending/errors.corpus once mova's engine gained
+;; genuine class-dispatched `catch` (`eval::special_forms::
+;; catch_class_matches`). Before C3g, `try` supported exactly one
+;; UNTYPED catch clause, so this form -- three clauses, the first two
+;; deliberately non-matching -- always hit mova's "try: only one catch
+;; clause is supported" error and diverged from real Clojure, which picks
+;; the first matching clause (`ArithmeticException`, the actual class a
+;; division by zero throws) and evaluates to `:ae`. Both sides now agree.
+(try (/ 1 0) (catch ClassCastException e :cce) (catch ArithmeticException e :ae) (catch Exception e :generic))
+
+;; W-ERR (field2, host application field report): promoted out of
+;; tests/conformance/pending/errors.corpus once `core.mova` gained a real
+;; `ex-cause` (mirroring `ex-message`'s established `ex-info`/host-
+;; `Throwable` polymorphic pattern). Before W-ERR, `ex-cause` did not
+;; exist at all ("Unable to resolve symbol: ex-cause"). Both sides now
+;; agree: the outer `ex-info`'s cause is the inner `ex-info`, and its
+;; message is `"inner"`.
+(ex-message (ex-cause (ex-info "outer" {} (ex-info "inner" {}))))

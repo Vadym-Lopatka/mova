@@ -1,0 +1,199 @@
+;; L5 / Ep.2 — "400 years of Februaries": THE CALENDAR.
+;;
+;; The demo's own Mova calendar code. Nothing here is a host builtin and
+;; nothing here reads a wall clock: the only input is an epoch-millisecond
+;; number, which under `simulate` is whatever `:epoch-ms` the caller asked
+;; for, advanced by virtual time. That is the whole trick — "what day is it"
+;; becomes an argument, so a test can visit February 29 2012 (or 2100, or
+;; 2400) without waiting for it.
+;;
+;; Two date-arithmetic policies live here side by side, deliberately:
+;;
+;;   `plus-one-year-naive`  — Azure's Guest Agent bug, Feb 29 2012: "today
+;;                            plus one on the year", producing February 29
+;;                            2013, a date that does not exist.
+;;   `plus-years-clamped`   — the fix: calendar-aware, clamping the day to
+;;                            the target month's length (Feb 29 -> Feb 28).
+;;
+;; UTC only: no leap seconds, no DST, no timezones (the v0 caveat printed in
+;; every post).
+;;
+;; Runnable standalone: `mova probes/l5-sim/ep2-calendar.mova` prints the
+;; fixture table. `tests/l5_demo_ep2.rs` reads `calendar-fixtures` instead.
+
+;; ---------------------------------------------------------------------------
+;; Gregorian leap rules — the complete taxonomy, in three lines
+;; ---------------------------------------------------------------------------
+
+;; divisible by 4 -> leap, EXCEPT divisible by 100 -> not leap, EXCEPT
+;; divisible by 400 -> leap again. The middle clause is the `% 4` time bomb:
+;; 2100 is not a leap year, and no code written after 2000 has ever seen that
+;; branch taken in production.
+(defn leap-year? [y]
+  (and (zero? (mod y 4))
+       (or (not (zero? (mod y 100)))
+           (zero? (mod y 400)))))
+
+(def month-lengths [31 28 31 30 31 30 31 31 30 31 30 31])
+
+(defn days-in-month [y m]
+  (if (= m 2)
+    (if (leap-year? y) 29 28)
+    (nth month-lengths (dec m))))
+
+(defn valid-date? [dt]
+  (let [y (:y dt) m (:m dt) d (:d dt)]
+    (and (integer? y) (integer? m) (integer? d)
+         (>= m 1) (<= m 12)
+         (>= d 1) (<= d (days-in-month y m)))))
+
+;; ---------------------------------------------------------------------------
+;; Civil date <-> days-since-epoch (Howard Hinnant's `days_from_civil` /
+;; `civil_from_days`, transcribed; proleptic Gregorian, exact for any year)
+;; ---------------------------------------------------------------------------
+
+;; `quot` truncates toward zero, so both directions do the negative-input
+;; dance Hinnant's C++ does for the same reason.
+(defn days-from-civil [y m d]
+  (let [y' (if (<= m 2) (dec y) y)
+        era (quot (if (>= y' 0) y' (- y' 399)) 400)
+        yoe (- y' (* era 400))
+        doy (+ (quot (+ (* 153 (+ m (if (> m 2) -3 9))) 2) 5) (dec d))
+        doe (+ (* yoe 365) (quot yoe 4) (- (quot yoe 100)) doy)]
+    (+ (* era 146097) doe -719468)))
+
+(defn civil-from-days [z0]
+  (let [z (+ z0 719468)
+        era (quot (if (>= z 0) z (- z 146096)) 146097)
+        doe (- z (* era 146097))
+        yoe (quot (- (+ doe (quot doe 36524)) (+ (quot doe 1460) (quot doe 146096))) 365)
+        y (+ yoe (* era 400))
+        doy (- doe (+ (* 365 yoe) (quot yoe 4) (- (quot yoe 100))))
+        mp (quot (+ (* 5 doy) 2) 153)
+        d (+ (- doy (quot (+ (* 153 mp) 2) 5)) 1)
+        m (+ mp (if (< mp 10) 3 -9))]
+    {:y (if (<= m 2) (inc y) y) :m m :d d}))
+
+(def ms-per-day 86400000)
+
+;; Floor division — `quot` truncates, and a pre-1970 epoch must round DOWN to
+;; land on the right day.
+(defn floor-quot [a b]
+  (let [q (quot a b) r (rem a b)]
+    (if (neg? r) (dec q) q)))
+
+(defn epoch-ms->date [ms] (civil-from-days (floor-quot ms ms-per-day)))
+
+(defn date->epoch-ms [dt]
+  (* ms-per-day (days-from-civil (:y dt) (:m dt) (:d dt))))
+
+;; The sweep's clock setter: "year Y, month M, day D, HH:MM UTC" as epoch ms.
+(defn utc-ms [y m d hh mm]
+  (+ (* ms-per-day (days-from-civil y m d)) (* 3600000 hh) (* 60000 mm)))
+
+;; ---------------------------------------------------------------------------
+;; The two date policies, and the certificate that uses one of them
+;; ---------------------------------------------------------------------------
+
+;; THE BUG, verbatim in spirit: increment the year, keep month and day.
+(defn plus-one-year-naive [dt] {:y (inc (:y dt)) :m (:m dt) :d (:d dt)})
+
+;; THE FIX: clamp the day into the target month.
+(defn plus-years-clamped [dt n]
+  (let [y2 (+ (:y dt) n)]
+    {:y y2 :m (:m dt) :d (min (:d dt) (days-in-month y2 (:m dt)))}))
+
+(defn plus-one-year-clamped [dt] (plus-years-clamped dt 1))
+
+;; The Guest Agent's transfer certificate: valid from today, expiring one
+;; year out. `plus-years-fn` is the policy under test.
+(def cert-fault-fingerprint "GA-CERT-EXPIRY-INVALID-DATE")
+
+(defn transfer-certificate [now-ms plus-years-fn]
+  (let [today (epoch-ms->date now-ms)
+        expires (plus-years-fn today)]
+    (if (valid-date? expires)
+      {:ok true :issued today :expires expires}
+      {:ok false :issued today :attempted expires
+       :fingerprint cert-fault-fingerprint})))
+
+;; ---------------------------------------------------------------------------
+;; Fixtures — the calendar code is TESTED BEFORE the twin is allowed to use it
+;; ---------------------------------------------------------------------------
+
+(defn date->days [dt] (days-from-civil (:y dt) (:m dt) (:d dt)))
+
+;; Every day of one complete Gregorian cycle, round-tripped date -> days ->
+;; date. 146,097 days; if a single one disagrees this reports the count.
+(defn round-trip-failures [from-year to-year]
+  (let [lo (days-from-civil from-year 1 1)
+        hi (days-from-civil to-year 1 1)]
+    (loop [z lo bad 0]
+      (if (>= z hi)
+        bad
+        (recur (inc z)
+               (if (= z (date->days (civil-from-days z))) bad (inc bad)))))))
+
+(defn leap-years-in [from-year to-year]
+  (count (filter leap-year? (range from-year to-year))))
+
+;; How many years of a 400-year cycle does the NAIVE policy break in, if the
+;; agent happens to be activated on February 29? Exactly the leap years —
+;; which is the whole "400 years is exhaustion, not sampling" claim, proved
+;; against the calendar code itself before any flow is involved.
+(defn naive-breaks-in [from-year to-year]
+  (count (filter (fn [y]
+                   (and (leap-year? y)
+                        (not (valid-date? (plus-one-year-naive {:y y :m 2 :d 29})))))
+                 (range from-year to-year))))
+
+(def calendar-fixtures
+  {:leap-2000 (leap-year? 2000)          ; div by 400 -> leap
+   :leap-2100 (leap-year? 2100)          ; div by 100, not 400 -> NOT leap
+   :leap-2012 (leap-year? 2012)
+   :leap-2011 (leap-year? 2011)
+   :leap-1900 (leap-year? 1900)
+   :leap-2400 (leap-year? 2400)
+   :feb-2000 (days-in-month 2000 2)      ; 29
+   :feb-2100 (days-in-month 2100 2)      ; 28
+   :feb-2012 (days-in-month 2012 2)      ; 29
+   :valid-2000-02-29 (valid-date? {:y 2000 :m 2 :d 29})
+   :valid-2100-02-29 (valid-date? {:y 2100 :m 2 :d 29})
+   :valid-2013-02-29 (valid-date? {:y 2013 :m 2 :d 29})
+   :valid-2012-02-30 (valid-date? {:y 2012 :m 2 :d 30})
+   ;; 400 Gregorian years = 146,097 days = 20,871 weeks, exactly.
+   :cycle-days (- (days-from-civil 2400 3 1) (days-from-civil 2000 3 1))
+   :cycle-days-whole-weeks (zero? (mod (- (days-from-civil 2400 3 1)
+                                          (days-from-civil 2000 3 1))
+                                       7))
+   :leap-years-in-cycle (leap-years-in 2000 2400)   ; 97
+   :naive-breaks-in-cycle (naive-breaks-in 2000 2400) ; 97 — one per leap year
+   :epoch-day-zero (days-from-civil 1970 1 1)       ; 0
+   :ms-2012-02-29 (utc-ms 2012 2 29 0 0)            ; 1330473600000
+   :ms-2012-02-28-2300 (utc-ms 2012 2 28 23 0)      ; 1330470000000
+   :date-at-2012-02-28-2300 (epoch-ms->date (utc-ms 2012 2 28 23 0))
+   :date-one-hour-later (epoch-ms->date (+ (utc-ms 2012 2 28 23 0) 3600000))
+   :date-pre-epoch (epoch-ms->date -1)              ; 1969-12-31
+   :round-trip-failures (round-trip-failures 2000 2400)
+   ;; The bug and the fix, side by side, on the one date that matters.
+   :naive-2012-02-29 (plus-one-year-naive {:y 2012 :m 2 :d 29})
+   :naive-2012-02-29-valid? (valid-date? (plus-one-year-naive {:y 2012 :m 2 :d 29}))
+   :clamped-2012-02-29 (plus-one-year-clamped {:y 2012 :m 2 :d 29})
+   :clamped-2012-02-29-valid? (valid-date? (plus-one-year-clamped {:y 2012 :m 2 :d 29}))
+   ;; ...and on a date the bug does NOT touch (Feb 28 of a non-leap year).
+   :naive-2011-02-28-valid? (valid-date? (plus-one-year-naive {:y 2011 :m 2 :d 28}))
+   :cert-2012-02-29-naive-ok (:ok (transfer-certificate (utc-ms 2012 2 29 0 0)
+                                                        plus-one-year-naive))
+   :cert-2012-02-29-naive-fingerprint (:fingerprint (transfer-certificate
+                                                      (utc-ms 2012 2 29 0 0)
+                                                      plus-one-year-naive))
+   :cert-2012-02-29-clamped-ok (:ok (transfer-certificate (utc-ms 2012 2 29 0 0)
+                                                          plus-one-year-clamped))
+   :cert-2012-02-28-naive-ok (:ok (transfer-certificate (utc-ms 2012 2 28 23 0)
+                                                        plus-one-year-naive))})
+
+;; Printed so the file is runnable as a script; the Rust test reads
+;; `calendar-fixtures` directly.
+(println calendar-fixtures)
+
+calendar-fixtures

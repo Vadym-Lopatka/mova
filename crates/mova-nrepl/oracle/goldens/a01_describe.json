@@ -1,0 +1,714 @@
+{
+"scenario": "a01_describe",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"aux": {
+"current-ns": "user"
+},
+"id": "1",
+"middleware": [
+"#'nrepl.middleware/wrap-describe",
+"#'nrepl.middleware.completion/wrap-completion",
+"#'nrepl.middleware.interruptible-eval/interruptible-eval",
+"#'nrepl.middleware.io/wrap-out",
+"#'nrepl.middleware.load-file/wrap-load-file",
+"#'nrepl.middleware.caught/wrap-caught",
+"#'nrepl.middleware.lookup/wrap-lookup",
+"#'nrepl.middleware.print/wrap-print",
+"#'nrepl.middleware.session/add-stdin",
+"#'nrepl.middleware.session/session"
+],
+"ops": {
+"clone": {},
+"close": {},
+"completions": {},
+"describe": {},
+"eval": {},
+"forward-system-output": {},
+"interrupt": {},
+"load-file": {},
+"lookup": {},
+"ls-sessions": {},
+"stdin": {}
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+],
+"versions": {
+"clojure": {
+"incremental": 0,
+"major": 1,
+"minor": 13,
+"qualifier": "alpha6",
+"version-string": "1.13.0-alpha6"
+},
+"java": {
+"major": 25,
+"version-string": "25.0.4"
+},
+"nrepl": {
+"incremental": 0,
+"major": 1,
+"minor": 8,
+"version-string": "1.8.0"
+}
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"aux": {
+"current-ns": "user"
+},
+"id": "2",
+"middleware": [
+"#'nrepl.middleware/wrap-describe",
+"#'nrepl.middleware.completion/wrap-completion",
+"#'nrepl.middleware.interruptible-eval/interruptible-eval",
+"#'nrepl.middleware.io/wrap-out",
+"#'nrepl.middleware.load-file/wrap-load-file",
+"#'nrepl.middleware.caught/wrap-caught",
+"#'nrepl.middleware.lookup/wrap-lookup",
+"#'nrepl.middleware.print/wrap-print",
+"#'nrepl.middleware.session/add-stdin",
+"#'nrepl.middleware.session/session"
+],
+"ops": {
+"clone": {
+"doc": "Clones the current session, returning the ID of the newly-created session.",
+"optional": {
+"client-name": "The nREPL client name. e.g. \"CIDER\"",
+"client-version": "The nREPL client version. e.g. \"1.2.3\"",
+"session": "The ID of the session to be cloned; if not provided, a new session with default bindings is created, and mapped to the returned session ID."
+},
+"requires": {},
+"returns": {
+"new-session": "The ID of the new session."
+}
+},
+"close": {
+"doc": "Closes the specified session.",
+"optional": {},
+"requires": {
+"session": "The ID of the session to be closed."
+},
+"returns": {
+"status": "'session-closed' if the session was successfully closed. Sent in addition to the usual 'done' status, so clients should check for it to confirm the session was actually closed (rather than assuming success from 'done' alone)."
+}
+},
+"completions": {
+"doc": "Provides a list of completion candidates.",
+"optional": {
+"complete-fn": "The fully qualified name of a completion function to use instead of the default one (e.g. `my.ns/completion`).",
+"ns": "The namespace in which we want to obtain completion candidates. Defaults to `*ns*`.",
+"options": "A map of options supported by the completion function. Supported keys: `extra-metadata` (possible values: `:arglists`, `:docs`)."
+},
+"requires": {
+"prefix": "The prefix to complete."
+},
+"returns": {
+"completions": "A list of completion candidates. Each candidate is a map with `:candidate` and `:type` keys. Vars also have a `:ns` key."
+}
+},
+"describe": {
+"doc": "Produce a machine- and human-readable directory and documentation for the operations supported by an nREPL endpoint.",
+"optional": {
+"verbose?": "Include informational detail for each \"op\"eration in the return message."
+},
+"requires": {},
+"returns": {
+"aux": "Map of auxiliary data contributed by all of the active nREPL middleware via :describe-fn functions in their descriptors.",
+"middleware": "Current middleware stack, in inside-out order (earliest middleware is last).",
+"ops": "Map of \"op\"erations supported by this nREPL endpoint",
+"versions": "Map containing version maps (like *clojure-version*, e.g. major, minor, incremental, and qualifier keys) for values, component names as keys. Common keys include \"nrepl\" and \"clojure\"."
+}
+},
+"eval": {
+"doc": "Evaluates code. Note that unlike regular stream-based Clojure REPLs, nREPL's `\"eval\"` short-circuits on first read error and will not try to read and execute the remaining code in the message.",
+"optional": {
+"column": "The column number in [file] at which [code] starts.",
+"eval": "A fully-qualified symbol naming a var whose function value will be used to evaluate [code], instead of `clojure.core/eval` (the default).",
+"file": "The path to the file containing [code]. `clojure.core/*file*` will be bound to this.",
+"file-name": "Name of source file, e.g. io.clj. Do not confuse with `file` param which contains full path while `file-name` is only the short file name. Both parameters are needed to properly set the bytecode location metadata.",
+"id": "An opaque message ID that will be included in responses related to the evaluation, and which may be used to restrict the scope of a later \"interrupt\" operation.",
+"line": "The line number in [file] at which [code] starts.",
+"nrepl.middleware.caught/caught": "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument.",
+"nrepl.middleware.caught/print?": "If logical true, the printed value of any interactive errors will be returned in the response (otherwise they will be elided). Delegates to `nrepl.middleware.print` to perform the printing. Defaults to false.",
+"nrepl.middleware.print/buffer-size": "The size of the buffer to use when streaming results. Defaults to 1024.",
+"nrepl.middleware.print/keys": "A seq of the keys in the response whose values should be printed.",
+"nrepl.middleware.print/options": "A map of options to pass to the printing function. Defaults to `nil`.",
+"nrepl.middleware.print/print": "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options].",
+"nrepl.middleware.print/quota": "A hard limit on the number of bytes printed for each value.",
+"nrepl.middleware.print/stream?": "If logical true, the result of printing each value will be streamed to the client over one or more messages.",
+"ns": "The namespace in which to perform the evaluation. The supplied namespace must exist already (e.g. be loaded). If no namespace is specified the evaluation falls back to `*ns*` for the session in question.",
+"read-cond": "The options passed to the reader before the evaluation. Useful when middleware in a higher layer wants to process reader conditionals."
+},
+"requires": {
+"code": "The code to be evaluated.",
+"session": "The ID of the session within which to evaluate the code."
+},
+"returns": {
+"ex": "The type of exception thrown, if any. If present, then `:value` will be absent.",
+"ns": "*ns*, after successful evaluation of `code`.",
+"root-ex": "The type of the root exception thrown, if any. If present, then `:value` will be absent.",
+"value": "The result of evaluating `code`, often `read`able. This printing is provided by the `print` middleware. Superseded by `ex` and `root-ex` if an exception occurs during evaluation."
+}
+},
+"forward-system-output": {
+"doc": "Enable forwarding of System/out and System/err output to client. This is a Clojure-specific op, not part of general nREPL spec.",
+"optional": {},
+"requires": {},
+"returns": {}
+},
+"interrupt": {
+"doc": "Attempts to interrupt some executing request. When interruption succeeds, the thread used for execution is killed, and a new thread spawned for the session. While the session middleware ensures that Clojure dynamic bindings are preserved, other ThreadLocals are not. Hence, when running code intimately tied to the current thread identity, it is best to avoid interruptions. On Java 20 and later, if `-Djdk.attach.allowAttachSelf` is enabled, the JVMTI agent will be used to attempt to stop the thread.",
+"optional": {
+"interrupt-id": "The opaque message ID sent with the request to be interrupted."
+},
+"requires": {
+"session": "The ID of the session used to start the request to be interrupted."
+},
+"returns": {
+"status": "'interrupted' if a request was identified and interruption will be attempted\n'session-idle' if the session is not currently executing any request\n'interrupt-id-mismatch' if the session is currently executing a request sent using a different ID than specified by the \"interrupt-id\" value\n'session-ephemeral' if the session is an ephemeral session"
+}
+},
+"load-file": {
+"doc": "Loads a body of code, using supplied path and filename info to set source file and line number metadata. Delegates to underlying \"eval\" middleware/handler.",
+"optional": {
+"file-name": "Name of source file, e.g. io.clj",
+"file-path": "Source-path-relative path of the source file, e.g. clojure/java/io.clj",
+"nrepl.middleware.caught/caught": "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument.",
+"nrepl.middleware.caught/print?": "If logical true, the printed value of any interactive errors will be returned in the response (otherwise they will be elided). Delegates to `nrepl.middleware.print` to perform the printing. Defaults to false.",
+"nrepl.middleware.print/buffer-size": "The size of the buffer to use when streaming results. Defaults to 1024.",
+"nrepl.middleware.print/keys": "A seq of the keys in the response whose values should be printed.",
+"nrepl.middleware.print/options": "A map of options to pass to the printing function. Defaults to `nil`.",
+"nrepl.middleware.print/print": "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options].",
+"nrepl.middleware.print/quota": "A hard limit on the number of bytes printed for each value.",
+"nrepl.middleware.print/stream?": "If logical true, the result of printing each value will be streamed to the client over one or more messages."
+},
+"requires": {
+"file": "Full contents of a file of code."
+},
+"returns": {
+"ex": "The type of exception thrown, if any. If present, then `:value` will be absent.",
+"root-ex": "The type of the root exception thrown, if any. If present, then `:value` will be absent.",
+"value": "The result of evaluating `code`, often `read`able. This printing is provided by the `print` middleware. Superseded by `ex` and `root-ex` if an exception occurs during evaluation."
+}
+},
+"lookup": {
+"doc": "Lookup symbol info.",
+"optional": {
+"lookup-fn": "The fully qualified name of a lookup function to use instead of the default one (e.g. `my.ns/lookup`).",
+"ns": "The namespace in which we want to do lookup. Defaults to `*ns*`."
+},
+"requires": {
+"sym": "The symbol to lookup."
+},
+"returns": {
+"info": "A map of the symbol's info."
+}
+},
+"ls-sessions": {
+"doc": "Lists the IDs of all active sessions.",
+"optional": {},
+"requires": {},
+"returns": {
+"sessions": "A list of all available session IDs."
+}
+},
+"stdin": {
+"doc": "Add content from the value of \"stdin\" to *in* in the current session.",
+"optional": {},
+"requires": {
+"stdin": "Content to add to *in*."
+},
+"returns": {
+"status": "A status of \"need-input\" will be sent if a session's *in* requires content in order to satisfy an attempted read operation."
+}
+}
+},
+"session": "<uuid:2>",
+"status": [
+"done"
+],
+"versions": {
+"clojure": {
+"incremental": 0,
+"major": 1,
+"minor": 13,
+"qualifier": "alpha6",
+"version-string": "1.13.0-alpha6"
+},
+"java": {
+"major": 25,
+"version-string": "25.0.4"
+},
+"nrepl": {
+"incremental": 0,
+"major": 1,
+"minor": 8,
+"version-string": "1.8.0"
+}
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"aux": {
+"current-ns": "user"
+},
+"id": "3",
+"middleware": [
+"#'nrepl.middleware/wrap-describe",
+"#'nrepl.middleware.completion/wrap-completion",
+"#'nrepl.middleware.interruptible-eval/interruptible-eval",
+"#'nrepl.middleware.io/wrap-out",
+"#'nrepl.middleware.load-file/wrap-load-file",
+"#'nrepl.middleware.caught/wrap-caught",
+"#'nrepl.middleware.lookup/wrap-lookup",
+"#'nrepl.middleware.print/wrap-print",
+"#'nrepl.middleware.session/add-stdin",
+"#'nrepl.middleware.session/session"
+],
+"ops": {
+"clone": {},
+"close": {},
+"completions": {},
+"describe": {},
+"eval": {},
+"forward-system-output": {},
+"interrupt": {},
+"load-file": {},
+"lookup": {},
+"ls-sessions": {},
+"stdin": {}
+},
+"session": "<uuid:3>",
+"status": [
+"done"
+],
+"versions": {
+"clojure": {
+"incremental": 0,
+"major": 1,
+"minor": 13,
+"qualifier": "alpha6",
+"version-string": "1.13.0-alpha6"
+},
+"java": {
+"major": 25,
+"version-string": "25.0.4"
+},
+"nrepl": {
+"incremental": 0,
+"major": 1,
+"minor": 8,
+"version-string": "1.8.0"
+}
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"aux": {
+"current-ns": "user"
+},
+"id": "4",
+"middleware": [
+"#'nrepl.middleware/wrap-describe",
+"#'nrepl.middleware.completion/wrap-completion",
+"#'nrepl.middleware.interruptible-eval/interruptible-eval",
+"#'nrepl.middleware.io/wrap-out",
+"#'nrepl.middleware.load-file/wrap-load-file",
+"#'nrepl.middleware.caught/wrap-caught",
+"#'nrepl.middleware.lookup/wrap-lookup",
+"#'nrepl.middleware.print/wrap-print",
+"#'nrepl.middleware.session/add-stdin",
+"#'nrepl.middleware.session/session"
+],
+"ops": {
+"clone": {
+"doc": "Clones the current session, returning the ID of the newly-created session.",
+"optional": {
+"client-name": "The nREPL client name. e.g. \"CIDER\"",
+"client-version": "The nREPL client version. e.g. \"1.2.3\"",
+"session": "The ID of the session to be cloned; if not provided, a new session with default bindings is created, and mapped to the returned session ID."
+},
+"requires": {},
+"returns": {
+"new-session": "The ID of the new session."
+}
+},
+"close": {
+"doc": "Closes the specified session.",
+"optional": {},
+"requires": {
+"session": "The ID of the session to be closed."
+},
+"returns": {
+"status": "'session-closed' if the session was successfully closed. Sent in addition to the usual 'done' status, so clients should check for it to confirm the session was actually closed (rather than assuming success from 'done' alone)."
+}
+},
+"completions": {
+"doc": "Provides a list of completion candidates.",
+"optional": {
+"complete-fn": "The fully qualified name of a completion function to use instead of the default one (e.g. `my.ns/completion`).",
+"ns": "The namespace in which we want to obtain completion candidates. Defaults to `*ns*`.",
+"options": "A map of options supported by the completion function. Supported keys: `extra-metadata` (possible values: `:arglists`, `:docs`)."
+},
+"requires": {
+"prefix": "The prefix to complete."
+},
+"returns": {
+"completions": "A list of completion candidates. Each candidate is a map with `:candidate` and `:type` keys. Vars also have a `:ns` key."
+}
+},
+"describe": {
+"doc": "Produce a machine- and human-readable directory and documentation for the operations supported by an nREPL endpoint.",
+"optional": {
+"verbose?": "Include informational detail for each \"op\"eration in the return message."
+},
+"requires": {},
+"returns": {
+"aux": "Map of auxiliary data contributed by all of the active nREPL middleware via :describe-fn functions in their descriptors.",
+"middleware": "Current middleware stack, in inside-out order (earliest middleware is last).",
+"ops": "Map of \"op\"erations supported by this nREPL endpoint",
+"versions": "Map containing version maps (like *clojure-version*, e.g. major, minor, incremental, and qualifier keys) for values, component names as keys. Common keys include \"nrepl\" and \"clojure\"."
+}
+},
+"eval": {
+"doc": "Evaluates code. Note that unlike regular stream-based Clojure REPLs, nREPL's `\"eval\"` short-circuits on first read error and will not try to read and execute the remaining code in the message.",
+"optional": {
+"column": "The column number in [file] at which [code] starts.",
+"eval": "A fully-qualified symbol naming a var whose function value will be used to evaluate [code], instead of `clojure.core/eval` (the default).",
+"file": "The path to the file containing [code]. `clojure.core/*file*` will be bound to this.",
+"file-name": "Name of source file, e.g. io.clj. Do not confuse with `file` param which contains full path while `file-name` is only the short file name. Both parameters are needed to properly set the bytecode location metadata.",
+"id": "An opaque message ID that will be included in responses related to the evaluation, and which may be used to restrict the scope of a later \"interrupt\" operation.",
+"line": "The line number in [file] at which [code] starts.",
+"nrepl.middleware.caught/caught": "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument.",
+"nrepl.middleware.caught/print?": "If logical true, the printed value of any interactive errors will be returned in the response (otherwise they will be elided). Delegates to `nrepl.middleware.print` to perform the printing. Defaults to false.",
+"nrepl.middleware.print/buffer-size": "The size of the buffer to use when streaming results. Defaults to 1024.",
+"nrepl.middleware.print/keys": "A seq of the keys in the response whose values should be printed.",
+"nrepl.middleware.print/options": "A map of options to pass to the printing function. Defaults to `nil`.",
+"nrepl.middleware.print/print": "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options].",
+"nrepl.middleware.print/quota": "A hard limit on the number of bytes printed for each value.",
+"nrepl.middleware.print/stream?": "If logical true, the result of printing each value will be streamed to the client over one or more messages.",
+"ns": "The namespace in which to perform the evaluation. The supplied namespace must exist already (e.g. be loaded). If no namespace is specified the evaluation falls back to `*ns*` for the session in question.",
+"read-cond": "The options passed to the reader before the evaluation. Useful when middleware in a higher layer wants to process reader conditionals."
+},
+"requires": {
+"code": "The code to be evaluated.",
+"session": "The ID of the session within which to evaluate the code."
+},
+"returns": {
+"ex": "The type of exception thrown, if any. If present, then `:value` will be absent.",
+"ns": "*ns*, after successful evaluation of `code`.",
+"root-ex": "The type of the root exception thrown, if any. If present, then `:value` will be absent.",
+"value": "The result of evaluating `code`, often `read`able. This printing is provided by the `print` middleware. Superseded by `ex` and `root-ex` if an exception occurs during evaluation."
+}
+},
+"forward-system-output": {
+"doc": "Enable forwarding of System/out and System/err output to client. This is a Clojure-specific op, not part of general nREPL spec.",
+"optional": {},
+"requires": {},
+"returns": {}
+},
+"interrupt": {
+"doc": "Attempts to interrupt some executing request. When interruption succeeds, the thread used for execution is killed, and a new thread spawned for the session. While the session middleware ensures that Clojure dynamic bindings are preserved, other ThreadLocals are not. Hence, when running code intimately tied to the current thread identity, it is best to avoid interruptions. On Java 20 and later, if `-Djdk.attach.allowAttachSelf` is enabled, the JVMTI agent will be used to attempt to stop the thread.",
+"optional": {
+"interrupt-id": "The opaque message ID sent with the request to be interrupted."
+},
+"requires": {
+"session": "The ID of the session used to start the request to be interrupted."
+},
+"returns": {
+"status": "'interrupted' if a request was identified and interruption will be attempted\n'session-idle' if the session is not currently executing any request\n'interrupt-id-mismatch' if the session is currently executing a request sent using a different ID than specified by the \"interrupt-id\" value\n'session-ephemeral' if the session is an ephemeral session"
+}
+},
+"load-file": {
+"doc": "Loads a body of code, using supplied path and filename info to set source file and line number metadata. Delegates to underlying \"eval\" middleware/handler.",
+"optional": {
+"file-name": "Name of source file, e.g. io.clj",
+"file-path": "Source-path-relative path of the source file, e.g. clojure/java/io.clj",
+"nrepl.middleware.caught/caught": "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument.",
+"nrepl.middleware.caught/print?": "If logical true, the printed value of any interactive errors will be returned in the response (otherwise they will be elided). Delegates to `nrepl.middleware.print` to perform the printing. Defaults to false.",
+"nrepl.middleware.print/buffer-size": "The size of the buffer to use when streaming results. Defaults to 1024.",
+"nrepl.middleware.print/keys": "A seq of the keys in the response whose values should be printed.",
+"nrepl.middleware.print/options": "A map of options to pass to the printing function. Defaults to `nil`.",
+"nrepl.middleware.print/print": "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options].",
+"nrepl.middleware.print/quota": "A hard limit on the number of bytes printed for each value.",
+"nrepl.middleware.print/stream?": "If logical true, the result of printing each value will be streamed to the client over one or more messages."
+},
+"requires": {
+"file": "Full contents of a file of code."
+},
+"returns": {
+"ex": "The type of exception thrown, if any. If present, then `:value` will be absent.",
+"root-ex": "The type of the root exception thrown, if any. If present, then `:value` will be absent.",
+"value": "The result of evaluating `code`, often `read`able. This printing is provided by the `print` middleware. Superseded by `ex` and `root-ex` if an exception occurs during evaluation."
+}
+},
+"lookup": {
+"doc": "Lookup symbol info.",
+"optional": {
+"lookup-fn": "The fully qualified name of a lookup function to use instead of the default one (e.g. `my.ns/lookup`).",
+"ns": "The namespace in which we want to do lookup. Defaults to `*ns*`."
+},
+"requires": {
+"sym": "The symbol to lookup."
+},
+"returns": {
+"info": "A map of the symbol's info."
+}
+},
+"ls-sessions": {
+"doc": "Lists the IDs of all active sessions.",
+"optional": {},
+"requires": {},
+"returns": {
+"sessions": "A list of all available session IDs."
+}
+},
+"stdin": {
+"doc": "Add content from the value of \"stdin\" to *in* in the current session.",
+"optional": {},
+"requires": {
+"stdin": "Content to add to *in*."
+},
+"returns": {
+"status": "A status of \"need-input\" will be sent if a session's *in* requires content in order to satisfy an attempted read operation."
+}
+}
+},
+"session": "<uuid:4>",
+"status": [
+"done"
+],
+"versions": {
+"clojure": {
+"incremental": 0,
+"major": 1,
+"minor": 13,
+"qualifier": "alpha6",
+"version-string": "1.13.0-alpha6"
+},
+"java": {
+"major": 25,
+"version-string": "25.0.4"
+},
+"nrepl": {
+"incremental": 0,
+"major": 1,
+"minor": 8,
+"version-string": "1.8.0"
+}
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"aux": {
+"current-ns": "user"
+},
+"id": "5",
+"middleware": [
+"#'nrepl.middleware/wrap-describe",
+"#'nrepl.middleware.completion/wrap-completion",
+"#'nrepl.middleware.interruptible-eval/interruptible-eval",
+"#'nrepl.middleware.io/wrap-out",
+"#'nrepl.middleware.load-file/wrap-load-file",
+"#'nrepl.middleware.caught/wrap-caught",
+"#'nrepl.middleware.lookup/wrap-lookup",
+"#'nrepl.middleware.print/wrap-print",
+"#'nrepl.middleware.session/add-stdin",
+"#'nrepl.middleware.session/session"
+],
+"ops": {
+"clone": {
+"doc": "Clones the current session, returning the ID of the newly-created session.",
+"optional": {
+"client-name": "The nREPL client name. e.g. \"CIDER\"",
+"client-version": "The nREPL client version. e.g. \"1.2.3\"",
+"session": "The ID of the session to be cloned; if not provided, a new session with default bindings is created, and mapped to the returned session ID."
+},
+"requires": {},
+"returns": {
+"new-session": "The ID of the new session."
+}
+},
+"close": {
+"doc": "Closes the specified session.",
+"optional": {},
+"requires": {
+"session": "The ID of the session to be closed."
+},
+"returns": {
+"status": "'session-closed' if the session was successfully closed. Sent in addition to the usual 'done' status, so clients should check for it to confirm the session was actually closed (rather than assuming success from 'done' alone)."
+}
+},
+"completions": {
+"doc": "Provides a list of completion candidates.",
+"optional": {
+"complete-fn": "The fully qualified name of a completion function to use instead of the default one (e.g. `my.ns/completion`).",
+"ns": "The namespace in which we want to obtain completion candidates. Defaults to `*ns*`.",
+"options": "A map of options supported by the completion function. Supported keys: `extra-metadata` (possible values: `:arglists`, `:docs`)."
+},
+"requires": {
+"prefix": "The prefix to complete."
+},
+"returns": {
+"completions": "A list of completion candidates. Each candidate is a map with `:candidate` and `:type` keys. Vars also have a `:ns` key."
+}
+},
+"describe": {
+"doc": "Produce a machine- and human-readable directory and documentation for the operations supported by an nREPL endpoint.",
+"optional": {
+"verbose?": "Include informational detail for each \"op\"eration in the return message."
+},
+"requires": {},
+"returns": {
+"aux": "Map of auxiliary data contributed by all of the active nREPL middleware via :describe-fn functions in their descriptors.",
+"middleware": "Current middleware stack, in inside-out order (earliest middleware is last).",
+"ops": "Map of \"op\"erations supported by this nREPL endpoint",
+"versions": "Map containing version maps (like *clojure-version*, e.g. major, minor, incremental, and qualifier keys) for values, component names as keys. Common keys include \"nrepl\" and \"clojure\"."
+}
+},
+"eval": {
+"doc": "Evaluates code. Note that unlike regular stream-based Clojure REPLs, nREPL's `\"eval\"` short-circuits on first read error and will not try to read and execute the remaining code in the message.",
+"optional": {
+"column": "The column number in [file] at which [code] starts.",
+"eval": "A fully-qualified symbol naming a var whose function value will be used to evaluate [code], instead of `clojure.core/eval` (the default).",
+"file": "The path to the file containing [code]. `clojure.core/*file*` will be bound to this.",
+"file-name": "Name of source file, e.g. io.clj. Do not confuse with `file` param which contains full path while `file-name` is only the short file name. Both parameters are needed to properly set the bytecode location metadata.",
+"id": "An opaque message ID that will be included in responses related to the evaluation, and which may be used to restrict the scope of a later \"interrupt\" operation.",
+"line": "The line number in [file] at which [code] starts.",
+"nrepl.middleware.caught/caught": "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument.",
+"nrepl.middleware.caught/print?": "If logical true, the printed value of any interactive errors will be returned in the response (otherwise they will be elided). Delegates to `nrepl.middleware.print` to perform the printing. Defaults to false.",
+"nrepl.middleware.print/buffer-size": "The size of the buffer to use when streaming results. Defaults to 1024.",
+"nrepl.middleware.print/keys": "A seq of the keys in the response whose values should be printed.",
+"nrepl.middleware.print/options": "A map of options to pass to the printing function. Defaults to `nil`.",
+"nrepl.middleware.print/print": "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options].",
+"nrepl.middleware.print/quota": "A hard limit on the number of bytes printed for each value.",
+"nrepl.middleware.print/stream?": "If logical true, the result of printing each value will be streamed to the client over one or more messages.",
+"ns": "The namespace in which to perform the evaluation. The supplied namespace must exist already (e.g. be loaded). If no namespace is specified the evaluation falls back to `*ns*` for the session in question.",
+"read-cond": "The options passed to the reader before the evaluation. Useful when middleware in a higher layer wants to process reader conditionals."
+},
+"requires": {
+"code": "The code to be evaluated.",
+"session": "The ID of the session within which to evaluate the code."
+},
+"returns": {
+"ex": "The type of exception thrown, if any. If present, then `:value` will be absent.",
+"ns": "*ns*, after successful evaluation of `code`.",
+"root-ex": "The type of the root exception thrown, if any. If present, then `:value` will be absent.",
+"value": "The result of evaluating `code`, often `read`able. This printing is provided by the `print` middleware. Superseded by `ex` and `root-ex` if an exception occurs during evaluation."
+}
+},
+"forward-system-output": {
+"doc": "Enable forwarding of System/out and System/err output to client. This is a Clojure-specific op, not part of general nREPL spec.",
+"optional": {},
+"requires": {},
+"returns": {}
+},
+"interrupt": {
+"doc": "Attempts to interrupt some executing request. When interruption succeeds, the thread used for execution is killed, and a new thread spawned for the session. While the session middleware ensures that Clojure dynamic bindings are preserved, other ThreadLocals are not. Hence, when running code intimately tied to the current thread identity, it is best to avoid interruptions. On Java 20 and later, if `-Djdk.attach.allowAttachSelf` is enabled, the JVMTI agent will be used to attempt to stop the thread.",
+"optional": {
+"interrupt-id": "The opaque message ID sent with the request to be interrupted."
+},
+"requires": {
+"session": "The ID of the session used to start the request to be interrupted."
+},
+"returns": {
+"status": "'interrupted' if a request was identified and interruption will be attempted\n'session-idle' if the session is not currently executing any request\n'interrupt-id-mismatch' if the session is currently executing a request sent using a different ID than specified by the \"interrupt-id\" value\n'session-ephemeral' if the session is an ephemeral session"
+}
+},
+"load-file": {
+"doc": "Loads a body of code, using supplied path and filename info to set source file and line number metadata. Delegates to underlying \"eval\" middleware/handler.",
+"optional": {
+"file-name": "Name of source file, e.g. io.clj",
+"file-path": "Source-path-relative path of the source file, e.g. clojure/java/io.clj",
+"nrepl.middleware.caught/caught": "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument.",
+"nrepl.middleware.caught/print?": "If logical true, the printed value of any interactive errors will be returned in the response (otherwise they will be elided). Delegates to `nrepl.middleware.print` to perform the printing. Defaults to false.",
+"nrepl.middleware.print/buffer-size": "The size of the buffer to use when streaming results. Defaults to 1024.",
+"nrepl.middleware.print/keys": "A seq of the keys in the response whose values should be printed.",
+"nrepl.middleware.print/options": "A map of options to pass to the printing function. Defaults to `nil`.",
+"nrepl.middleware.print/print": "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options].",
+"nrepl.middleware.print/quota": "A hard limit on the number of bytes printed for each value.",
+"nrepl.middleware.print/stream?": "If logical true, the result of printing each value will be streamed to the client over one or more messages."
+},
+"requires": {
+"file": "Full contents of a file of code."
+},
+"returns": {
+"ex": "The type of exception thrown, if any. If present, then `:value` will be absent.",
+"root-ex": "The type of the root exception thrown, if any. If present, then `:value` will be absent.",
+"value": "The result of evaluating `code`, often `read`able. This printing is provided by the `print` middleware. Superseded by `ex` and `root-ex` if an exception occurs during evaluation."
+}
+},
+"lookup": {
+"doc": "Lookup symbol info.",
+"optional": {
+"lookup-fn": "The fully qualified name of a lookup function to use instead of the default one (e.g. `my.ns/lookup`).",
+"ns": "The namespace in which we want to do lookup. Defaults to `*ns*`."
+},
+"requires": {
+"sym": "The symbol to lookup."
+},
+"returns": {
+"info": "A map of the symbol's info."
+}
+},
+"ls-sessions": {
+"doc": "Lists the IDs of all active sessions.",
+"optional": {},
+"requires": {},
+"returns": {
+"sessions": "A list of all available session IDs."
+}
+},
+"stdin": {
+"doc": "Add content from the value of \"stdin\" to *in* in the current session.",
+"optional": {},
+"requires": {
+"stdin": "Content to add to *in*."
+},
+"returns": {
+"status": "A status of \"need-input\" will be sent if a session's *in* requires content in order to satisfy an attempted read operation."
+}
+}
+},
+"session": "<uuid:5>",
+"status": [
+"done"
+],
+"versions": {
+"clojure": {
+"incremental": 0,
+"major": 1,
+"minor": 13,
+"qualifier": "alpha6",
+"version-string": "1.13.0-alpha6"
+},
+"java": {
+"major": 25,
+"version-string": "25.0.4"
+},
+"nrepl": {
+"incremental": 0,
+"major": 1,
+"minor": 8,
+"version-string": "1.8.0"
+}
+}
+}
+}
+]
+}

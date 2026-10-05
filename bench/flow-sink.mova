@@ -1,0 +1,34 @@
+;; flow-sink.mova -- 1-proc flow engine floor: N messages injected into a
+;; single counting sink proc with a trivial (no-op) transform. Isolates the
+;; flow ENGINE's own per-message overhead (proc-loop dispatch, control
+;; checks, batch-drain) against raw-chan.mova's bare-channel floor, with zero
+;; inter-proc hops in the way. The sink's :done out-port is wired to an
+;; external channel via `::flow/out-ports` (init) rather than a `:conns`
+;; entry, so the driving script can block-quiesce on it without polling.
+;;
+;;   ./target/release/mova bench/flow-sink.mova
+
+(def N 1600000)
+(def done-ch (chan 1))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:done {}}})
+    :init (fn [_] {:n 0 :clojure.core.async.flow/out-ports {:done done-ch}})
+    :transform (fn [s _ m]
+                 (let [n2 (inc (:n s))]
+                   (if (= n2 N)
+                     [(assoc s :n n2) {:done [n2]}]
+                     [(assoc s :n n2) {}])))}))
+
+(def fl (flow/create-flow {:procs {:sink {:proc (flow/process sink)}} :conns []}))
+(flow/start fl)
+(flow/resume fl)
+
+(def t0 (time-ms))
+(flow/inject fl [:sink :in] (range N))
+(<!! done-ch)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-sink" N elapsed rate)
+(flow/stop fl)

@@ -1,0 +1,40 @@
+;; Mova-level stand-in for the built-in nREPL middleware of the same name: the real
+;; work is native. It carries the descriptor so user middleware can order itself
+;; against it (`:requires` / `:expects`, var or op name) and `describe` lists it.
+(ns nrepl.middleware.session
+  (:require [nrepl.middleware :refer [set-descriptor!]]))
+
+(defn make-session
+  "A session as middleware sees it: an atom holding the session's `*ns*`
+  (`{#'*ns* <symbol>}`), with the session id as `:id` metadata. Changes to
+  it do not reach the session."
+  [sid ns]
+  (doto (atom {#'*ns* (symbol ns)})
+    (reset-meta! {:id sid})))
+
+(defn session
+  "The sessions are native. This puts the `:session` atom on the message
+  (an ephemeral one when the request had no session), so middleware that
+  runs after it sees what it sees on the JVM, and middleware before it sees
+  the id string or nothing."
+  [h]
+  (fn [msg]
+    (let [{:keys [nrepl.lane/sid nrepl.lane/ns]} (meta msg)]
+      (h (if sid
+           (assoc msg :session (make-session sid (or ns "user")))
+           msg)))))
+
+(set-descriptor! #'session
+                 {:requires #{}
+                  :expects #{}
+                  :handles {"clone" {} "interrupt" {} "close" {} "ls-sessions" {}}})
+
+(defn add-stdin
+  "Native; this wrapper passes every message on."
+  [h]
+  h)
+
+(set-descriptor! #'add-stdin
+                 {:requires #{#'session}
+                  :expects #{"eval"}
+                  :handles {"stdin" {}}})

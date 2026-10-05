@@ -1,0 +1,57 @@
+{
+"scenario": "j01_dynamic_middleware",
+"doc": "expected: unknown-op in 1.8.0",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"op": "ls-middleware",
+"session": "<uuid:1>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"op": "add-middleware",
+"session": "<uuid:2>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"op": "swap-middleware",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "$s1",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+}
+]
+}

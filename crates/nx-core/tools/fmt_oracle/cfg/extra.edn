@@ -1,0 +1,10 @@
+{:extra-indents {clojure.core/when [[:block 2]]
+                 clojure.string/join [[:block 0]]
+                 my-macro [[:inner 0]]
+                 #re "^go-|^async" [[:block 1]]
+                 [#re "^clojure" #re "^if"] [[:inner 0]]
+                 -> [[:block 1]]
+                 ->> [[:inner 0] [:block 2]]
+                 reduce [[:inner 1]]
+                 let [[:block 0]]}
+ :indents {defn [[:block 1]] fn [[:inner 0 0]]}}

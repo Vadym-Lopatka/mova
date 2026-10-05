@@ -1,0 +1,44 @@
+;; destructuring-113.corpus -- Clojure 1.13.0-alpha6 destructuring overhaul
+;; (destmap*, req!, some-vals): the 13 forms of the 31-row §5 spec
+;; (compat/destructuring-113.{corpus,golden}, compat/notes-destructuring.md)
+;; that CONFORM under mova as of compat/c12-destructure -- promoted here
+;; per tests/conformance/pending/README.md's promotion rule from
+;; tests/conformance/pending/destructuring-113.corpus, which still holds
+;; the 15 ERR-BOTH rows (both sides throw, not yet auto-promotable without
+;; an exception-class taxonomy -- see that file's own header). Multi-key
+;; map results are wrapped `(into (sorted-map) ...)` for deterministic
+;; printing, matching destructuring.corpus's convention.
+
+;; ---- :keys! required-key happy path ----
+(let [{:keys! [a]} {:a 1}] a)
+
+;; ---- & inside a :keys vector: declared-but-not-bound, folded into :select ----
+(let [{:keys [a b & :c :d] :select sel} {:a 1 :b 2 :c 3 :d 4}] [a b (into (sorted-map) sel)])
+
+;; ---- :keys! + postamp: present succeeds (still req!-checked) ----
+(let [{:keys! [a & :b :c]} {:a 1 :b 2 :c 3}] a)
+
+;; ---- :select ----
+(let [{:select sel} {:a 1 :b 2}] sel)
+(let [{:keys [a] :select sel} {:a 1 :b 2}] sel)
+
+;; ---- :all ----
+(let [{:all m} {:a 1 :b 2}] (into (sorted-map) m))
+
+;; ---- :defaults (requires :or) ----
+(let [{:keys [a] :or {a 5} :defaults d} {}] [a (into (sorted-map) d)])
+
+;; ---- nested :select / :all propagation (subs/suba) ----
+(let [{{:keys [x] :select psel} :point :select sel} {:point {:x 1 :y 2}}] [(into (sorted-map) sel) psel])
+(let [{{:keys [x] :all pall} :point :all sall} {:point {:x 1 :y 2}}] [(into (sorted-map) sall) pall])
+
+;; ---- fn params get the same treatment (present key, no throw) ----
+(do (defn req-f [{:keys! [a]}] a) (req-f {:a 5}))
+
+;; ---- classic (pre-1.13) namespaced-key forms ----
+(let [{:keys [foo/a]} {:foo/a 1}] a)
+(let [{:foo/keys [a b]} {:foo/a 1 :foo/b 2}] [a b])
+(let [{:syms [a b]} {'a 1 'b 2}] [a b])
+;; promoted at c15 merge: conform under the merged c12 destructure engine
+(let [{:keys [foo/a]} {:foo/a 1}] a)
+(let [{:foo/keys [a b]} {:foo/a 1 :foo/b 2}] [a b])

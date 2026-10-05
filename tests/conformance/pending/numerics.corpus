@@ -1,0 +1,53 @@
+;; numerics.corpus -- numerics gap corpus (pending). Every form on this
+;; list currently DIVERGES between real Clojure 1.13.0-alpha6 and mova;
+;; it is a ledger of failures, not aspirational syntax. Covers: integer
+;; overflow + the `'`-suffixed promoting family + `unchecked-*`
+;; wraparound, ratios, BigInt/BigDecimal contagion,
+;; clojure.math + java.lang.Math interop, NaN?/infinite?, float printing
+;; exactness (##Inf/##NaN/scientific notation), numeric casts (byte/
+;; short/num), and parse-boolean/parse-uuid/rand existence. quot/rem/mod
+;; sign-matrix and *basic* bit-and/or/xor/not/shift-left/shift-right,
+;; int/long/double/float casts, and -0.0 printing all already CONFORM --
+;; see tests/conformance/corpus/numbers.corpus (bottom) instead; they are
+;; deliberately not repeated here.
+;;
+;; S5 (SPEC-numtower) paid off most of this file: 27 of its original 44
+;; forms were promoted into tests/conformance/corpus/numbers.corpus once
+;; mova got real tower arithmetic (the `'`-suffixed promoting family, the
+;; `unchecked-*` family, ratios, BigInt/BigDecimal contagion, `==`,
+;; `rationalize`, `ratio?`/`rational?`/`decimal?`, `NaN?`/`infinite?`).
+;; `(= 1 1.0)` was a documented deviation when this file was written and
+;; is one no longer -- `=` is numeric-category-strict now and the
+;; DEVIATIONS.md row is gone. What is LEFT below is the genuinely
+;; unfinished numerics: the bit-op family mova lacks
+;; (unsigned-bit-shift-right/bit-test/bit-set/bit-flip/bit-clear),
+;; clojure.math + java.lang.Math interop gaps, parse-boolean/parse-uuid,
+;; and the subnormal/float-printing digit divergences.
+;;
+;;PRELUDE (require (quote [clojure.math]))
+(inc 9223372036854775807)
+(dec -9223372036854775808)
+(* 3037000500 3037000500)
+(+ 9223372036854775807 1)
+(- -9223372036854775808 1)
+(byte 130)
+(short 40000)
+;; Denormal float printing: Rust's shortest-round-trip digits for
+;; Double.MIN_VALUE are "5e-324" where Java's FloatingDecimal prints
+;; "4.9E-324" -- same bit pattern, different text (S12's re-layout printer
+;; assumes digit parity, which holds everywhere EXCEPT subnormals).
+4.9E-324
+;; S3: the SAME divergence, reached via the Double/MIN_VALUE static field
+;; itself (src/builtins/statics.rs) rather than a bare literal -- the
+;; registered value is bit-for-bit correct (numerics-comparison forms
+;; using it conform, see tests/conformance/corpus/interop-statics.corpus),
+;; only the bare pr-str of it diverges, same as the literal above.
+Double/MIN_VALUE
+;; S3: Float/MAX_VALUE (src/builtins/statics.rs) -- mova has no real f32,
+;; so it stores f32::MAX WIDENED to f64 (numerically exact: 3.4028234663852886E38),
+;; but prints that with full f64 shortest-round-trip precision where
+;; Java's Float.toString prints its own shorter f32-precision digits
+;; ("3.4028235E38") -- same "numerically right, printed wrong" shape as
+;; Double/MIN_VALUE above, not a subnormal but the analogous single-vs-
+;; double-precision printer gap.
+Float/MAX_VALUE

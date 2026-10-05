@@ -1,0 +1,74 @@
+;; destructuring-113.corpus -- Clojure 1.13.0-alpha6 destructuring overhaul
+;; (destmap*, req!, some-vals): required keys (:keys!/:strs!/:syms!, incl.
+;; namespaced), & inside a directive vector, :select/:all/:defaults, and
+;; the :or-validation errors those trigger. This is the currently-diverging
+;; SUBSET of compat/destructuring-113.corpus, this repo's complete,
+;; human-facing 31-row §5 spec (see compat/notes-destructuring.md for the
+;; full form-by-form table and compat/destructuring-113-probe.clj for the
+;; harness that produced both corpora's goldens against real Clojure
+;; 1.13.0-alpha6).
+;;
+;; compat/c12-destructure (session 7, wave C+1) ported the whole §5 surface
+;; into `eval::special_forms::bind_map_pattern` (req!/:keys!/:strs!/:syms!/
+;; :foo/keys(!)/:syms/&-in-directive/:select/:all/:defaults). 13 of the 28
+;; rows this file used to hold now CONFORM on both sides and were promoted
+;; to `tests/conformance/corpus/destructuring-113.{corpus,golden}` (per
+;; this directory's own promotion rule, README.md). The 15 remaining here
+;; are ERR-BOTH: both real Clojure and mova throw for each (mova's message
+;; text was ported to match §5's verbatim wording as closely as mova's
+;; untyped-`catch`/no-exception-taxonomy error type allows -- see
+;; compat/notes-destructuring.md's per-row table for Clojure's exact
+;; class+message), but this directory's driver never auto-promotes
+;; ERR-BOTH (no exception-class taxonomy to compare against yet -- "both
+;; threw" doesn't prove the same thing was thrown; see README.md). They
+;; stay pending until M8 (error taxonomy) lets a future pass verify the
+;; thrown class, not just that something throws.
+;;
+;;  - the `:or {q 1}` row with no :select/:all/:defaults is DROPPED
+;;    entirely: it ALREADY CONFORMS under mova today (an unrelated :or key
+;;    is inert on both sides when no directive activates :or-validation)
+;;    and therefore fails this directory's own "must diverge" rule -- see
+;;    README.md's promotion rule and compat/notes-destructuring.md's
+;;    "Already conforming" section for the confirmation.
+;;
+;;  - the two `defn`+call pairs (`req-f`/`req-f2`, 4 rows in the main
+;;    corpus) were each MERGED into one `(do (defn ...) (call ...))` form
+;;    apiece (not a session-model workaround -- see the original commit
+;;    that introduced this file for the full CONFORM-avoidance rationale).
+;;    `req-f`'s pair now CONFORMS (both sides: `OK 5`) and was promoted;
+;;    `req-f2`'s pair (missing key -> throw) still ERR-BOTHs, so it stays.
+
+;; ---- required keys: :keys! / :strs! / :syms! / namespaced ----
+(let [{:keys! [a]} {:b 1}] a)
+(let [{:strs! [a]} {}] a)
+(let [{:syms! [a]} {}] a)
+(let [{:foo/keys! [a]} {}] a)
+
+;; ---- default for a required key is a compile-time error ----
+(let [{:keys! [a] :or {a 1}} {}] a)
+
+;; ---- `&` inside a directive vector: declared-but-not-bound ----
+(let [{:keys [a & :b & :c]} {:a 1}] a)
+;; :keys! + postamp: still enforced-required (via req!), but bound to a
+;; discarded gensym -- present succeeds, missing throws.
+(let [{:keys! [a & :b :c]} {:a 1 :c 3}] a)
+;; symbols (not keywords) after `&` are rejected.
+(let [{:keys [a b & c d]} {:a 1 :b 2 :c 3 :d 4}] [a b])
+
+;; ---- :select (a required key missing under :select still throws) ----
+(let [{:keys! [a] :select sel} {:b 2}] [a sel])
+
+;; ---- :defaults (requires :or) ----
+(let [{:keys [a] :defaults d} {}] [a d])
+
+;; ---- :or validation, active only alongside :select/:all/:defaults ----
+;; (`(let [{:keys [a] :or {q 1}} {}] a)` => OK nil, dropped here: it
+;; ALREADY CONFORMS under mova -- see this file's header.)
+(let [{:keys [a] :or {a 1 q 2} :select sel} {}] [a sel])
+(let [{:keys [a] :or {a 1 :extra 2} :select sel} {}] [a sel])
+(let [{x :a :or {x 1 :a 2}} {}] x)
+
+;; ---- fn/defn params get the same treatment (missing required key) ----
+(do (defn req-f2 [{:keys! [a]}] a) (req-f2 {}))
+
+;; ---- classic (pre-1.13) namespaced-key forms mova also gets wrong ----

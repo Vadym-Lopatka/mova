@@ -1,0 +1,63 @@
+;; equality-hash.corpus -- equality/hashing/comparison gap corpus
+;; (pending). Every form on this list currently DIVERGES between real
+;; Clojure 1.13.0-alpha6 and mova; it is a ledger of failures, not
+;; aspirational syntax. Covers: `=`/`==`/`identical?` divergence,
+;; `compare` (mova has NO `compare` at all -- covers cross-type numeric
+;; compare, incomparable-type ClassCastException, and Sequential
+;; lexicographic compare), the `(= 1 1.0) -> true` leakage into
+;; `distinct`/`dedupe`/`distinct?`, `sort` on incomparable types, `hash`
+;; (mova has NO `hash` function at all -- existence, and the
+;; ordered/unordered collection hash contracts), and NaN's very
+;; surprising real-Clojure semantics (NaN is NOT `=` to itself, and does
+;; NOT work as a map/set key, unlike java.lang.Double.equals -- verified
+;; against real Clojure, not assumed) plus `-0.0`/`0.0` numeric equality.
+;;
+;; NOTE: several forms from the same sweep that probe this exact
+;; `(= 1 1.0) -> true` leakage turned out to already CONFORM (mova's
+;; map/set/frequencies/group-by internals use strict key equality, unlike
+;; its `=`/`distinct`/vector-equality path) and were moved to
+;; tests/conformance/corpus/collections.corpus instead: `(= {1 :a} {1.0
+;; :a})`, `(= #{1} #{1.0})`, `(count (into #{} [1 1.0]))`, `(get {1 :a}
+;; 1.0)`, `(contains? {1 :a} 1.0)`, `(frequencies [1 1.0 1])`, `(group-by
+;; identity [1 1.0 2])`. `identical?` on vectors and `sort` on
+;; same-category-mixed numbers also conformed and moved to
+;; tests/conformance/corpus/predicates.corpus / numbers.corpus.
+;;
+;; S5 (SPEC-numtower): `(= 1 1.0)` is no longer a deviation at all -- `=`
+;; became numeric-category-strict, and the DEVIATIONS.md row for it is
+;; gone. Nine forms from this file were promoted with it, including the
+;; collection-leakage rows (`(= [1] [1.0])`, `(distinct [1 1.0 1])`) and
+;; the float-identity rows (`(= -0.0 0.0)`, `(= ##NaN ##NaN)`, `(hash
+;; 1)`/`(hash 1.0)`) that only became assertable once `=` on doubles went
+;; IEEE and `hash` reproduced `clojure.lang.Util.hasheq`. What remains
+;; here is the float-identity gap in COLLECTION KEYS specifically -- see
+;; DEVIATIONS.md's "S5 float identity in collection keys".
+;;
+;; compat/s4-sorted-vecof (2026-08-20): `compare` and `hash` now exist
+;; (added for sorted-map/-set/vector-of's own choke points) -- the
+;; `compare`/`hash` forms this file's own header called out as "mova has
+;; NO `compare`/`hash` at all" now conform and moved to
+;; tests/conformance/corpus/collections.corpus: `(compare 1 2)`, `(compare
+;; 1 1.0)`, `(compare [1 2] [1 2 3])`, and the `(= (hash a) (hash b))`
+;; relative-equality forms. `(compare :a "a")`/`(compare [1 2] '(1 2))`
+;; still diverge (cross-category compare's exact throw/no-throw boundary),
+;; and raw `(hash 1)`-style forms comparing against the JVM's OWN hash
+;; NUMBER can never conform -- mova's `hash` is a different (but
+;; internally consistent) hash function, not a `hashCode` reimplementation
+;; -- so those stay here.
+;;
+;; C13 (sequences/transducers wave, session 7b): `(dedupe [1 1.0 1.0 2])`
+;; now conforms -- `dedupe` didn't exist in mova before this wave, and its
+;; 1-arity is `=`-based (like `distinct`), so it inherits the SAME
+;; already-conforming numeric-category-strict `=` this file's own header
+;; describes -- moved to tests/conformance/corpus/collections.corpus.
+;;
+(identical? 1000 1000)
+(identical? "abc" "abc")
+(compare :a "a")
+(compare [1 2] '(1 2))
+(sort [:b :a "z"])
+(hash nil)
+(hash "abc")
+(get {(/ 0.0 0.0) :marker} (/ 0.0 0.0))
+(contains? #{(/ 0.0 0.0)} (/ 0.0 0.0))

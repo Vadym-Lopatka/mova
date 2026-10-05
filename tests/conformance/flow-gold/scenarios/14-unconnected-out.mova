@@ -1,0 +1,54 @@
+;;RUNS 5
+;;DIVERGENT
+;; 14-unconnected-out: a transform targets a declared out-id (:dead-end)
+;; that has NO connection in :conns. SPEC.md's catalog flagged this
+;; "recon-flagged possibly-divergent... gold behavior UNKNOWN -- probe
+;; it!" -- probed directly, and it IS divergent:
+;; - Gold (impl.clj): the proc-level `outs` map has :dead-end -> nil (no
+;;   conn means create-flow's out-chans entry for that coord is nil).
+;;   `send-outputs`'s lookup `(or (outs output) (spi/get-write-chan
+;;   resolver output))` falls through to `get-write-chan` on the BARE
+;;   local out-id `:dead-end` -- but `get-write-chan`/`write-chan` only
+;;   resolves FULL [pid id] coordinates via `in-chans`/`out-chans`
+;;   (both keyed by `[pid cid]` pairs), so a bare keyword is never found
+;;   and it throws `"can't resolve channel with io-id"`. That exception
+;;   is caught by the proc's own per-message `try`/`catch` and routed to
+;;   the error-chan like any other transform error -- so gold ERRORS
+;;   (via the error-chan) on every unconnected-out write.
+;; - mova (tests/flow_test.rs `unconnected_output_silently_drops`):
+;;   builds no transport at all for an unconnected out-port and simply
+;;   discards those messages -- no error is ever raised, on the error-
+;;   chan or otherwise.
+;; Both sides still deliver the CONNECTED :out port normally regardless.
+;; Confirmed 5/5 stable each side.
+
+(def out-ch (chan 10))
+
+(def step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {} :dead-end {}}})
+    :transform (fn [s _ m] [s {:out [m] :dead-end [:nobody-home]}])}))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:u {:proc (flow/process step)} :s {:proc (flow/process sink)}}
+          :conns [[[:u :out] [:s :in]]]}))
+(def chans (flow/start fl))
+(flow/resume fl)
+(flow/inject fl [:u :in] [:hi])
+
+(def connected-out (deref (future (<!! out-ch)) 5000 :timed-out))
+(println "RESULT connected-out" (pr-str connected-out))
+
+;; the portable bounded-read idiom (FINDINGS.md) doubles as the error
+;; probe here: gold's error-chan resolves the future with a real map
+;; almost immediately; mova's never puts anything, so it always falls
+;; through to the sentinel.
+(def error-result (deref (future (<!! (:error-chan chans))) 2000 :bounded-timeout))
+(println "RESULT unconnected-out-errored" (not= error-result :bounded-timeout))
+
+(flow/stop fl)

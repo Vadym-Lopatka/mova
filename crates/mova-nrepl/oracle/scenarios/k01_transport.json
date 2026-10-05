@@ -1,0 +1,133 @@
+{
+ "name": "k01_transport",
+ "doc": "two msgs per write; split writes; 1 MB code",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "write": {
+    "msgs": [
+     {
+      "op": "describe",
+      "id": "1"
+     },
+     {
+      "op": "eval",
+      "id": "2",
+      "code": "(+ 1 2)",
+      "session": "$s1"
+     }
+    ]
+   },
+   "await_ids": [
+    "1",
+    "2"
+   ]
+  },
+  {
+   "write": {
+    "msgs": [
+     {
+      "op": "eval",
+      "id": "3",
+      "code": "(+ 10 20)",
+      "session": "$s1"
+     }
+    ],
+    "split": [
+     7,
+     20
+    ]
+   },
+   "delay": 0.15,
+   "await_ids": [
+    "3"
+   ]
+  },
+  {
+   "write": {
+    "msgs": [
+     {
+      "op": "eval",
+      "id": "4",
+      "code": "(println 1) (+ 1 1)",
+      "session": "$s1"
+     },
+     {
+      "op": "eval",
+      "id": "5",
+      "code": "(+ 5 5)",
+      "session": "$s1"
+     },
+     {
+      "op": "clone",
+      "id": "6"
+     }
+    ]
+   },
+   "await_ids": [
+    "4",
+    "5",
+    "6"
+   ]
+  },
+  {
+   "write": {
+    "msgs": [
+     {
+      "op": "eval",
+      "id": "7",
+      "code": "(+ 7 7)",
+      "session": "$s1"
+     }
+    ],
+    "split": [
+     1
+    ]
+   },
+   "delay": 0.3,
+   "await_ids": [
+    "7"
+   ]
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "session": "$s1",
+    "code": {
+     "$repeat": "(+ 1 2) ",
+     "n": 100
+    }
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "session": "$s1",
+    "code": {
+     "$repeat": "a",
+     "n": 1048576,
+     "prefix": "(count \"",
+     "suffix": "\")"
+    }
+   },
+   "timeout": 30
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "session": "$s1",
+    "code": {
+     "$repeat": "(+ 1 2) ",
+     "n": 2000
+    }
+   },
+   "timeout": 30
+  }
+ ],
+ "flaky": "race: each incoming message is handled on its own pool thread, so replies to messages sent back-to-back (one TCP write) can overtake each other, even within one session"
+}

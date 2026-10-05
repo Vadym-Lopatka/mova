@@ -1,0 +1,27 @@
+[package]
+name = "mova-derive"
+version = "0.4.0"
+edition = "2021"
+description = "#[derive(MovaStruct)] -- the derive macro for Mova's Value::HostStruct embedding boundary."
+license = "EPL-1.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+
+[dev-dependencies]
+# Cyclic on purpose: the trybuild UI fixtures under tests/ui/ are real
+# programs that `use mova::embed::host::{MovaStruct, WrapExt}` (the traits
+# this macro's generated code implements) alongside `use mova_derive::
+# MovaStruct` (this macro) -- they need the parent crate built WITH the
+# `derive` feature (which itself depends back on this crate as an optional
+# path dep). Cargo explicitly allows dependency cycles through
+# dev-dependencies (they never affect building `mova-derive` itself, only
+# its own test binaries), the same shape any `syn`/`serde_derive`-style
+# proc-macro crate's own UI-test suite relies on.
+mova = { path = "..", features = ["derive"] }
+trybuild = "1"

@@ -1,0 +1,1349 @@
+*1.2([] [x] [x y] [x y & more])Returns the product of nums. (*) returns 1. Does not auto-promote
+  longs, will throw on overflow. See also: *'*'1.0([] [x] [x y] [x y & more])Returns the product of nums. (*') returns 1. Supports arbitrary precision.
+  See also: **11.0bound in a repl thread to the most recent value printed*21.0bound in a repl thread to the second most recent value printed*31.0bound in a repl thread to the third most recent value printed*assert*1.0When set to logical false, 'assert' will omit assertion checks in
+  compiled code. Defaults to true.*clojure-version*1.0The version info for Clojure core, as a map containing :major :minor 
+  :incremental and :qualifier keys. Feature releases may increment 
+  :minor and/or :major, bugfix releases will increment :incremental. 
+  Possible values of :qualifier include "GA", "SNAPSHOT", "RC-x" "BETA-x"*data-readers*1.4Map from reader tag symbols to data reader Vars.
+
+  When Clojure starts, it searches for files named 'data_readers.clj'
+  and 'data_readers.cljc' at the root of the classpath. Each such file
+  must contain a literal map of symbols, like this:
+
+      {foo/bar my.project.foo/bar
+       foo/baz my.project/baz}
+
+  The first symbol in each pair is a tag that will be recognized by
+  the Clojure reader. The second symbol in the pair is the
+  fully-qualified name of a Var which will be invoked by the reader to
+  parse the form following the tag. For example, given the
+  data_readers.clj file above, the Clojure reader would parse this
+  form:
+
+      #foo/bar [1 2 3]
+
+  by invoking the Var #'my.project.foo/bar on the vector [1 2 3]. The
+  data reader function is invoked on the form AFTER it has been read
+  as a normal Clojure data structure by the reader.
+
+  Reader tags without namespace qualifiers are reserved for
+  Clojure. Default reader tags are defined in
+  clojure.core/default-data-readers but may be overridden in
+  data_readers.clj, data_readers.cljc, or by rebinding this Var.*e1.0bound in a repl thread to the most recent exception caught by the repl*err*1.0A java.io.Writer object representing standard error for print operations.
+
+  Defaults to System/err, wrapped in a PrintWriter*flush-on-newline*1.0When set to true, output will be flushed whenever a newline is printed.
+
+  Defaults to true.*in*1.0A java.io.Reader object representing standard input for read operations.
+
+  Defaults to System/in, wrapped in a LineNumberingPushbackReader*ns*1.0A clojure.lang.Namespace object representing the current namespace.*out*1.0A java.io.Writer object representing standard output for print operations.
+
+  Defaults to System/out, wrapped in an OutputStreamWriter*print-dup*1.0When set to logical true, objects will be printed in a way that preserves
+  their type when read in later.
+
+  Defaults to false.*print-length*1.0*print-length* controls how many items of each collection the
+  printer will print. If it is bound to logical false, there is no
+  limit. Otherwise, it must be bound to an integer indicating the maximum
+  number of items of each collection to print. If a collection contains
+  more items, the printer will print items up to the limit followed by
+  '...' to represent the remaining items. The root binding is nil
+  indicating no limit.*print-level*1.0*print-level* controls how many levels deep the printer will
+  print nested objects. If it is bound to logical false, there is no
+  limit. Otherwise, it must be bound to an integer indicating the maximum
+  level to print. Each argument to print is at level 0; if an argument is a
+  collection, its items are at level 1; and so on. If an object is a
+  collection and is at a level greater than or equal to the value bound to
+  *print-level*, the printer prints '#' to represent it. The root binding
+  is nil indicating no limit.*print-meta*1.0If set to logical true, when printing an object, its metadata will also
+  be printed in a form that can be read back by the reader.
+
+  Defaults to false.*print-namespace-maps*1.9*print-namespace-maps* controls whether the printer will print
+  namespace map literal syntax. It defaults to false, but the REPL binds
+  to true.*print-readably*1.0When set to logical false, strings and characters will be printed with
+  non-alphanumeric characters converted to the appropriate escape sequences.
+
+  Defaults to true*read-eval*1.0Defaults to true (or value specified by system property, see below)
+  ***This setting implies that the full power of the reader is in play,
+  including syntax that can cause code to execute. It should never be
+  used with untrusted sources. See also: clojure.edn/read.***
+
+  When set to logical false in the thread-local binding,
+  the eval reader (#=) and record/type literal syntax are disabled in read/load.
+  Example (will fail): (binding [*read-eval* false] (read-string "#=(* 2 21)"))
+
+  The default binding can be controlled by the system property
+  'clojure.read.eval' System properties can be set on the command line
+  like this:
+
+  java -Dclojure.read.eval=false ...
+
+  The system property can also be set to 'unknown' via
+  -Dclojure.read.eval=unknown, in which case the default binding
+  is :unknown and all reads will fail in contexts where *read-eval*
+  has not been explicitly bound to either true or false. This setting
+  can be a useful diagnostic tool to ensure that all of your reads
+  occur in considered contexts. You can also accomplish this in a
+  particular scope by binding *read-eval* to :unknown
+  *unchecked-math*1.3While bound to true, compilations of +, -, *, inc, dec and the
+  coercions will be done without overflow checks. While bound
+  to :warn-on-boxed, same behavior as true, and a warning is emitted
+  when compilation uses boxed math. Default: false.*warn-on-reflection*1.0When set to true, the compiler will emit warnings when reflection is
+  needed to resolve Java method calls or field accesses.
+
+  Defaults to false.+1.2([] [x] [x y] [x y & more])Returns the sum of nums. (+) returns 0. Does not auto-promote
+  longs, will throw on overflow. See also: +'+'1.0([] [x] [x y] [x y & more])Returns the sum of nums. (+') returns 0. Supports arbitrary precision.
+  See also: +-1.2([x] [x y] [x y & more])If no ys are supplied, returns the negation of x, else subtracts
+  the ys from x and returns the result. Does not auto-promote
+  longs, will throw on overflow. See also: -'-'1.0([x] [x y] [x y & more])If no ys are supplied, returns the negation of x, else subtracts
+  the ys from x and returns the result. Supports arbitrary precision.
+  See also: -->1.0([x & forms])Threads the expr through the forms. Inserts x as the
+  second item in the first form, making a list of it if it is not a
+  list already. If there are more forms, inserts the first form as the
+  second item in second form, etc.->>1.1([x & forms])Threads the expr through the forms. Inserts x as the
+  last item in the first form, making a list of it if it is not a
+  list already. If there are more forms, inserts the first form as the
+  last item in second form, etc.->Eduction([xform coll])Positional factory function for class clojure.core.Eduction...1.0([x form] [x form & more])form => fieldName-symbol or (instanceMethodName-symbol args*)
+
+  Expands into a member access (.) of the first member on the first
+  argument, followed by the next member on the result, etc. For
+  instance:
+
+  (.. System (getProperties) (get "os.name"))
+
+  expands to:
+
+  (. (. System (getProperties)) (get "os.name"))
+
+  but is easier to write, read, and understand./1.0([x] [x y] [x y & more])If no denominators are supplied, returns 1/numerator,
+  else returns numerator divided by all of the denominators.<1.0([x] [x y] [x y & more])Returns non-nil if nums are in monotonically increasing order,
+  otherwise false.<=1.0([x] [x y] [x y & more])Returns non-nil if nums are in monotonically non-decreasing order,
+  otherwise false.=1.0([x] [x y] [x y & more])Equality. Returns true if x equals y, false if not. Same as
+  Java x.equals(y) except it also works for nil, and compares
+  numbers and collections in a type-independent manner.  Clojure's immutable data
+  structures define equals() (and thus =) as a value, not an identity,
+  comparison.==1.0([x] [x y] [x y & more])Returns non-nil if nums all have the equivalent
+  value (type-independent), otherwise false>1.0([x] [x y] [x y & more])Returns non-nil if nums are in monotonically decreasing order,
+  otherwise false.>=1.0([x] [x y] [x y & more])Returns non-nil if nums are in monotonically non-increasing order,
+  otherwise false.NaN?1.11([num])Returns true if num is NaN, else falseThrowable->map1.7([o])Constructs a data representation for a Throwable with keys:
+    :cause - root cause message
+    :phase - error phase
+    :via - cause chain, with cause keys:
+             :type - exception class symbol
+             :message - exception message
+             :data - ex-data
+             :at - top stack element
+    :trace - root cause stack elementsabs1.11([a])Returns the absolute value of a.
+  If a is Long/MIN_VALUE => Long/MIN_VALUE
+  If a is a double and zero => +0.0
+  If a is a double and ##Inf or ##-Inf => ##Inf
+  If a is a double and ##NaN => ##NaNaccessor1.0([s key])Returns a fn that, given an instance of a structmap with the basis,
+  returns the value at the key.  The key must be in the basis. The
+  returned function should be (slightly) more efficient than using
+  get, but such use of accessors should be limited to known
+  performance-critical areas.aclone1.0([array])Returns a clone of the Java array. Works on arrays of known
+  types.add-watch1.0([reference key fn])Adds a watch function to an agent/atom/var/ref reference. The watch
+  fn must be a fn of 4 args: a key, the reference, its old-state, its
+  new-state. Whenever the reference's state might have been changed,
+  any registered watches will have their functions called. The watch fn
+  will be called synchronously, on the agent's thread if an agent,
+  before any pending sends if agent or ref. Note that an atom's or
+  ref's state may have changed again prior to the fn call, so use
+  old/new-state rather than derefing the reference. Note also that watch
+  fns may be called from multiple threads simultaneously. Var watchers
+  are triggered only by root binding changes, not thread-local
+  set!s. Keys must be unique per reference, and can be used to remove
+  the watch with remove-watch, but are otherwise considered opaque by
+  the watch mechanism.aget1.0([array idx] [array idx & idxs])Returns the value at the index/indices. Works on Java arrays of all
+  types.alength1.0([array])Returns the length of the Java array. Works on arrays of all
+  types.alias1.0([alias namespace-sym])Add an alias in the current namespace to another
+  namespace. Arguments are two symbols: the alias to be used, and
+  the symbolic name of the target namespace. Use :as in the ns macro in preference
+  to calling this directly.all-ns1.0([])Returns a sequence of all namespaces.alter1.0([ref fun & args])Must be called in a transaction. Sets the in-transaction-value of
+  ref to:
+
+  (apply fun in-transaction-value-of-ref args)
+
+  and returns the in-transaction-value of ref.alter-meta!1.0([iref f & args])Atomically sets the metadata for a namespace/var/ref/agent/atom to be:
+
+  (apply f its-current-meta args)
+
+  f must be free of side-effectsalter-var-root1.0([v f & args])Atomically alters the root binding of var v by applying f to its
+  current value plus any argsamap1.0([a idx ret expr])Maps an expression across an array a, using an index named idx, and
+  return value named ret, initialized to a clone of a, then setting 
+  each element of ret to the evaluation of expr, returning the new 
+  array ret.ancestors1.0([tag] [h tag])Returns the immediate and indirect parents of tag, either via a Java type
+  inheritance relationship or a relationship established via derive. h
+  must be a hierarchy obtained from make-hierarchy, if not supplied
+  defaults to the global hierarchyand1.0([] [x] [x & next])Evaluates exprs one at a time, from left to right. If a form
+  returns logical false (nil or false), and returns that value and
+  doesn't evaluate any of the other expressions, otherwise it returns
+  the value of the last expr. (and) returns true.any?1.9([x])Returns true given any argument.apply1.0([f args] [f x args] [f x y args] [f x y z args] [f a b c d & args])Applies fn f to the argument list formed by prepending intervening arguments to args.areduce1.0([a idx ret init expr])Reduces an expression across an array a, using an index named idx,
+  and return value named ret, initialized to init, setting ret to the 
+  evaluation of expr at each step, returning ret.array-map1.0([] [& keyvals])Constructs an array-map. If any keys are equal, they are handled as
+  if by repeated uses of assoc.as->1.5([expr name & forms])Binds name to expr, evaluates the first form in the lexical context
+  of that binding, then binds name to that result, repeating for each
+  successive form, returning the result of the last form.aset1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on Java arrays of
+  reference types. Returns val.aset-boolean1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of boolean. Returns val.aset-byte1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of byte. Returns val.aset-char1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of char. Returns val.aset-double1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of double. Returns val.aset-float1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of float. Returns val.aset-int1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of int. Returns val.aset-long1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of long. Returns val.aset-short1.0([array idx val] [array idx idx2 & idxv])Sets the value at the index/indices. Works on arrays of short. Returns val.assert1.0([x] [x message])Evaluates expression x and throws an AssertionError with optional
+  message if x does not evaluate to logical true.
+
+  Assertion checks are omitted from compiled code if '*assert*' is
+  false.assoc1.0([map key val] [map key val & kvs])assoc[iate]. When applied to a map, returns a new map of the
+    same (hashed/sorted) type, that contains the mapping of key(s) to
+    val(s). When applied to a vector, returns a new vector that
+    contains val at index. Note - index must be <= (count vector).assoc!1.1([coll key val] [coll key val & kvs])When applied to a transient map, adds mapping of key(s) to
+  val(s). When applied to a transient vector, sets the val at index.
+  Note - index must be <= (count vector). Returns coll.assoc-in1.0([m [k & ks] v])Associates a value in a nested associative structure, where ks is a
+  sequence of keys and v is the new value and returns a new nested structure.
+  If any levels do not exist, hash-maps will be created.associative?1.0([coll])Returns true if coll implements Associativeatom1.0([x] [x & options])Creates and returns an Atom with an initial value of x and zero or
+  more options (in any order):
+
+  :meta metadata-map
+
+  :validator validate-fn
+
+  If metadata-map is supplied, it will become the metadata on the
+  atom. validate-fn must be nil or a side-effect-free fn of one
+  argument, which will be passed the intended new state on any state
+  change. If the new state is unacceptable, the validate-fn should
+  return false or throw an exception.bean1.0([x])Takes a Java object and returns a read-only implementation of the
+  map abstraction based upon its JavaBean properties.bigdec1.0([x])Coerce to BigDecimalbigint1.3([x])Coerce to BigIntbiginteger1.0([x])Coerce to BigIntegerbinding1.0([bindings & body])binding => var-symbol init-expr
+
+  Creates new bindings for the (already-existing) vars, with the
+  supplied initial values, executes the exprs in an implicit do, then
+  re-establishes the bindings that existed before.  The new bindings
+  are made in parallel (unlike let); all init-exprs are evaluated
+  before the vars are bound to their new values.bit-and1.0([x y] [x y & more])Bitwise andbit-clear1.0([x n])Clear bit at index nbit-flip1.0([x n])Flip bit at index nbit-not1.0([x])Bitwise complementbit-or1.0([x y] [x y & more])Bitwise orbit-set1.0([x n])Set bit at index nbit-shift-left1.0([x n])Bitwise shift leftbit-shift-right1.0([x n])Bitwise shift rightbit-test1.0([x n])Test bit at index nbit-xor1.0([x y] [x y & more])Bitwise exclusive orboolean1.0([x])Coerce to booleanboolean-array1.1([size-or-seq] [size init-val-or-seq])Creates an array of booleansboolean?1.9([x])Return true if x is a Booleanbooleans1.1([xs])Casts to boolean[]bounded-count1.9([n coll])If coll is counted? returns its count, else will count at most the first n
+  elements of coll using its seqbutlast1.0([coll])Return a seq of all but the last item in coll, in linear timebyte1.0([x])Coerce to bytebyte-array1.1([size-or-seq] [size init-val-or-seq])Creates an array of bytesbytes1.1([xs])Casts to byte[]bytes?1.9([x])Return true if x is a byte arraycase1.2([e & clauses])Takes an expression, and a set of clauses.
+
+  Each clause can take the form of either:
+
+  test-constant result-expr
+
+  (test-constant1 ... test-constantN)  result-expr
+
+  The test-constants are not evaluated. They must be compile-time
+  literals, and need not be quoted.  If the expression is equal to a
+  test-constant, the corresponding result-expr is returned. A single
+  default expression can follow the clauses, and its value will be
+  returned if no clause matches. If no default expression is provided
+  and no clause matches, an IllegalArgumentException is thrown.
+
+  Unlike cond and condp, case does a constant-time dispatch, the
+  clauses are not considered sequentially.  All manner of constant
+  expressions are acceptable in case, including numbers, strings,
+  symbols, keywords, and (Clojure) composites thereof. Note that since
+  lists are used to group multiple constants that map to the same
+  expression, a vector can be used to match a list if needed. The
+  test-constants need not be all of the same type.cast1.0([c x])Throws a ClassCastException if x is not a c, else returns x.cat1.7([rf])A transducer which concatenates the contents of each input, which must be a
+  collection, into the reduction.char1.1([x])Coerce to charchar-array1.1([size-or-seq] [size init-val-or-seq])Creates an array of charschar?1.0([x])Return true if x is a Characterchars1.1([xs])Casts to char[]class1.0([x])Returns the Class of xclass?1.0([x])Returns true if x is an instance of Classclojure-version1.0([])Returns clojure version as a printable string.coll?1.0([x])Returns true if x implements IPersistentCollectioncomment1.0([& body])Ignores body, yields nilcommute1.0([ref fun & args])Must be called in a transaction. Sets the in-transaction-value of
+  ref to:
+
+  (apply fun in-transaction-value-of-ref args)
+
+  and returns the in-transaction-value of ref.
+
+  At the commit point of the transaction, sets the value of ref to be:
+
+  (apply fun most-recently-committed-value-of-ref args)
+
+  Thus fun should be commutative, or, failing that, you must accept
+  last-one-in-wins behavior.  commute allows for more concurrency than
+  ref-set.comp1.0([] [f] [f g] [f g & fs])Takes a set of functions and returns a fn that is the composition
+  of those fns.  The returned fn takes a variable number of args,
+  applies the rightmost of fns to the args, the next
+  fn (right-to-left) to the result, etc.compare1.0([x y])Comparator. Returns a negative number, zero, or a positive number
+  when x is logically 'less than', 'equal to', or 'greater than'
+  y. Same as Java x.compareTo(y) except it also works for nil, and
+  compares numbers and collections in a type-independent manner. x
+  must implement Comparablecompare-and-set!1.0([atom oldval newval])Atomically sets the value of atom to newval if and only if the
+  current value of the atom is identical to oldval. Returns true if
+  set happened, else falsecomplement1.0([f])Takes a fn f and returns a fn that takes the same arguments as f,
+  has the same effects, if any, and returns the opposite truth value.completing1.7([f] [f cf])Takes a reducing function f of 2 args and returns a fn suitable for
+  transduce by adding an arity-1 signature that calls cf (default -
+  identity) on the result argument.concat1.0([] [x] [x y] [x y & zs])Returns a lazy seq representing the concatenation of the elements in the supplied colls.cond1.0([& clauses])Takes a set of test/expr pairs. It evaluates each test one at a
+  time.  If a test returns logical true, cond evaluates and returns
+  the value of the corresponding expr and doesn't evaluate any of the
+  other tests or exprs. (cond) returns nil.cond->1.5([expr & clauses])Takes an expression and a set of test/form pairs. Threads expr (via ->)
+  through each form for which the corresponding test
+  expression is true. Note that, unlike cond branching, cond-> threading does
+  not short circuit after the first true test expression.cond->>1.5([expr & clauses])Takes an expression and a set of test/form pairs. Threads expr (via ->>)
+  through each form for which the corresponding test expression
+  is true.  Note that, unlike cond branching, cond->> threading does not short circuit
+  after the first true test expression.condp1.0([pred expr & clauses])Takes a binary predicate, an expression, and a set of clauses.
+  Each clause can take the form of either:
+
+  test-expr result-expr
+
+  test-expr :>> result-fn
+
+  Note :>> is an ordinary keyword.
+
+  For each clause, (pred test-expr expr) is evaluated. If it returns
+  logical true, the clause is a match. If a binary clause matches, the
+  result-expr is returned, if a ternary clause matches, its result-fn,
+  which must be a unary function, is called with the result of the
+  predicate as its argument, the result of that call being the return
+  value of condp. A single default expression can follow the clauses,
+  and its value will be returned if no clause matches. If no default
+  expression is provided and no clause matches, an
+  IllegalArgumentException is thrown.conj1.0([] [coll] [coll x] [coll x & xs])conj[oin]. Returns a new collection with the xs
+    'added'. (conj nil item) returns (item).
+    (conj coll) returns coll. (conj) returns [].
+    The 'addition' may happen at different 'places' depending
+    on the concrete type.conj!1.1([] [coll] [coll x])Adds x to the transient collection, and return coll. The 'addition'
+  may happen at different 'places' depending on the concrete type.cons1.0([x seq])Returns a new seq where x is the first element and seq is
+    the rest.constantly1.0([x])Returns a function that takes any number of arguments and returns x.contains?1.0([coll key])Returns true if key is present in the given collection, otherwise
+  returns false.  Note that for numerically indexed collections like
+  vectors and Java arrays, this tests if the numeric key is within the
+  range of indexes. 'contains?' operates constant or logarithmic time;
+  it will not perform a linear search for a value.  See also 'some'.count1.0([coll])Returns the number of items in the collection. (count nil) returns
+  0.  Also works on strings, arrays, and Java Collections and Mapscounted?1.0([coll])Returns true if coll implements count in constant timecreate-ns1.0([sym])Create a new namespace named by the symbol if one doesn't already
+  exist, returns it or the already-existing namespace of the same
+  name.create-struct1.0([& keys])Returns a structure basis object.cycle1.0([coll])Returns a lazy (infinite!) sequence of repetitions of the items in coll.dec1.2([x])Returns a number one less than num. Does not auto-promote
+  longs, will throw on overflow. See also: dec'dec'1.0([x])Returns a number one less than num. Supports arbitrary precision.
+  See also: decdecimal?1.0([n])Returns true if n is a BigDecimaldeclare1.0([& names])defs the supplied var names with no bindings, useful for making forward declarations.dedupe1.7([] [coll])Returns a lazy sequence removing consecutive duplicates in coll.
+  Returns a transducer when no collection is provided.definterface1.2([name & sigs])Creates a new Java interface with the given name and method sigs.
+  The method return types and parameter types may be specified with type hints,
+  defaulting to Object if omitted.
+
+  (definterface MyInterface
+    (^int method1 [x])
+    (^Bar method2 [^Baz b ^Quux q]))defmacro1.0([name doc-string? attr-map? [params*] body] [name doc-string? attr-map? ([params*] body) + attr-map?])Like defn, but the resulting function name is declared as a
+  macro and will be used as a macro by the compiler when it is
+  called.defmethod1.0([multifn dispatch-val & fn-tail])Creates and installs a new method of multimethod associated with dispatch-value. defmulti1.0([name docstring? attr-map? dispatch-fn & options])Creates a new multimethod with the associated dispatch function.
+  The docstring and attr-map are optional.
+
+  Options are key-value pairs and may be one of:
+
+  :default
+
+  The default dispatch value, defaults to :default
+
+  :hierarchy
+
+  The value used for hierarchical dispatch (e.g. ::square is-a ::shape)
+
+  Hierarchies are type-like relationships that do not depend upon type
+  inheritance. By default Clojure's multimethods dispatch off of a
+  global hierarchy map.  However, a hierarchy relationship can be
+  created with the derive function used to augment the root ancestor
+  created with make-hierarchy.
+
+  Multimethods expect the value of the hierarchy option to be supplied as
+  a reference type e.g. a var (i.e. via the Var-quote dispatch macro #'
+  or the var special form).defn1.0([name doc-string? attr-map? [params*] prepost-map? body] [name doc-string? attr-map? ([params*] prepost-map? body) + attr-map?])Same as (def name (fn [params* ] exprs*)) or (def
+    name (fn ([params* ] exprs*)+)) with any doc-string or attrs added
+    to the var metadata. prepost-map defines a map with optional keys
+    :pre and :post that contain collections of pre or post conditions.defn-1.0([name & decls])same as defn, yielding non-public defdefonce1.0([name expr])defs name to have the root value of the expr iff the named var has no root value,
+  else expr is unevaluateddefprotocol1.2([name & opts+sigs])A protocol is a named set of named methods and their signatures:
+  (defprotocol AProtocolName
+
+    ;optional doc string
+    "A doc string for AProtocol abstraction"
+
+   ;options
+   :extend-via-metadata true
+
+  ;method signatures
+    (bar [this a b] "bar docs")
+    (baz [this a] [this a b] [this a b c] "baz docs"))
+
+  No implementations are provided. Docs can be specified for the
+  protocol overall and for each method. The above yields a set of
+  polymorphic functions and a protocol object. All are
+  namespace-qualified by the ns enclosing the definition The resulting
+  functions dispatch on the type of their first argument, which is
+  required and corresponds to the implicit target object ('this' in 
+  Java parlance). defprotocol is dynamic, has no special compile-time 
+  effect, and defines no new types or classes. Implementations of 
+  the protocol methods can be provided using extend.
+
+  When :extend-via-metadata is true, values can extend protocols by
+  adding metadata where keys are fully-qualified protocol function
+  symbols and values are function implementations. Protocol
+  implementations are checked first for direct definitions (defrecord,
+  deftype, reify), then metadata definitions, then external
+  extensions (extend, extend-type, extend-protocol)
+
+  defprotocol will automatically generate a corresponding interface,
+  with the same name as the protocol, i.e. given a protocol:
+  my.ns/Protocol, an interface: my.ns.Protocol. The interface will
+  have methods corresponding to the protocol functions, and the
+  protocol will automatically work with instances of the interface.
+
+  Note that you should not use this interface with deftype or
+  reify, as they support the protocol directly:
+
+  (defprotocol P 
+    (foo [this]) 
+    (bar-me [this] [this y]))
+
+  (deftype Foo [a b c] 
+   P
+    (foo [this] a)
+    (bar-me [this] b)
+    (bar-me [this y] (+ c y)))
+  
+  (bar-me (Foo. 1 2 3) 42)
+  => 45
+
+  (foo 
+    (let [x 42]
+      (reify P 
+        (foo [this] 17)
+        (bar-me [this] x)
+        (bar-me [this y] x))))
+  => 17defrecord1.2([name [& fields] & opts+specs])(defrecord name [fields*]  options* specs*)
+
+  Options are expressed as sequential keywords and arguments (in any order).
+
+  Supported options:
+  :load-ns - if true, importing the record class will cause the
+             namespace in which the record was defined to be loaded.
+             Defaults to false.
+
+  Each spec consists of a protocol or interface name followed by zero
+  or more method bodies:
+
+  protocol-or-interface-or-Object
+  (methodName [args*] body)*
+
+  Dynamically generates compiled bytecode for class with the given
+  name, in a package with the same name as the current namespace, the
+  given fields, and, optionally, methods for protocols and/or
+  interfaces.
+
+  The class will have the (immutable) fields named by
+  fields, which can have type hints. Protocols/interfaces and methods
+  are optional. The only methods that can be supplied are those
+  declared in the protocols/interfaces.  Note that method bodies are
+  not closures, the local environment includes only the named fields,
+  and those fields can be accessed directly.
+
+  Method definitions take the form:
+
+  (methodname [args*] body)
+
+  The argument and return types can be hinted on the arg and
+  methodname symbols. If not supplied, they will be inferred, so type
+  hints should be reserved for disambiguation.
+
+  Methods should be supplied for all methods of the desired
+  protocol(s) and interface(s). You can also define overrides for
+  methods of Object. Note that a parameter must be supplied to
+  correspond to the target object ('this' in Java parlance). Thus
+  methods for interfaces will take one more argument than do the
+  interface declarations. Note also that recur calls to the method
+  head should *not* pass the target object, it will be supplied
+  automatically and can not be substituted.
+
+  In the method bodies, the (unqualified) name can be used to name the
+  class (for calls to new, instance? etc).
+
+  The class will have implementations of several (clojure.lang)
+  interfaces generated automatically: IObj (metadata support) and
+  IPersistentMap, and all of their superinterfaces.
+
+  In addition, defrecord will define type-and-value-based =,
+  and will defined Java .hashCode and .equals consistent with the
+  contract for java.util.Map.
+
+  When AOT compiling, generates compiled bytecode for a class with the
+  given name (a symbol), prepends the current ns as the package, and
+  writes the .class file to the *compile-path* directory.
+
+  Two constructors will be defined, one taking the designated fields
+  followed by a metadata map (nil for none) and an extension field
+  map (nil for none), and one taking only the fields (using nil for
+  meta and extension fields). Note that the field names __meta,
+  __extmap, __hash and __hasheq are currently reserved and should not
+  be used when defining your own records.
+
+  Given (defrecord TypeName ...), two factory functions will be
+  defined: ->TypeName, taking positional parameters for the fields,
+  and map->TypeName, taking a map of keywords to field values.defstruct1.0([name & keys])Same as (def name (create-struct keys...))deftype1.2([name [& fields] & opts+specs])(deftype name [fields*]  options* specs*)
+
+  Options are expressed as sequential keywords and arguments (in any order).
+
+  Supported options:
+  :load-ns - if true, importing the type class will cause the
+             namespace in which the type was defined to be loaded.
+             Defaults to false.
+
+  Each spec consists of a protocol or interface name followed by zero
+  or more method bodies:
+
+  protocol-or-interface-or-Object
+  (methodName [args*] body)*
+
+  Dynamically generates compiled bytecode for class with the given
+  name, in a package with the same name as the current namespace, the
+  given fields, and, optionally, methods for protocols and/or
+  interfaces. 
+
+  The class will have the (by default, immutable) fields named by
+  fields, which can have type hints. Protocols/interfaces and methods
+  are optional. The only methods that can be supplied are those
+  declared in the protocols/interfaces.  Note that method bodies are
+  not closures, the local environment includes only the named fields,
+  and those fields can be accessed directly. Fields can be qualified
+  with the metadata :volatile-mutable true or :unsynchronized-mutable
+  true, at which point (set! afield aval) will be supported in method
+  bodies. Note well that mutable fields are extremely difficult to use
+  correctly, and are present only to facilitate the building of higher
+  level constructs, such as Clojure's reference types, in Clojure
+  itself. They are for experts only - if the semantics and
+  implications of :volatile-mutable or :unsynchronized-mutable are not
+  immediately apparent to you, you should not be using them.
+
+  Method definitions take the form:
+
+  (methodname [args*] body)
+
+  The argument and return types can be hinted on the arg and
+  methodname symbols. If not supplied, they will be inferred, so type
+  hints should be reserved for disambiguation.
+
+  Methods should be supplied for all methods of the desired
+  protocol(s) and interface(s). You can also define overrides for
+  methods of Object. Note that a parameter must be supplied to
+  correspond to the target object ('this' in Java parlance). Thus
+  methods for interfaces will take one more argument than do the
+  interface declarations. Note also that recur calls to the method
+  head should *not* pass the target object, it will be supplied
+  automatically and can not be substituted.
+
+  In the method bodies, the (unqualified) name can be used to name the
+  class (for calls to new, instance? etc).
+
+  When AOT compiling, generates compiled bytecode for a class with the
+  given name (a symbol), prepends the current ns as the package, and
+  writes the .class file to the *compile-path* directory.
+
+  One constructor will be defined, taking the designated fields.  Note
+  that the field names __meta, __extmap, __hash and __hasheq are currently
+  reserved and should not be used when defining your own types.
+
+  Given (deftype TypeName ...), a factory function called ->TypeName
+  will be defined, taking positional parameters for the fieldsdelay1.0([& body])Takes a body of expressions and yields a Delay object that will
+  invoke the body only the first time it is forced (with force or deref/@), and
+  will cache the result and return it on all subsequent force
+  calls. See also - realized?delay?1.0([x])returns true if x is a Delay created with delaydeliver1.1([promise val])Delivers the supplied value to the promise, releasing any pending
+  derefs. A subsequent call to deliver on a promise will have no effect.denominator1.2([r])Returns the denominator part of a Ratio.deref1.0([ref] [ref timeout-ms timeout-val])Also reader macro: @ref/@agent/@var/@atom/@delay/@future/@promise. Within a transaction,
+  returns the in-transaction-value of ref, else returns the
+  most-recently-committed value of ref. When applied to a var, agent
+  or atom, returns its current state. When applied to a delay, forces
+  it if not already forced. When applied to a future, will block if
+  computation not complete. When applied to a promise, will block
+  until a value is delivered.  The variant taking a timeout can be
+  used for blocking references (futures and promises), and will return
+  timeout-val if the timeout (in milliseconds) is reached before a
+  value is available. See also - realized?.derive1.0([tag parent] [h tag parent])Establishes a parent/child relationship between parent and
+  tag. Parent must be a namespace-qualified symbol or keyword and
+  child can be either a namespace-qualified symbol or keyword or a
+  class. h must be a hierarchy obtained from make-hierarchy, if not
+  supplied defaults to, and modifies, the global hierarchy.descendants1.0([tag] [h tag])Returns the immediate and indirect children of tag, through a
+  relationship established via derive. h must be a hierarchy obtained
+  from make-hierarchy, if not supplied defaults to the global
+  hierarchy. Note: does not work on Java type inheritance
+  relationships.disj1.0([set] [set key] [set key & ks])disj[oin]. Returns a new set of the same (hashed/sorted) type, that
+  does not contain key(s).disj!1.1([set] [set key] [set key & ks])disj[oin]. Returns a transient set of the same (hashed/sorted) type, that
+  does not contain key(s).dissoc1.0([map] [map key] [map key & ks])dissoc[iate]. Returns a new map of the same (hashed/sorted) type,
+  that does not contain a mapping for key(s).dissoc!1.1([map key] [map key & ks])Returns a transient map that doesn't contain a mapping for key(s).distinct1.0([] [coll])Returns a lazy sequence of the elements of coll with duplicates removed.
+  Returns a stateful transducer when no collection is provided.distinct?1.0([x] [x y] [x y & more])Returns true if no two of the arguments are =doall1.0([coll] [n coll])When lazy sequences are produced via functions that have side
+  effects, any effects other than those needed to produce the first
+  element in the seq do not occur until the seq is consumed. doall can
+  be used to force any effects. Walks through the successive nexts of
+  the seq, retains the head and returns it, thus causing the entire
+  seq to reside in memory at one time.dorun1.0([coll] [n coll])When lazy sequences are produced via functions that have side
+  effects, any effects other than those needed to produce the first
+  element in the seq do not occur until the seq is consumed. dorun can
+  be used to force any effects. Walks through the successive nexts of
+  the seq, does not retain the head and returns nil.doseq1.0([seq-exprs & body])Repeatedly executes body (presumably for side-effects) with
+  bindings and filtering as provided by "for".  Does not retain
+  the head of the sequence. Returns nil.dosync1.0([& exprs])Runs the exprs (in an implicit do) in a transaction that encompasses
+  exprs and any nested calls.  Starts a transaction if none is already
+  running on this thread. Any uncaught exception will abort the
+  transaction and flow out of dosync. The exprs may be run more than
+  once, but any effects on Refs will be atomic.dotimes1.0([bindings & body])bindings => name n
+
+  Repeatedly executes body (presumably for side-effects) with name
+  bound to integers from 0 through n-1.doto1.0([x & forms])Evaluates x then calls all of the methods and functions with the
+  value of x supplied at the front of the given arguments.  The forms
+  are evaluated in order.  Returns x.
+
+  (doto (new java.util.HashMap) (.put "a" 1) (.put "b" 2))double1.0([x])Coerce to doubledouble-array1.0([size-or-seq] [size init-val-or-seq])Creates an array of doublesdouble?1.9([x])Return true if x is a Doubledoubles1.0([xs])Casts to double[]drop1.0([n] [n coll])Returns a laziness-preserving sequence of all but the first n items in coll.
+  Returns a stateful transducer when no collection is provided.drop-last1.0([coll] [n coll])Return a lazy sequence of all but the last n (default 1) items in colldrop-while1.0([pred] [pred coll])Returns a lazy sequence of the items in coll starting from the
+  first item for which (pred item) returns logical false.  Returns a
+  stateful transducer when no collection is provided.eduction1.7([xform* coll])Returns a reducible/iterable application of the transducers
+  to the items in coll. Transducers are applied in order as if
+  combined with comp. Note that these applications will be
+  performed every time reduce/iterator is called.empty1.0([coll])Returns an empty collection of the same category as coll, or nilempty?1.0([coll])Returns true if coll has no items. To check the emptiness of a seq,
+  please use the idiom (seq x) rather than (not (empty? x))ensure1.0([ref])Must be called in a transaction. Protects the ref from modification
+  by other transactions.  Returns the in-transaction-value of
+  ref. Allows for more concurrency than (ref-set ref @ref)ensure-reduced1.7([x])If x is already reduced?, returns it, else returns (reduced x)enumeration-seq1.0([e])Returns a seq on a java.util.Enumerationeval1.0([form])Evaluates the form data structure (not text!) and returns the result.even?1.0([n])Returns true if n is even, throws an exception if n is not an integerevery-pred1.3([p] [p1 p2] [p1 p2 p3] [p1 p2 p3 & ps])Takes a set of predicates and returns a function f that returns true if all of its
+  composing predicates return a logical true value against all of its arguments, else it returns
+  false. Note that f is short-circuiting in that it will stop execution on the first
+  argument that triggers a logical false result against the original predicates.every?1.0([pred coll])Returns true if (pred x) is logical true for every x in coll, else
+  false.ex-cause1.10([ex])Returns the cause of ex if ex is a Throwable.
+  Otherwise returns nil.ex-data1.4([ex])Returns exception data (a map) if ex is an IExceptionInfo.
+   Otherwise returns nil.ex-info1.4([msg map] [msg map cause])Create an instance of ExceptionInfo, a RuntimeException subclass
+   that carries a map of additional data.ex-message1.10([ex])Returns the message attached to ex if ex is a Throwable.
+  Otherwise returns nil.extend1.2([atype & proto+mmaps])Implementations of protocol methods can be provided using the extend construct:
+
+  (extend AType
+    AProtocol
+     {:foo an-existing-fn
+      :bar (fn [a b] ...)
+      :baz (fn ([a]...) ([a b] ...)...)}
+    BProtocol 
+      {...} 
+    ...)
+ 
+  extend takes a type/class (or interface, see below), and one or more
+  protocol + method map pairs. It will extend the polymorphism of the
+  protocol's methods to call the supplied methods when an AType is
+  provided as the first argument. 
+
+  Method maps are maps of the keyword-ized method names to ordinary
+  fns. This facilitates easy reuse of existing fns and fn maps, for
+  code reuse/mixins without derivation or composition. You can extend
+  an interface to a protocol. This is primarily to facilitate interop
+  with the host (e.g. Java) but opens the door to incidental multiple
+  inheritance of implementation since a class can inherit from more
+  than one interface, both of which extend the protocol. It is TBD how
+  to specify which impl to use. You can extend a protocol on nil.
+
+  If you are supplying the definitions explicitly (i.e. not reusing
+  exsting functions or mixin maps), you may find it more convenient to
+  use the extend-type or extend-protocol macros.
+
+  Note that multiple independent extend clauses can exist for the same
+  type, not all protocols need be defined in a single extend call.
+
+  See also:
+  extends?, satisfies?, extendersextend-protocol1.2([p & specs])Useful when you want to provide several implementations of the same
+  protocol all at once. Takes a single protocol and the implementation
+  of that protocol for one or more types. Expands into calls to
+  extend-type:
+
+  (extend-protocol Protocol
+    AType
+      (foo [x] ...)
+      (bar [x y] ...)
+    BType
+      (foo [x] ...)
+      (bar [x y] ...)
+    AClass
+      (foo [x] ...)
+      (bar [x y] ...)
+    nil
+      (foo [x] ...)
+      (bar [x y] ...))
+
+  expands into:
+
+  (do
+   (clojure.core/extend-type AType Protocol 
+     (foo [x] ...) 
+     (bar [x y] ...))
+   (clojure.core/extend-type BType Protocol 
+     (foo [x] ...) 
+     (bar [x y] ...))
+   (clojure.core/extend-type AClass Protocol 
+     (foo [x] ...) 
+     (bar [x y] ...))
+   (clojure.core/extend-type nil Protocol 
+     (foo [x] ...) 
+     (bar [x y] ...)))extend-type1.2([t & specs])A macro that expands into an extend call. Useful when you are
+  supplying the definitions explicitly inline, extend-type
+  automatically creates the maps required by extend.  Propagates the
+  class as a type hint on the first argument of all fns.
+
+  (extend-type MyType 
+    Countable
+      (cnt [c] ...)
+    Foo
+      (bar [x y] ...)
+      (baz ([x] ...) ([x y & zs] ...)))
+
+  expands into:
+
+  (extend MyType
+   Countable
+     {:cnt (fn [c] ...)}
+   Foo
+     {:baz (fn ([x] ...) ([x y & zs] ...))
+      :bar (fn [x y] ...)})extenders1.2([protocol])Returns a collection of the types explicitly extending protocolextends?1.2([protocol atype])Returns true if atype extends protocolfalse?1.0([x])Returns true if x is the value false, false otherwise.ffirst1.0([x])Same as (first (first x))file-seq1.0([dir])A tree seq on java.io.Filesfilter1.0([pred] [pred coll])Returns a lazy sequence of the items in coll for which
+  (pred item) returns logical true. pred must be free of side-effects.
+  Returns a transducer when no collection is provided.filterv1.4([pred coll])Returns a vector of the items in coll for which
+  (pred item) returns logical true. pred must be free of side-effects.find1.0([map key])Returns the map entry for key, or nil if key not present.find-keyword1.3([name] [ns name])Returns a Keyword with the given namespace and name if one already
+  exists.  This function will not intern a new keyword. If the keyword
+  has not already been interned, it will return nil.  Do not use :
+  in the keyword strings, it will be added automatically.find-ns1.0([sym])Returns the namespace named by the symbol or nil if it doesn't exist.find-var1.0([sym])Returns the global var named by the namespace-qualified symbol, or
+  nil if no var with that name.first1.0([coll])Returns the first item in the collection. Calls seq on its
+    argument. If coll is nil, returns nil.flatten1.2([x])Takes any nested combination of sequential things (lists, vectors,
+  etc.) and returns their contents as a single, flat lazy sequence.
+  (flatten nil) returns an empty sequence.float1.0([x])Coerce to floatfloat-array1.0([size-or-seq] [size init-val-or-seq])Creates an array of floatsfloat?1.0([n])Returns true if n is a floating point numberfloats1.0([xs])Casts to float[]flush1.0([])Flushes the output stream that is the current value of
+  *out*fn1.0([& sigs])params => positional-params*, or positional-params* & rest-param
+  positional-param => binding-form
+  rest-param => binding-form
+  binding-form => name, or destructuring-form
+
+  Defines a function.
+
+  See https://clojure.org/reference/special_forms#fn for more informationfn?1.0([x])Returns true if x implements Fn, i.e. is an object created via fn.fnext1.0([x])Same as (first (next x))fnil1.2([f x] [f x y] [f x y z])Takes a function f, and returns a function that calls f, replacing
+  a nil first argument to f with the supplied value x. Higher arity
+  versions can replace arguments in the second and third
+  positions (y, z). Note that the function f can take any number of
+  arguments, not just the one(s) being nil-patched.for1.0([seq-exprs body-expr])List comprehension. Takes a vector of one or more
+   binding-form/collection-expr pairs, each followed by zero or more
+   modifiers, and yields a lazy sequence of evaluations of expr.
+   Collections are iterated in a nested fashion, rightmost fastest,
+   and nested coll-exprs can refer to bindings created in prior
+   binding-forms.  Supported modifiers are: :let [binding-form expr ...],
+   :while test, :when test.
+
+  (take 100 (for [x (range 100000000) y (range 1000000) :while (< y x)] [x y]))force1.0([x])If x is a Delay, returns the (possibly cached) value of its expression, else returns xformat1.0([fmt & args])Formats a string using java.lang.String.format, see java.util.Formatter for format
+  string syntaxfrequencies1.2([coll])Returns a map from distinct items in coll to the number of times
+  they appear.future1.1([& body])Takes a body of expressions and yields a future object that will
+  invoke the body in another thread, and will cache the result and
+  return it on all subsequent calls to deref/@. If the computation has
+  not yet finished, calls to deref/@ will block, unless the variant of
+  deref with timeout is used. See also - realized?.future?1.1([x])Returns true if x is a futuregensym1.0([] [prefix-string])Returns a new symbol with a unique name. If a prefix string is
+  supplied, the name is prefix# where # is some unique number. If
+  prefix is not supplied, the prefix is 'G__'.get1.0([map key] [map key not-found])Returns the value mapped to key, not-found or nil if key not present
+  in associative collection, set, string, array, or ILookup instance.get-in1.2([m ks] [m ks not-found])Returns the value in a nested associative structure,
+  where ks is a sequence of keys. Returns nil if the key
+  is not present, or the not-found value if supplied.get-method1.0([multifn dispatch-val])Given a multimethod and a dispatch value, returns the dispatch fn
+  that would apply to that value, or nil if none apply and no defaultgroup-by1.2([f coll])Returns a map of the elements of coll keyed by the result of
+  f on each element. The value at each key will be a vector of the
+  corresponding elements, in the order they appeared in coll.halt-when1.9([pred] [pred retf])Returns a transducer that ends transduction when pred returns true
+  for an input. When retf is supplied it must be a fn of 2 arguments -
+  it will be passed the (completed) result so far and the input that
+  triggered the predicate, and its return value (if it does not throw
+  an exception) will be the return value of the transducer. If retf
+  is not supplied, the input that triggered the predicate will be
+  returned. If the predicate never returns true the transduction is
+  unaffected.hash1.0([x])Returns the hash code of its argument. Note this is the hash code
+  consistent with =, and thus is different than .hashCode for Integer,
+  Short, Byte and Clojure collections.hash-map1.0([] [& keyvals])keyval => key val
+  Returns a new hash map with supplied mappings.  If any keys are
+  equal, they are handled as if by repeated uses of assoc.hash-set1.0([] [& keys])Returns a new hash set with supplied keys.  Any equal keys are
+  handled as if by repeated uses of conj.ident?1.9([x])Return true if x is a symbol or keywordidentical?1.0([x y])Tests if 2 arguments are the same objectidentity1.0([x])Returns its argument.if-let1.0([bindings then] [bindings then else & oldform])bindings => binding-form test
+
+  If test is true, evaluates then with binding-form bound to the value of 
+  test, if not, yields elseif-not1.0([test then] [test then else])Evaluates test. If logical false, evaluates and returns then expr, 
+  otherwise else expr, if supplied, else nil.if-some1.6([bindings then] [bindings then else & oldform])bindings => binding-form test
+
+   If test is not nil, evaluates then with binding-form bound to the
+   value of test, if not, yields elseifn?1.0([x])Returns true if x implements IFn. Note that many data structures
+  (e.g. sets and maps) implement IFnimport1.0([& import-symbols-or-lists])import-list => (package-symbol class-name-symbols*)
+
+  For each name in class-name-symbols, adds a mapping from name to the
+  class named by package.name to the current namespace. Use :import in the ns
+  macro in preference to calling this directly.in-ns1.0([name])Sets *ns* to the namespace named by the symbol, creating it if needed.inc1.2([x])Returns a number one greater than num. Does not auto-promote
+  longs, will throw on overflow. See also: inc'inc'1.0([x])Returns a number one greater than num. Supports arbitrary precision.
+  See also: incindexed?1.9([coll])Return true if coll implements Indexed, indicating efficient lookup by indexinfinite?1.11([num])Returns true if num is negative or positive infinity, else falseinst-ms1.9([inst])Return the number of milliseconds since January 1, 1970, 00:00:00 GMTinst?1.9([x])Return true if x satisfies Instinstance?1.0([c x])Evaluates x and tests if it is an instance of the class
+    c. Returns true or falseint1.0([x])Coerce to intint-array1.0([size-or-seq] [size init-val-or-seq])Creates an array of intsint?1.9([x])Return true if x is a fixed precision integerinteger?1.0([n])Returns true if n is an integerinterleave1.0([] [c1] [c1 c2] [c1 c2 & colls])Returns a lazy seq of the first item in each coll, then the second etc.intern1.0([ns name] [ns name val])Finds or creates a var named by the symbol name in the namespace
+  ns (which can be a symbol or a namespace), setting its root binding
+  to val if supplied. The namespace must exist. The var will adopt any
+  metadata from the name symbol.  Returns the var.interpose1.0([sep] [sep coll])Returns a lazy seq of the elements of coll separated by sep.
+  Returns a stateful transducer when no collection is provided.into1.0([] [to] [to from] [to xform from])Returns a new coll consisting of to with all of the items of
+  from conjoined. A transducer may be supplied.
+  (into x) returns x. (into) returns [].into-array1.0([aseq] [type aseq])Returns an array with components set to the values in aseq. The array's
+  component type is type if provided, or the type of the first value in
+  aseq if present, or Object. All values in aseq must be compatible with
+  the component type. Class objects for the primitive types can be obtained
+  using, e.g., Integer/TYPE.ints1.0([xs])Casts to int[]isa?1.0([child parent] [h child parent])Returns true if (= child parent), or child is directly or indirectly derived from
+  parent, either via a Java type inheritance relationship or a
+  relationship established via derive. h must be a hierarchy obtained
+  from make-hierarchy, if not supplied defaults to the global
+  hierarchyiterate1.0([f x])Returns a lazy (infinite!) sequence of x, (f x), (f (f x)) etc.
+  f must be free of side-effectsiteration1.11([step & {:keys [somef vf kf initk], :or {vf identity, kf identity, somef some?, initk nil}}])Creates a seqable/reducible via repeated calls to step,
+  a function of some (continuation token) 'k'. The first call to step
+  will be passed initk, returning 'ret'. Iff (somef ret) is true,
+  (vf ret) will be included in the iteration, else iteration will
+  terminate and vf/kf will not be called. If (kf ret) is non-nil it
+  will be passed to the next step call, else iteration will terminate.
+
+  This can be used e.g. to consume APIs that return paginated or batched data.
+
+   step - (possibly impure) fn of 'k' -> 'ret'
+
+   :somef - fn of 'ret' -> logical true/false, default 'some?'
+   :vf - fn of 'ret' -> 'v', a value produced by the iteration, default 'identity'
+   :kf - fn of 'ret' -> 'next-k' or nil (signaling 'do not continue'), default 'identity'
+   :initk - the first value passed to step, default 'nil'
+
+  It is presumed that step with non-initk is unreproducible/non-idempotent.
+  If step with initk is unreproducible it is on the consumer to not consume twice.iterator-seq1.0([iter])Returns a seq on a java.util.Iterator. Note that most collections
+  providing iterators implement Iterable and thus support seq directly.
+  Seqs cache values, thus iterator-seq should not be used on any
+  iterator that repeatedly returns the same mutable object.juxt1.1([f] [f g] [f g h] [f g h & fs])Takes a set of functions and returns a fn that is the juxtaposition
+  of those fns.  The returned fn takes a variable number of args, and
+  returns a vector containing the result of applying each fn to the
+  args (left-to-right).
+  ((juxt a b c) x) => [(a x) (b x) (c x)]keep1.2([f] [f coll])Returns a lazy sequence of the non-nil results of (f item). Note,
+  this means false return values will be included.  f must be free of
+  side-effects.  Returns a transducer when no collection is provided.keep-indexed1.2([f] [f coll])Returns a lazy sequence of the non-nil results of (f index item). Note,
+  this means false return values will be included.  f must be free of
+  side-effects.  Returns a stateful transducer when no collection is
+  provided.key1.0([e])Returns the key of the map entry.keys1.0([map])Returns a sequence of the map's keys, in the same order as (seq map).keyword1.0([name] [ns name])Returns a Keyword with the given namespace and name.  Do not use :
+  in the keyword strings, it will be added automatically.keyword?1.0([x])Return true if x is a Keywordlast1.0([coll])Return the last item in coll, in linear timelazy-cat1.0([& colls])Expands to code which yields a lazy sequence of the concatenation
+  of the supplied colls.  Each coll expr is not evaluated until it is
+  needed. 
+
+  (lazy-cat xs ys zs) === (concat (lazy-seq xs) (lazy-seq ys) (lazy-seq zs))lazy-seq1.0([& body])Takes a body of expressions that returns an ISeq or nil, and yields
+  a Seqable object that will invoke the body only the first time seq
+  is called, and will cache the result and return it on all subsequent
+  seq calls. See also - realized?let1.0([bindings & body])binding => binding-form init-expr
+  binding-form => name, or destructuring-form
+  destructuring-form => map-destructure-form, or seq-destructure-form
+
+  Evaluates the exprs in a lexical context in which the symbols in
+  the binding-forms are bound to their respective init-exprs or parts
+  therein.
+
+  See https://clojure.org/reference/special_forms#binding-forms for
+  more information about destructuring.letfn1.0([fnspecs & body])fnspec ==> (fname [params*] exprs) or (fname ([params*] exprs)+)
+
+  Takes a vector of function specs and a body, and generates a set of
+  bindings of functions to their names. All of the names are available
+  in all of the definitions of the functions, as well as the body.line-seq1.0([rdr])Returns the lines of text from rdr as a lazy sequence of strings.
+  rdr must implement java.io.BufferedReader.list1.0([& items])Creates a new list containing the items.list*1.0([args] [a args] [a b args] [a b c args] [a b c d & more])Creates a new seq containing the items prepended to the rest, the
+  last of which will be treated as a sequence.list?1.0([x])Returns true if x implements IPersistentListload1.0([& paths])Loads Clojure code from resources in classpath. A path is interpreted as
+  classpath-relative if it begins with a slash or relative to the root
+  directory for the current namespace otherwise.load-string1.0([s])Sequentially read and evaluate the set of forms contained in the
+  stringlocking1.0([x & body])Executes exprs in an implicit do, while holding the monitor of x.
+  Will release the monitor of x in all circumstances.long1.0([x])Coerce to longlong-array1.0([size-or-seq] [size init-val-or-seq])Creates an array of longslongs1.0([xs])Casts to long[]loop1.0([bindings & body])Evaluates the exprs in a lexical context in which the symbols in
+  the binding-forms are bound to their respective init-exprs or parts
+  therein. Acts as a recur target.make-array1.0([type len] [type dim & more-dims])Creates and returns an array of instances of the specified class of
+  the specified dimension(s).  Note that a class object is required.
+  Class objects can be obtained by using their imported or
+  fully-qualified name.  Class objects for the primitive types can be
+  obtained using, e.g., Integer/TYPE.make-hierarchy1.0([])Creates a hierarchy object for use with derive, isa? etc.map1.0([f] [f coll] [f c1 c2] [f c1 c2 c3] [f c1 c2 c3 & colls])Returns a lazy sequence consisting of the result of applying f to
+  the set of first items of each coll, followed by applying f to the
+  set of second items in each coll, until any one of the colls is
+  exhausted.  Any remaining items in other colls are ignored. Function
+  f should accept number-of-colls arguments. Returns a transducer when
+  no collection is provided.map-entry?1.8([x])Return true if x is a map entrymap-indexed1.2([f] [f coll])Returns a lazy sequence consisting of the result of applying f to 0
+  and the first item of coll, followed by applying f to 1 and the second
+  item in coll, etc, until coll is exhausted. Thus function f should
+  accept 2 arguments, index and item. Returns a stateful transducer when
+  no collection is provided.map?1.0([x])Return true if x implements IPersistentMapmapcat1.0([f] [f & colls])Returns the result of applying concat to the result of applying map
+  to f and colls.  Thus function f should return a collection. Returns
+  a transducer when no collections are providedmapv1.4([f coll] [f c1 c2] [f c1 c2 c3] [f c1 c2 c3 & colls])Returns a vector consisting of the result of applying f to the
+  set of first items of each coll, followed by applying f to the set
+  of second items in each coll, until any one of the colls is
+  exhausted.  Any remaining items in other colls are ignored. Function
+  f should accept number-of-colls arguments.max1.0([x] [x y] [x y & more])Returns the greatest of the nums.max-key1.0([k x] [k x y] [k x y & more])Returns the x for which (k x), a number, is greatest.
+
+  If there are multiple such xs, the last one is returned.memoize1.0([f])Returns a memoized version of a referentially transparent function. The
+  memoized version of the function keeps a cache of the mapping from arguments
+  to results and, when calls with the same arguments are repeated often, has
+  higher performance at the expense of higher memory use.merge1.0([& maps])Returns a map that consists of the rest of the maps conj-ed onto
+  the first.  If a key occurs in more than one map, the mapping from
+  the latter (left-to-right) will be the mapping in the result.merge-with1.0([f & maps])Returns a map that consists of the rest of the maps conj-ed onto
+  the first.  If a key occurs in more than one map, the mapping(s)
+  from the latter (left-to-right) will be combined with the mapping in
+  the result by calling (f val-in-result val-in-latter).meta1.0([obj])Returns the metadata of obj, returns nil if there is no metadata.methods1.0([multifn])Given a multimethod, returns a map of dispatch values -> dispatch fnsmin1.0([x] [x y] [x y & more])Returns the least of the nums.min-key1.0([k x] [k x y] [k x y & more])Returns the x for which (k x), a number, is least.
+
+  If there are multiple such xs, the last one is returned.mod1.0([num div])Modulus of num and div. Truncates toward negative infinity.munge([s])name1.0([x])Returns the name String of a string, symbol or keyword.namespace1.0([x])Returns the namespace String of a symbol or keyword, or nil if not present.namespace-munge1.2([ns])Convert a Clojure namespace name to a legal Java package name.nat-int?1.9([x])Return true if x is a non-negative fixed precision integerneg-int?1.9([x])Return true if x is a negative fixed precision integerneg?1.0([num])Returns true if num is less than zero, else falsenewline1.0([])Writes a platform-specific newline to *out*next1.0([coll])Returns a seq of the items after the first. Calls seq on its
+  argument.  If there are no more items, returns nil.nfirst1.0([x])Same as (next (first x))nil?1.0([x])Returns true if x is nil, false otherwise.nnext1.0([x])Same as (next (next x))not1.0([x])Returns true if x is logical false, false otherwise.not-any?1.0([pred coll])Returns false if (pred x) is logical true for any x in coll,
+  else true.not-empty1.0([coll])If coll is empty, returns nil, else collnot-every?1.0([pred coll])Returns false if (pred x) is logical true for every x in
+  coll, else true.not=1.0([x] [x y] [x y & more])Same as (not (= obj1 obj2))ns1.0([name docstring? attr-map? references*])Sets *ns* to the namespace named by name (unevaluated), creating it
+  if needed.  references can be zero or more of: (:refer-clojure ...)
+  (:require ...) (:use ...) (:import ...) (:load ...) (:gen-class)
+  with the syntax of refer-clojure/require/use/import/load/gen-class
+  respectively, except the arguments are unevaluated and need not be
+  quoted. (:gen-class ...), when supplied, defaults to :name
+  corresponding to the ns name, :main true, :impl-ns same as ns, and
+  :init-impl-ns true. All options of gen-class are
+  supported. The :gen-class directive is ignored when not
+  compiling. If :gen-class is not supplied, when compiled only an
+  nsname__init.class will be generated. If :refer-clojure is not used, a
+  default (refer 'clojure.core) is used.  Use of ns is preferred to
+  individual calls to in-ns/require/use/import:
+
+  (ns foo.bar
+    (:refer-clojure :exclude [ancestors printf])
+    (:require (clojure.contrib sql combinatorics))
+    (:use (my.lib this that))
+    (:import (java.util Date Timer Random)
+             (java.sql Connection Statement)))ns-aliases1.0([ns])Returns a map of the aliases for the namespace.ns-interns1.0([ns])Returns a map of the intern mappings for the namespace.ns-map1.0([ns])Returns a map of all the mappings for the namespace.ns-name1.0([ns])Returns the name of the namespace, a symbol.ns-publics1.0([ns])Returns a map of the public intern mappings for the namespace.ns-resolve1.0([ns sym] [ns env sym])Returns the var or Class to which a symbol will be resolved in the
+  namespace (unless found in the environment), else nil.  Note that
+  if the symbol is fully qualified, the var/Class to which it resolves
+  need not be present in the namespace.nth1.0([coll index] [coll index not-found])Returns the value at the index. get returns nil if index out of
+  bounds, nth throws an exception unless not-found is supplied.  nth
+  also works for strings, Java arrays, regex Matchers and Lists, and,
+  in O(n) time, for sequences.nthnext1.0([coll n])Returns the nth next of coll, (seq coll) when n is 0.nthrest1.3([coll n])Returns the nth rest of coll, coll when n is 0.num1.0([x])Coerce to Numbernumber?1.0([x])Returns true if x is a Numbernumerator1.2([r])Returns the numerator part of a Ratio.object-array1.2([size-or-seq])Creates an array of objectsodd?1.0([n])Returns true if n is odd, throws an exception if n is not an integeror1.0([] [x] [x & next])Evaluates exprs one at a time, from left to right. If a form
+  returns a logical true value, or returns that value and doesn't
+  evaluate any of the other expressions, otherwise it returns the
+  value of the last expression. (or) returns nil.parents1.0([tag] [h tag])Returns the immediate parents of tag, either via a Java type
+  inheritance relationship or a relationship established via derive. h
+  must be a hierarchy obtained from make-hierarchy, if not supplied
+  defaults to the global hierarchyparse-boolean1.11([s])Parse strings "true" or "false" and return a boolean, or nil if invalidparse-double1.11([s])Parse string with floating point components and return a Double value,
+  or nil if parse fails.
+
+  Grammar: https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html#valueOf-java.lang.String-parse-long1.11([s])Parse string of decimal digits with optional leading -/+ and return a
+  Long value, or nil if parse failsparse-uuid1.11([s])Parse a string representing a UUID and return a java.util.UUID instance,
+  or nil if parse fails.
+
+  Grammar: https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html#toString--partial1.0([f] [f arg1] [f arg1 arg2] [f arg1 arg2 arg3] [f arg1 arg2 arg3 & more])Takes a function f and fewer than the normal arguments to f, and
+  returns a fn that takes a variable number of additional args. When
+  called, the returned function calls f with args + additional args.partition1.0([n coll] [n step coll] [n step pad coll])Returns a lazy sequence of lists of n items each, at offsets step
+  apart. If step is not supplied, defaults to n, i.e. the partitions
+  do not overlap. If a pad collection is supplied, use its elements as
+  necessary to complete last partition upto n items. In case there are
+  not enough padding elements, return a partition with less than n items.partition-all1.2([n] [n coll] [n step coll])Returns a lazy sequence of lists like partition, but may include
+  partitions with fewer than n items at the end.  Returns a stateful
+  transducer when no collection is provided.partition-by1.2([f] [f coll])Applies f to each value in coll, splitting it each time f returns a
+   new value.  Returns a lazy seq of partitions.  Returns a stateful
+   transducer when no collection is provided.partitionv1.12([n coll] [n step coll] [n step pad coll])Returns a lazy sequence of vectors of n items each, at offsets step
+  apart. If step is not supplied, defaults to n, i.e. the partitions
+  do not overlap. If a pad collection is supplied, use its elements as
+  necessary to complete last partition upto n items. In case there are
+  not enough padding elements, return a partition with less than n items.partitionv-all1.12([n] [n coll] [n step coll])Returns a lazy sequence of vector partitions, but may include
+  partitions with fewer than n items at the end.
+  Returns a stateful transducer when no collection is provided.pcalls1.0([& fns])Executes the no-arg fns in parallel, returning a lazy sequence of
+  their valuespeek1.0([coll])For a list or queue, same as first, for a vector, same as, but much
+  more efficient than, last. If the collection is empty, returns nil.persistent!1.1([coll])Returns a new, persistent version of the transient collection, in
+  constant time. The transient collection cannot be used after this
+  call, any such use will throw an exception.pmap1.0([f coll] [f coll & colls])Like map, except f is applied in parallel. Semi-lazy in that the
+  parallel computation stays ahead of the consumption, but doesn't
+  realize the entire result unless required. Only useful for
+  computationally intensive functions where the time of f dominates
+  the coordination overhead.pop1.0([coll])For a list or queue, returns a new list/queue without the first
+  item, for a vector, returns a new vector without the last item. If
+  the collection is empty, throws an exception.  Note - not the same
+  as next/butlast.pop!1.1([coll])Removes the last item from a transient vector. If
+  the collection is empty, throws an exception. Returns collpop-thread-bindings1.1([])Pop one set of bindings pushed with push-binding before. It is an error to
+  pop bindings without pushing before.pos-int?1.9([x])Return true if x is a positive fixed precision integerpos?1.0([num])Returns true if num is greater than zero, else falsepr1.0([] [x] [x & more])Prints the object(s) to the output stream that is the current value
+  of *out*.  Prints the object(s), separated by spaces if there is
+  more than one.  By default, pr and prn print in a way that objects
+  can be read by the readerpr-str1.0([& xs])pr to a string, returning itprefer-method1.0([multifn dispatch-val-x dispatch-val-y])Causes the multimethod to prefer matches of dispatch-val-x over dispatch-val-y 
+   when there is a conflictprefers1.0([multifn])Given a multimethod, returns a map of preferred value -> set of other valuesprint1.0([& more])Prints the object(s) to the output stream that is the current value
+  of *out*.  print and println produce output for human consumption.print-str1.0([& xs])print to a string, returning itprintf1.0([fmt & args])Prints formatted output, as per formatprintln1.0([& more])Same as print followed by (newline)prn1.0([& more])Same as pr followed by (newline). Observes *flush-on-newline*promise1.1([])Returns a promise object that can be read with deref/@, and set,
+  once only, with deliver. Calls to deref/@ prior to delivery will
+  block, unless the variant of deref with timeout is used. All
+  subsequent derefs will return the same delivered value without
+  blocking. See also - realized?.proxy1.0([class-and-interfaces args & fs])class-and-interfaces - a vector of class names
+
+  args - a (possibly empty) vector of arguments to the superclass
+  constructor.
+
+  f => (name [params*] body) or
+  (name ([params*] body) ([params+] body) ...)
+
+  Expands to code which creates a instance of a proxy class that
+  implements the named class/interface(s) by calling the supplied
+  fns. A single class, if provided, must be first. If not provided it
+  defaults to Object.
+
+  The interfaces names must be valid interface types. If a method fn
+  is not provided for a class method, the superclass method will be
+  called. If a method fn is not provided for an interface method, an
+  UnsupportedOperationException will be thrown should it be
+  called. Method fns are closures and can capture the environment in
+  which proxy is called. Each method fn takes an additional implicit
+  first arg, which is bound to 'this. Note that while method fns can
+  be provided to override protected methods, they have no other access
+  to protected members, nor to super, as these capabilities cannot be
+  proxied.push-thread-bindings1.1([bindings])WARNING: This is a low-level function. Prefer high-level macros like
+  binding where ever possible.
+
+  Takes a map of Var/value pairs. Binds each Var to the associated value for
+  the current thread. Each call *MUST* be accompanied by a matching call to
+  pop-thread-bindings wrapped in a try-finally!
+  
+      (push-thread-bindings bindings)
+      (try
+        ...
+        (finally
+          (pop-thread-bindings)))pvalues1.0([& exprs])Returns a lazy sequence of the values of the exprs, which are
+  evaluated in parallelqualified-ident?1.9([x])Return true if x is a symbol or keyword with a namespacequalified-keyword?1.9([x])Return true if x is a keyword with a namespacequalified-symbol?1.9([x])Return true if x is a symbol with a namespacequot1.0([num div])quot[ient] of dividing numerator by denominator.rand1.0([] [n])Returns a random floating point number between 0 (inclusive) and
+  n (default 1) (exclusive).rand-int1.0([n])Returns a random integer between 0 (inclusive) and n (exclusive).rand-nth1.2([coll])Return a random element of the (sequential) collection. Will have
+  the same performance characteristics as nth for the given
+  collection.random-sample1.7([prob] [prob coll])Returns items from coll with random probability of prob (0.0 -
+  1.0).  Returns a transducer when no collection is provided.random-uuid1.11([])Returns a pseudo-randomly generated java.util.UUID instance (i.e. type 4).
+
+  See: https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html#randomUUID--range1.0([] [end] [start end] [start end step])Returns a lazy seq of nums from start (inclusive) to end
+  (exclusive), by step, where start defaults to 0, step to 1, and end to
+  infinity. When step is equal to 0, returns an infinite sequence of
+  start. When start is equal to end, returns empty list.ratio?1.0([n])Returns true if n is a Ratiorational?1.0([n])Returns true if n is a rational numberrationalize1.0([num])returns the rational value of numre-find1.0([m] [re s])Returns the next regex match, if any, of string to pattern, using
+  java.util.regex.Matcher.find().  Uses re-groups to return the
+  groups.re-groups1.0([m])Returns the groups from the most recent match/find. If there are no
+  nested groups, returns a string of the entire match. If there are
+  nested groups, returns a vector of the groups, the first element
+  being the entire match.re-matcher1.0([re s])Returns an instance of java.util.regex.Matcher, for use, e.g. in
+  re-find.re-matches1.0([re s])Returns the match, if any, of string to pattern, using
+  java.util.regex.Matcher.matches().  Uses re-groups to return the
+  groups.re-pattern1.0([s])Returns an instance of java.util.regex.Pattern, for use, e.g. in
+  re-matcher.re-seq1.0([re s])Returns a lazy sequence of successive matches of pattern in string,
+  using java.util.regex.Matcher.find(), each such match processed with
+  re-groups.read-line1.0([])Reads the next line from stream that is the current value of *in* .read-string1.0([s] [opts s])Reads one object from the string s. Optionally include reader
+  options, as specified in read.
+
+  Note that read-string can execute code (controlled by *read-eval*),
+  and as such should be used only with trusted sources.
+
+  For data structure interop use clojure.edn/read-stringrealized?1.3([x])Returns true if a value has been produced for a promise, delay, future or lazy sequence.record?1.6([x])Returns true if x is a recordreduce1.0([f coll] [f val coll])f should be a function of 2 arguments. If val is not supplied,
+  returns the result of applying f to the first 2 items in coll, then
+  applying f to that result and the 3rd item, etc. If coll contains no
+  items, f must accept no arguments as well, and reduce returns the
+  result of calling f with no arguments.  If coll has only 1 item, it
+  is returned and f is not called.  If val is supplied, returns the
+  result of applying f to val and the first item in coll, then
+  applying f to that result and the 2nd item, etc. If coll contains no
+  items, returns val and f is not called.reduce-kv1.4([f init coll])Reduces an associative collection. f should be a function of 3
+  arguments. Returns the result of applying f to init, the first key
+  and the first value in coll, then applying f to that result and the
+  2nd key and value, etc. If coll contains no entries, returns init
+  and f is not called. Note that reduce-kv is supported on vectors,
+  where the keys will be the ordinals.reduced1.5([x])Wraps x in a way such that a reduce will terminate with the value xreduced?1.5([x])Returns true if x is the result of a call to reducedreductions1.2([f coll] [f init coll])Returns a lazy seq of the intermediate values of the reduction (as
+  per reduce) of coll by f, starting with init.ref1.0([x] [x & options])Creates and returns a Ref with an initial value of x and zero or
+  more options (in any order):
+
+  :meta metadata-map
+
+  :validator validate-fn
+
+  :min-history (default 0)
+  :max-history (default 10)
+
+  If metadata-map is supplied, it will become the metadata on the
+  ref. validate-fn must be nil or a side-effect-free fn of one
+  argument, which will be passed the intended new state on any state
+  change. If the new state is unacceptable, the validate-fn should
+  return false or throw an exception. validate-fn will be called on
+  transaction commit, when all refs have their final values.
+
+  Normally refs accumulate history dynamically as needed to deal with
+  read demands. If you know in advance you will need history you can
+  set :min-history to ensure it will be available when first needed (instead
+  of after a read fault). History is limited, and the limit can be set
+  with :max-history.ref-set1.0([ref val])Must be called in a transaction. Sets the value of ref.
+  Returns val.refer1.0([ns-sym & filters])refers to all public vars of ns, subject to filters.
+  filters can include at most one each of:
+
+  :exclude list-of-symbols
+  :only list-of-symbols
+  :rename map-of-fromsymbol-tosymbol
+
+  For each public interned var in the namespace named by the symbol,
+  adds a mapping from the name of the var to the var to the current
+  namespace.  Throws an exception if name is already mapped to
+  something else in the current namespace. Filters can be used to
+  select a subset, via inclusion or exclusion, or to provide a mapping
+  to a symbol different from the var's name, in order to prevent
+  clashes. Use :use in the ns macro in preference to calling this directly.reify1.2([& opts+specs])reify creates an object implementing a protocol or interface.
+  reify is a macro with the following structure:
+
+ (reify options* specs*)
+  
+  Currently there are no options.
+
+  Each spec consists of the protocol or interface name followed by zero
+  or more method bodies:
+
+  protocol-or-interface-or-Object
+  (methodName [args+] body)*
+
+  Methods should be supplied for all methods of the desired
+  protocol(s) and interface(s). You can also define overrides for
+  methods of Object. Note that the first parameter must be supplied to
+  correspond to the target object ('this' in Java parlance). Thus
+  methods for interfaces will take one more argument than do the
+  interface declarations.  Note also that recur calls to the method
+  head should *not* pass the target object, it will be supplied
+  automatically and can not be substituted.
+
+  The return type can be indicated by a type hint on the method name,
+  and arg types can be indicated by a type hint on arg names. If you
+  leave out all hints, reify will try to match on same name/arity
+  method in the protocol(s)/interface(s) - this is preferred. If you
+  supply any hints at all, no inference is done, so all hints (or
+  default of Object) must be correct, for both arguments and return
+  type. If a method is overloaded in a protocol/interface, multiple
+  independent method definitions must be supplied.  If overloaded with
+  same arity in an interface you must specify complete hints to
+  disambiguate - a missing hint implies Object.
+
+  Method heads are recursion points for recur, as in a fn. The method
+  bodies of reify are lexical closures, and can refer to the surrounding
+  local scope:
+  
+  (str (let [f "foo"] 
+         (reify Object
+           (toString [this] f))))
+  == "foo"
+
+  (seq (let [f "foo"] 
+         (reify clojure.lang.Seqable
+           (seq [this] (seq f)))))
+  == (\f \o \o)
+  
+  reify always implements clojure.lang.IObj and transfers meta
+  data of the form to the created object.
+  
+  (meta ^{:k :v} (reify Object (toString [this] "foo")))
+  == {:k :v}rem1.0([num div])remainder of dividing numerator by denominator.remove1.0([pred] [pred coll])Returns a lazy sequence of the items in coll for which
+  (pred item) returns logical false. pred must be free of side-effects.
+  Returns a transducer when no collection is provided.remove-all-methods1.2([multifn])Removes all of the methods of multimethod.remove-method1.0([multifn dispatch-val])Removes the method of multimethod associated with dispatch-value.remove-watch1.0([reference key])Removes a watch (set by add-watch) from a referencerepeat1.0([x] [n x])Returns a lazy (infinite!, or length n if supplied) sequence of xs.repeatedly1.0([f] [n f])Takes a function of no args, presumably with side effects, and
+  returns an infinite (or length n if supplied) lazy sequence of calls
+  to itreplace1.0([smap] [smap coll])Given a map of replacement pairs and a vector/collection, returns a
+  vector/seq with any elements = a key in smap replaced with the
+  corresponding val in smap.  Returns a transducer when no collection
+  is provided.replicate1.0([n x])DEPRECATED: Use 'repeat' instead.
+   Returns a lazy seq of n xs.req!1.13([m k])Like arity-2 'get', but throws if key not present.require1.0([& args])Loads libs, skipping any that are already loaded. Each argument is
+  either a libspec that identifies a lib, a prefix list that identifies
+  multiple libs whose names share a common prefix, or a flag that modifies
+  how all the identified libs are loaded. Use :require in the ns macro
+  in preference to calling this directly.
+
+  Libs
+
+  A 'lib' is a named set of resources in classpath whose contents define a
+  library of Clojure code. Lib names are symbols and each lib is associated
+  with a Clojure namespace and a Java package that share its name. A lib's
+  name also locates its root directory within classpath using Java's
+  package name to classpath-relative path mapping. All resources in a lib
+  should be contained in the directory structure under its root directory.
+  All definitions a lib makes should be in its associated namespace.
+
+  'require loads a lib by loading its root resource. The root resource path
+  is derived from the lib name in the following manner:
+  Consider a lib named by the symbol 'x.y.z; it has the root directory
+  <classpath>/x/y/, and its root resource is <classpath>/x/y/z.clj, or
+  <classpath>/x/y/z.cljc if <classpath>/x/y/z.clj does not exist. The
+  root resource should contain code to create the lib's
+  namespace (usually by using the ns macro) and load any additional
+  lib resources.
+
+  Libspecs
+
+  A libspec is a lib name or a vector containing a lib name followed by
+  options expressed as sequential keywords and arguments.
+
+  Recognized options:
+  :as takes a symbol as its argument and makes that symbol an alias to the
+    lib's namespace in the current namespace.
+  :as-alias takes a symbol as its argument and aliases like :as, however
+    the lib will not be loaded. If the lib has not been loaded, a new
+    empty namespace will be created (as with create-ns).
+  :refer takes a list of symbols to refer from the namespace or the :all
+    keyword to bring in all public vars.
+
+  Prefix Lists
+
+  It's common for Clojure code to depend on several libs whose names have
+  the same prefix. When specifying libs, prefix lists can be used to reduce
+  repetition. A prefix list contains the shared prefix followed by libspecs
+  with the shared prefix removed from the lib names. After removing the
+  prefix, the names that remain must not contain any periods.
+
+  Flags
+
+  A flag is a keyword.
+  Recognized flags: :reload, :reload-all, :verbose
+  :reload forces loading of all the identified libs even if they are
+    already loaded (has no effect on libspecs using :as-alias)
+  :reload-all implies :reload and also forces loading of all libs that the
+    identified libs directly or indirectly load via require or use
+    (has no effect on libspecs using :as-alias)
+  :verbose triggers printing information about each load, alias, and refer
+
+  Example:
+
+  The following would load the libraries clojure.zip and clojure.set
+  abbreviated as 's'.
+
+  (require '(clojure zip [set :as s]))reset!1.0([atom newval])Sets the value of atom to newval without regard for the
+  current value. Returns newval.reset-meta!1.0([iref metadata-map])Atomically resets the metadata for a namespace/var/ref/agent/atomreset-vals!1.9([atom newval])Sets the value of atom to newval. Returns [old new], the value of the
+   atom before and after the reset.resolve1.0([sym] [env sym])same as (ns-resolve *ns* symbol) or (ns-resolve *ns* &env symbol)rest1.0([coll])Returns a possibly empty seq of the items after the first. Calls seq on its
+  argument.reverse1.0([coll])Returns a seq of the items in coll in reverse order. Not lazy.reversible?1.0([coll])Returns true if coll implements Reversiblerseq1.0([rev])Returns, in constant time, a seq of the items in rev (which
+  can be a vector or sorted-map), in reverse order. If rev is empty returns nilrsubseq1.0([sc test key] [sc start-test start-key end-test end-key])sc must be a sorted collection, test(s) one of <, <=, > or
+  >=. Returns a reverse seq of those entries with keys ek for
+  which (test (.. sc comparator (compare ek key)) 0) is truerun!1.7([proc coll])Runs the supplied procedure (via reduce), for purposes of side
+  effects, on successive items in the collection. Returns nilsatisfies?1.2([protocol x])Returns true if x satisfies the protocolsecond1.0([x])Same as (first (next x))select-keys1.0([map keyseq])Returns a map containing only those entries in map whose key is in keyseqseq1.0([coll])Returns a seq on the collection. If the collection is
+    empty, returns nil.  (seq nil) returns nil. seq also works on
+    Strings, native Java arrays (of reference types) and any objects
+    that implement Iterable. Note that seqs cache values, thus seq
+    should not be used on any Iterable whose iterator repeatedly
+    returns the same mutable object.seq-to-map-for-destructuring1.11([s])Builds a map from a seq as described in
+  https://clojure.org/reference/special_forms#keyword-argumentsseq?1.0([x])Return true if x implements ISeqseqable?1.9([x])Return true if the seq function is supported for xsequence1.0([coll] [xform coll] [xform coll & colls])Coerces coll to a (possibly empty) sequence, if it is not already
+  one. Will not force a lazy seq. (sequence nil) yields (), When a
+  transducer is supplied, returns a lazy sequence of applications of
+  the transform to the items in coll(s), i.e. to the set of first
+  items of each coll, followed by the set of second
+  items in each coll, until any one of the colls is exhausted.  Any
+  remaining items in other colls are ignored. The transform should accept
+  number-of-colls argumentssequential?1.0([coll])Returns true if coll implements Sequentialset1.0([coll])Returns a set of the distinct elements of coll.set?1.0([x])Returns true if x implements IPersistentSetshort1.0([x])Coerce to shortshort-array1.1([size-or-seq] [size init-val-or-seq])Creates an array of shortsshorts1.1([xs])Casts to short[]shuffle1.2([coll])Return a random permutation of collsimple-ident?1.9([x])Return true if x is a symbol or keyword without a namespacesimple-keyword?1.9([x])Return true if x is a keyword without a namespacesimple-symbol?1.9([x])Return true if x is a symbol without a namespaceslurp1.0([f & opts])Opens a reader on f and reads all its contents, returning a string.
+  See clojure.java.io/reader for a complete list of supported arguments.some1.0([pred coll])Returns the first logical true value of (pred x) for any x in coll,
+  else nil.  One common idiom is to use a set as pred, for example
+  this will return :fred if :fred is in the sequence, otherwise nil:
+  (some #{:fred} coll)some->1.5([expr & forms])When expr is not nil, threads it into the first form (via ->),
+  and when that result is not nil, through the next etcsome->>1.5([expr & forms])When expr is not nil, threads it into the first form (via ->>),
+  and when that result is not nil, through the next etcsome-fn1.3([p] [p1 p2] [p1 p2 p3] [p1 p2 p3 & ps])Takes a set of predicates and returns a function f that returns the first logical true value
+  returned by one of its composing predicates against any of its arguments, else it returns
+  logical false. Note that f is short-circuiting in that it will stop execution on the first
+  argument that triggers a logical true result against the original predicates.some-vals1.13([m])Returns a map with only the non-nil values of map m. Returns nil if
+  m has no non-nil vals.some?1.6([x])Returns true if x is not nil, false otherwise.sort1.0([coll] [comp coll])Returns a sorted sequence of the items in coll. If no comparator is
+  supplied, uses compare.  comparator must implement
+  java.util.Comparator.  Guaranteed to be stable: equal elements will
+  not be reordered.  If coll is a Java array, it will be modified.  To
+  avoid this, sort a copy of the array.sort-by1.0([keyfn coll] [keyfn comp coll])Returns a sorted sequence of the items in coll, where the sort
+  order is determined by comparing (keyfn item).  If no comparator is
+  supplied, uses compare.  comparator must implement
+  java.util.Comparator.  Guaranteed to be stable: equal elements will
+  not be reordered.  If coll is a Java array, it will be modified.  To
+  avoid this, sort a copy of the array.sorted-map1.0([& keyvals])keyval => key val
+  Returns a new sorted map with supplied mappings.  If any keys are
+  equal, they are handled as if by repeated uses of assoc.sorted-map-by1.0([comparator & keyvals])keyval => key val
+  Returns a new sorted map with supplied mappings, using the supplied
+  comparator.  If any keys are equal, they are handled as if by
+  repeated uses of assoc.sorted-set1.0([& keys])Returns a new sorted set with supplied keys.  Any equal keys are
+  handled as if by repeated uses of conj.sorted-set-by1.1([comparator & keys])Returns a new sorted set with supplied keys, using the supplied
+  comparator.  Any equal keys are handled as if by repeated uses of
+  conj.sorted?1.0([coll])Returns true if coll implements Sortedspecial-symbol?1.0([s])Returns true if s names a special formspit1.2([f content & options])Opposite of slurp.  Opens f with writer, writes content, then
+  closes f. Options passed to clojure.java.io/writer.split-at1.0([n coll])Returns a vector of [(take n coll) (drop n coll)]split-with1.0([pred coll])Returns a vector of [(take-while pred coll) (drop-while pred coll)]splitv-at1.12([n coll])Returns a vector of [(into [] (take n) coll) (drop n coll)]str1.0([] [x] [x & ys])With no args, returns the empty string. With one arg x, returns
+  x.toString().  (str nil) returns the empty string. With more than
+  one arg, returns the concatenation of the str values of the args.string?1.0([x])Return true if x is a Stringstruct1.0([s & vals])Returns a new structmap instance with the keys of the
+  structure-basis. vals must be supplied for basis keys in order -
+  where values are not supplied they will default to nil.struct-map1.0([s & inits])Returns a new structmap instance with the keys of the
+  structure-basis. keyvals may contain all, some or none of the basis
+  keys - where values are not supplied they will default to nil.
+  keyvals can also contain keys not in the basis.subs1.0([s start] [s start end])Returns the substring of s beginning at start inclusive, and ending
+  at end (defaults to length of string), exclusive.subseq1.0([sc test key] [sc start-test start-key end-test end-key])sc must be a sorted collection, test(s) one of <, <=, > or
+  >=. Returns a seq of those entries with keys ek for
+  which (test (.. sc comparator (compare ek key)) 0) is truesubvec1.0([v start] [v start end])Returns a persistent vector of the items in vector from
+  start (inclusive) to end (exclusive).  If end is not supplied,
+  defaults to (count vector). This operation is O(1) and very fast, as
+  the resulting vector shares structure with the original and no
+  trimming is done.swap!1.0([atom f] [atom f x] [atom f x y] [atom f x y & args])Atomically swaps the value of atom to be:
+  (apply f current-value-of-atom args). Note that f may be called
+  multiple times, and thus should be free of side effects.  Returns
+  the value that was swapped in.swap-vals!1.9([atom f] [atom f x] [atom f x y] [atom f x y & args])Atomically swaps the value of atom to be:
+  (apply f current-value-of-atom args). Note that f may be called
+  multiple times, and thus should be free of side effects.
+  Returns [old new], the value of the atom before and after the swap.symbol1.0([name] [ns name])Returns a Symbol with the given namespace and name. Arity-1 works
+  on strings, keywords, and vars.symbol?1.0([x])Return true if x is a Symboltake1.0([n] [n coll])Returns a lazy sequence of the first n items in coll, or all items if
+  there are fewer than n.  Returns a stateful transducer when
+  no collection is provided.take-last1.1([n coll])Returns a seq of the last n items in coll.  Depending on the type
+  of coll may be no better than linear time.  For vectors, see also subvec.take-nth1.0([n] [n coll])Returns a lazy seq of every nth item in coll.  Returns a stateful
+  transducer when no collection is provided.take-while1.0([pred] [pred coll])Returns a lazy sequence of successive items from coll while
+  (pred item) returns logical true. pred must be free of side-effects.
+  Returns a transducer when no collection is provided.the-ns1.0([x])If passed a namespace, returns it. Else, when passed a symbol,
+  returns the namespace named by it, throwing an exception if not
+  found.to-array1.0([coll])Returns an array of Objects containing the contents of coll, which
+  can be any Collection.  Maps to java.util.Collection.toArray().to-array-2d1.0([coll])Returns a (potentially-ragged) 2-dimensional array of Objects
+  containing the contents of coll, which can be any Collection of any
+  Collection.trampoline1.0([f] [f & args])trampoline can be used to convert algorithms requiring mutual
+  recursion without stack consumption. Calls f with supplied args, if
+  any. If f returns a fn, calls that fn with no arguments, and
+  continues to repeat, until the return value is not a fn, then
+  returns that non-fn value. Note that if you want to return a fn as a
+  final value, you must wrap it in some data structure and unpack it
+  after trampoline returns.transduce1.7([xform f coll] [xform f init coll])reduce with a transformation of f (xf). If init is not
+  supplied, (f) will be called to produce it. f should be a reducing
+  step function that accepts both 1 and 2 arguments, if it accepts
+  only 2 you can add the arity-1 with 'completing'. Returns the result
+  of applying (the transformed) xf to init and the first item in coll,
+  then applying xf to that result and the 2nd item, etc. If coll
+  contains no items, returns init and f is not called. Note that
+  certain transforms may inject or skip items.transient1.1([coll])Returns a new, transient version of the collection, in constant time.
+
+  Transients support a parallel set of 'changing' operations, with similar names
+  followed by ! - assoc!, conj! etc. These do the same things as their persistent
+  counterparts except the return values are themselves transient.
+
+  Note in particular that transients are not designed to be bashed in-place. You
+  must capture and use the return value in the next call. In this way, they support
+  the same code structure as the functional persistent code they replace.true?1.0([x])Returns true if x is the value true, false otherwise.type1.0([x])Returns the :type metadata of x, or its Class if noneunchecked-add1.0([x y])Returns the sum of x and y, both long.
+  Note - uses a primitive operator subject to overflow.unchecked-add-int1.0([x y])Returns the sum of x and y, both int.
+  Note - uses a primitive operator subject to overflow.unchecked-byte1.3([x])Coerce to byte. Subject to rounding or truncation.unchecked-char1.3([x])Coerce to char. Subject to rounding or truncation.unchecked-dec1.0([x])Returns a number one less than x, a long.
+  Note - uses a primitive operator subject to overflow.unchecked-dec-int1.0([x])Returns a number one less than x, an int.
+  Note - uses a primitive operator subject to overflow.unchecked-divide-int1.0([x y])Returns the division of x by y, both int.
+  Note - uses a primitive operator subject to truncation.unchecked-double1.3([x])Coerce to double. Subject to rounding.unchecked-float1.3([x])Coerce to float. Subject to rounding.unchecked-inc1.0([x])Returns a number one greater than x, a long.
+  Note - uses a primitive operator subject to overflow.unchecked-inc-int1.0([x])Returns a number one greater than x, an int.
+  Note - uses a primitive operator subject to overflow.unchecked-int1.3([x])Coerce to int. Subject to rounding or truncation.unchecked-long1.3([x])Coerce to long. Subject to rounding or truncation.unchecked-multiply1.0([x y])Returns the product of x and y, both long.
+  Note - uses a primitive operator subject to overflow.unchecked-multiply-int1.0([x y])Returns the product of x and y, both int.
+  Note - uses a primitive operator subject to overflow.unchecked-negate1.0([x])Returns the negation of x, a long.
+  Note - uses a primitive operator subject to overflow.unchecked-negate-int1.0([x])Returns the negation of x, an int.
+  Note - uses a primitive operator subject to overflow.unchecked-remainder-int1.0([x y])Returns the remainder of division of x by y, both int.
+  Note - uses a primitive operator subject to truncation.unchecked-short1.3([x])Coerce to short. Subject to rounding or truncation.unchecked-subtract1.0([x y])Returns the difference of x and y, both long.
+  Note - uses a primitive operator subject to overflow.unchecked-subtract-int1.0([x y])Returns the difference of x and y, both int.
+  Note - uses a primitive operator subject to overflow.underive1.0([tag parent] [h tag parent])Removes a parent/child relationship between parent and
+  tag. h must be a hierarchy obtained from make-hierarchy, if not
+  supplied defaults to, and modifies, the global hierarchy.unreduced1.7([x])If x is reduced?, returns (deref x), else returns xunsigned-bit-shift-right1.6([x n])Bitwise shift right, without sign-extension.update1.7([m k f] [m k f x] [m k f x y] [m k f x y z] [m k f x y z & more])'Updates' a value in an associative structure, where k is a
+  key and f is a function that will take the old value
+  and any supplied args and return the new value, and returns a new
+  structure.  If the key does not exist, nil is passed as the old value.update-in1.0([m ks f & args])'Updates' a value in a nested associative structure, where ks is a
+  sequence of keys and f is a function that will take the old value
+  and any supplied args and return the new value, and returns a new
+  nested structure.  If any levels do not exist, hash-maps will be
+  created.update-keys1.11([m f])m f => {(f k) v ...}
+
+  Given a map m and a function f of 1-argument, returns a new map whose
+  keys are the result of applying f to the keys of m, mapped to the
+  corresponding values of m.
+  f must return a unique key for each key of m, else the behavior is undefined.update-vals1.11([m f])m f => {k (f v) ...}
+
+  Given a map m and a function f of 1-argument, returns a new map where the keys of m
+  are mapped to result of applying f to the corresponding values of m.uri?1.9([x])Return true if x is a java.net.URIuse1.0([& args])Like 'require, but also refers to each lib's namespace using
+  clojure.core/refer. Use :use in the ns macro in preference to calling
+  this directly.
+
+  'use accepts additional options in libspecs: :exclude, :only, :rename.
+  The arguments and semantics for :exclude, :only, and :rename are the same
+  as those documented for clojure.core/refer.uuid?1.9([x])Return true if x is a java.util.UUIDval1.0([e])Returns the value in the map entry.vals1.0([map])Returns a sequence of the map's values, in the same order as (seq map).var-get1.0([x])Gets the value in the var objectvar-set1.0([x val])Sets the value in the var object to val. The var must be
+ thread-locally bound.var?1.0([v])Returns true if v is of type clojure.lang.Varvary-meta1.0([obj f & args])Returns an object of the same type and value as obj, with
+  (apply f (meta obj) args) as its metadata.vec1.0([coll])Creates a new vector containing the contents of coll. Java arrays
+  will be aliased and should not be modified.vector1.0([] [a] [a b] [a b c] [a b c d] [a b c d e] [a b c d e f] [a b c d e f & args])Creates a new vector containing the args.vector-of1.2([t] [t & elements])Creates a new vector of a single primitive type t, where t is one
+  of :int :long :float :double :byte :short :char or :boolean. The
+  resulting vector complies with the interface of vectors in general,
+  but stores the values unboxed internally.
+
+  Optionally takes one or more elements to populate the vector.vector?1.0([x])Return true if x implements IPersistentVectorvolatile!1.7([val])Creates and returns a Volatile with an initial value of val.volatile?1.7([x])Returns true if x is a volatile.vreset!1.7([vol newval])Sets the value of volatile to newval without regard for the
+   current value. Returns newval.vswap!1.7([vol f & args])Non-atomically swaps the value of the volatile as if:
+   (apply f current-value-of-vol args). Returns the value that
+   was swapped in.when1.0([test & body])Evaluates test. If logical true, evaluates body in an implicit do.when-first1.0([bindings & body])bindings => x xs
+
+  Roughly the same as (when (seq xs) (let [x (first xs)] body)) but xs is evaluated only oncewhen-let1.0([bindings & body])bindings => binding-form test
+
+  When test is true, evaluates body with binding-form bound to the value of testwhen-not1.0([test & body])Evaluates test. If logical false, evaluates body in an implicit do.when-some1.6([bindings & body])bindings => binding-form test
+
+   When test is not nil, evaluates body with binding-form bound to the
+   value of testwhile1.0([test & body])Repeatedly executes body while test expression is true. Presumes
+  some side-effect will cause test to become false/nil. Returns nilwith-in-str1.0([s & body])Evaluates body in a context in which *in* is bound to a fresh
+  StringReader initialized with the string s.with-local-vars1.0([name-vals-vec & body])varbinding=> symbol init-expr
+
+  Executes the exprs in a context in which the symbols are bound to
+  vars with per-thread bindings to the init-exprs.  The symbols refer
+  to the var objects themselves, and must be accessed with var-get and
+  var-setwith-meta1.0([obj m])Returns an object of the same type and value as obj, with
+    map m as its metadata.with-open1.0([bindings & body])bindings => [name init ...]
+
+  Evaluates body in a try expression with names bound to the values
+  of the inits, and a finally clause that calls (.close name) on each
+  name in reverse order.with-out-str1.0([& body])Evaluates exprs in a context in which *out* is bound to a fresh
+  StringWriter.  Returns the string created by any nested printing
+  calls.with-precision1.0([precision & exprs])Sets the precision and rounding mode to be used for BigDecimal operations.
+
+  Usage: (with-precision 10 (/ 1M 3))
+  or:    (with-precision 10 :rounding HALF_DOWN (/ 1M 3))
+
+  The rounding mode is one of CEILING, FLOOR, HALF_UP, HALF_DOWN,
+  HALF_EVEN, UP, DOWN and UNNECESSARY; it defaults to HALF_UP.with-redefs1.3([bindings & body])binding => var-symbol temp-value-expr
+
+  Temporarily redefines Vars while executing the body.  The
+  temp-value-exprs will be evaluated and each resulting value will
+  replace in parallel the root value of its Var.  After the body is
+  executed, the root values of all the Vars will be set back to their
+  old values.  These temporary changes will be visible in all threads.
+  Useful for mocking out functions during testing.with-redefs-fn1.3([binding-map func])Temporarily redefines Vars during a call to func.  Each val of
+  binding-map will replace the root value of its key which must be
+  a Var.  After func is called with no args, the root values of all
+  the Vars will be set back to their old values.  These temporary
+  changes will be visible in all threads.  Useful for mocking out
+  functions during testing.zero?1.0([num])Returns true if num is zero, else falsezipmap1.0([keys vals])Returns a map with the keys mapped to the corresponding vals.

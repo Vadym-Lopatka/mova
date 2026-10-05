@@ -1,0 +1,5972 @@
+@clj clojure.core.protocols
+CollReduce				
+Datafiable				
+IKVReduce				
+InternalReduce				
+Navigable				
+coll-reduce	f	2,3		
+datafy	f	1		
+interface-or-naive-reduce	pf	3		
+internal-reduce	f	3		
+iter-reduce	pf	2,3		
+iterator-reduce!	f	2,3		
+kv-reduce	f	3		
+naive-seq-reduce	pf	3		
+nav	f	3		
+seq-reduce	pf	2,3		
+@clj clojure.core.reducers
+->Cat	f	3		
+Cat	c			
+CollFold				
+append!	f	2		
+cat	f	0,1,2		
+coll-fold	f	4		
+defcurried	mp		4	
+do-curried	pf	5		
+do-rfn	pf	3		
+drop	f	2		
+filter	f	2		
+fjfork	pf	1		
+fjinvoke	pf	1		
+fjjoin	pf	1		
+fjtask	f	1		
+flatten	f	1		
+fold	f	2,3,4		
+foldcat	f	1		
+folder	f	2		
+foldvec	pf	4		
+map	f	2		
+mapcat	f	2		
+monoid	f	2		
+pool				
+reduce	f	2,3		
+reducer	f	2		
+remove	f	2		
+rfn	mpf	2		
+take	f	2		
+take-while	f	2		
+@clj clojure.core.server
+*session*				
+accept-connection	pf	8		
+ex->data	pf	2		
+io-prepl			0	
+lock	p			
+parse-props	pf	1		
+prepl			2	
+remote-prepl			4	
+repl	f	0		
+repl-init	f	0		
+repl-read	f	2		
+required	pf	2		
+resolve-fn	pf	1		
+servers	p			
+start-server	f	1		
+start-servers	f	1		
+stop-server	f	0,1		
+stop-servers	f	0		
+thread	mp		2	
+validate-opts	pf	1		
+with-lock	mp		1	
+@clj clojure.core.specs.alpha
+even-number-of-forms?	f	1		
+quotable	mpf	1		
+@clj clojure.core
+*	f	0,1,2	2	
+*'	f	0,1,2	2	
+*1				
+*2				
+*3				
+*clojure-version*				
+*data-readers*				
+*default-data-reader-fn*				
+*e				
+*loaded-libs*	p			
+*loading-verbosely*	p			
+*pending-paths*	p			
+*print-length*				
+*print-level*				
+*print-namespace-maps*				
+*repl*				
+*verbose-defrecords*				
++	f	0,1,2	2	
++'	f	0,1,2	2	
+-	f	1,2	2	
+-'	f	1,2	2	
+->	m		1	
+->>	m		1	
+->ArrayChunk	f	4		
+->Eduction	f	2		
+->Vec	f	6		
+->VecNode	f	2		
+->VecSeq	f	6		
+-cache-protocol-fn	f	4		
+-reset-methods	f	1		
+..	mf	2	2	
+/	f	1,2	2	
+<	f	1,2	2	
+<=	f	1,2	2	
+=	f	1,2	2	
+==	f	1,2	2	
+>	f	1,2	2	
+>0?	pf	1		
+>1?	pf	1		
+>=	f	1,2	2	
+ArrayChunk	c			
+ArrayManager				
+EMPTY-NODE				
+Eduction	c			
+IVecImpl				
+Inst				
+NaN?	f	1		
+PrintWriter-on	f	2,3		
+StackTraceElement->vec	f	1		
+Throwable->map	f	1		
+Vec	c			
+VecNode	c			
+VecSeq	c			
+abs	f	1		
+accessor	f	2		
+aclone	f	1		
+add-annotation	pf	3		
+add-annotations	pf	2,3		
+add-classpath	f	1		1.1
+add-doc-and-meta	mpf	3		
+add-tap	f	1		
+add-watch	f	3		
+agent			1	
+agent-error	f	1		
+agent-errors	f	1		1.2
+aget	f	2	2	
+alength	f	1		
+alias	f	2		
+all-ns	f	0		
+alter			2	
+alter-meta!			2	
+alter-var-root			2	
+amap	mf	4		
+ams	p			
+ams-check	mpf	1		
+ancestors	f	1,2		
+and	mf	0,1	1	
+any?	f	1		
+apply	f	2,3,4,5	5	
+areduce	mf	5		
+array	p		0	
+array-map	f	0	0	
+as->	m		2	
+aset	f	3	3	
+asm-type	pf	1		
+assert	mf	1,2		
+assert-args	mp		0	
+assert-same-protocol	pf	2		
+assert-valid-fdecl	pf	1		
+assoc	f	3	3	
+assoc!	f	3	3	
+assoc-in	f	3		
+associative?	f	1		
+atom	f	1	1	
+await			0	
+await-for			1	
+await1	f	1		
+bases	f	1		
+bean	f	1		
+bigdec	f	1		
+bigint	f	1		
+biginteger	f	1		
+binding	m		1	
+binding-conveyor-fn	pf	1		
+bit-and	f	2	2	
+bit-and-not	f	2	2	
+bit-clear	f	2		
+bit-flip	f	2		
+bit-not	f	1		
+bit-or	f	2	2	
+bit-set	f	2		
+bit-shift-left	f	2		
+bit-shift-right	f	2		
+bit-test	f	2		
+bit-xor	f	2	2	
+boolean	f	1		
+boolean-array	f	1,2		
+boolean?	f	1		
+booleans	f	1		
+bound-fn	m		0	
+bound-fn*	f	1		
+bound?			0	
+bounded-count	f	2		
+build-positional-factory	pf	3		
+butlast	f	1		
+byte	f	1		
+byte-array	f	1,2		
+bytes	f	1		
+bytes?	f	1		
+case	m		1	
+case-map	pf	4		
+cast	f	2		
+cat	f	1		
+char	f	1		
+char-array	f	1,2		
+char-escape-string				
+char-name-string				
+char?	f	1		
+chars	f	1		
+check-cyclic-dependency	pf	1		
+check-valid-options	p		1	
+chunk	f	1		
+chunk-append	f	2		
+chunk-buffer	f	1		
+chunk-cons	f	2		
+chunk-first	f	1		
+chunk-next	f	1		
+chunk-rest	f	1		
+chunked-seq?	f	1		
+class	f	1		
+class?	f	1		
+clear-agent-errors	f	1		1.2
+clojure-version	f	0		
+coll?	f	1		
+comment	m		0	
+commute			2	
+comp	f	0,1,2	2	
+comparator	f	1		
+compare	f	2		
+compare-and-set!	f	3		
+compile	f	1		
+complement	f	1		
+completing	f	1,2		
+concat	f	0,1,2	2	
+cond	m		0	
+cond->	m		1	
+cond->>	m		1	
+condp	m		2	
+conj	f	0,1,2	2	
+conj!	f	0,1,2		
+cons	f	2		
+constantly	f	1		
+construct-proxy			1	
+contains?	f	2		
+count	f	1		
+counted?	f	1		
+create-ns	f	1		
+create-struct			0	
+ctor-sigs	pf	1		
+cycle	f	1		
+data-reader-urls	pf	0		
+data-reader-var	pf	1		
+dec	f	1		
+dec'	f	1		
+decimal?	f	1		
+declare	m		0	
+dedupe	f	0,1		
+def	mf	1,2,3		
+def-aset	mpf	3		
+default-data-readers				
+definline	m		1	
+definterface	m		1	
+defmacro	m		2	
+defmethod	m		2	
+defmulti	m		1	
+defn	m		2	
+defn-	m		2	
+defonce	mf	2		
+defprotocol	m		1	
+defrecord	m		2	
+defstruct	m		1	
+deftype	m		2	
+delay	m		0	
+delay?	f	1		
+deliver	f	2		
+denominator	f	1		
+deref	f	1,3		
+deref-as-map	pf	1		
+deref-future	pf	1,3		
+derive	f	2,3		
+descendants	f	1,2		
+descriptor	pf	1		
+destmap*	pf	4		
+destructure	f	1		
+destvec*	pf	4		
+disj	f	1,2	2	
+disj!	f	1,2	2	
+dissoc	f	1,2	2	
+dissoc!	f	2	2	
+distinct	f	0,1		
+distinct?	f	1,2	2	
+doall	f	1,2		
+dorun	f	1,2		
+doseq	m		1	
+dosync	m		0	
+dotimes	m		1	
+doto	m		1	
+double	f	1		
+double-array	f	1,2		
+double?	f	1		
+doubles	f	1		
+drop	f	1,2		
+drop-last	f	1,2		
+drop-while	f	1,2		
+eduction			0	
+elide-top-frames	pf	2		
+emit-defrecord	pf	6		
+emit-deftype*	pf	6		
+emit-extend-protocol	pf	2		
+emit-extend-type	pf	2		
+emit-hinted-impl	pf	2		
+emit-impl	pf	1		
+emit-method-builder	pf	5		
+emit-protocol	pf	2		
+empty	f	1		
+empty?	f	1		
+ensure	f	1		
+ensure-reduced	f	1		
+enumeration-seq	f	1		
+error-handler	f	1		
+error-mode	f	1		
+escape-class-name	pf	1		
+eval	f	1		
+even?	f	1		
+every-pred	f	1,2,3	3	
+every?	f	2		
+ex-cause	f	1		
+ex-data	f	1		
+ex-info	f	2,3		
+ex-message	f	1		
+expand-method-impl-cache	pf	3		
+extend			1	
+extend-protocol	m		1	
+extend-type	m		1	
+extenders	f	1		
+extends?	f	2		
+false?	f	1		
+ffirst	f	1		
+file-seq	f	1		
+filter	f	1,2		
+filter-key	pf	3		
+filter-methods	pf	2		
+filterv	f	2		
+find	f	2		
+find-field	pf	2		
+find-keyword	f	1,2		
+find-ns	f	1		
+find-protocol-impl	f	2		
+find-protocol-method	f	3		
+find-var	f	1		
+first	f	1		
+fits-table?	pf	1		
+flatten	f	1		
+float	f	1		
+float-array	f	1,2		
+float?	f	1		
+floats	f	1		
+flush	f	0		
+fn	m		0	
+fn?	f	1		
+fnext	f	1		
+fnil	f	2,3,4		
+for	mf	2		
+force	f	1		
+format			1	
+frequencies	f	1		
+future	m		0	
+future-call	f	1		
+future-cancel	f	1		
+future-cancelled?	f	1		
+future-done?	f	1		
+future?	f	1		
+gen-and-load-class			0	
+gen-class				
+gen-interface	m		0	
+generate-class	pf	1		
+generate-interface	pf	1		
+generate-proxy	pf	2		
+gensym	f	0,1		
+get	f	2,3		
+get-in	f	2,3		
+get-method	f	2		
+get-proxy-class			0	
+get-super-and-interfaces	pf	1		
+get-thread-bindings	f	0		
+get-validator	f	1		
+global-hierarchy	p			
+group-by	f	2		
+group-by-sig	pf	1		
+halt-when	f	1,2		
+hash	f	1		
+hash-combine	f	2		
+hash-map	f	0	0	
+hash-ordered-coll	f	1		
+hash-set	f	0	0	
+hash-unordered-coll	f	1		
+ident?	f	1		
+identical?	f	2		
+identity	f	1		
+if-let	mf	2,3		
+if-not	mf	2,3		
+if-some	mf	2,3		
+ifn?	f	1		
+imap-cons	pf	2		
+implements?	pf	2		
+import	m		0	
+inc	f	1		
+inc'	f	1		
+indexed?	f	1		
+infinite?	f	1		
+init-proxy	f	2		
+inst-ms	f	1		
+inst-ms*	f	1		
+inst?	f	1		
+instance?	f	2		
+int	f	1		
+int-array	f	1,2		
+int?	f	1		
+integer?	f	1		
+interleave	f	0,1,2	2	
+intern	f	2,3		
+interpose	f	1,2		
+into	f	0,1,2,3		
+into-array	f	1,2		
+into1	pf	2		
+ints	f	1		
+io!	m		0	
+is-annotation?	pf	1		
+is-runtime-annotation?	pf	1		
+isa?	f	2,3		
+iterate	f	2		
+iteration			1	
+iterator-seq	f	1		
+juxt	f	1,2,3	3	
+keep	f	1,2		
+keep-indexed	f	1,2		
+key	f	1		
+keys	f	1		
+keyword	f	1,2		
+keyword?	f	1		
+last	f	1		
+lazy-cat	m		0	
+lazy-seq	m		0	
+let	m		1	
+letfn	m		1	
+libspec?	pf	1		
+lift-ns	pf	1		
+line-seq	f	1		
+list				
+list*	f	1,2,3,4	4	
+list?	f	1		
+load			0	
+load-all	pf	3		
+load-data-reader-file	pf	2		
+load-data-readers	pf	0		
+load-lib	p		2	
+load-libs	p		0	
+load-one	pf	3		
+load-reader	f	1		
+load-string	f	1		
+loaded-libs	f	0		
+locking	m		1	
+long	f	1		
+long-array	f	1,2		
+longs	f	1		
+loop	m		1	
+macroexpand	f	1		
+macroexpand-1	f	1		
+make-array	f	2	2	
+make-hierarchy	f	0		
+map	f	1,2,3,4	4	
+map-entry?	f	1		
+map-indexed	f	1,2		
+map?	f	1		
+mapcat	f	1	1	
+mapv	f	2,3,4	4	
+max	f	1,2	2	
+max-key	f	2,3	3	
+max-mask-bits	p			
+max-switch-table-size	p			
+maybe-destructured	pf	2		
+maybe-min-hash	pf	1		
+memfn	m		1	
+memoize	f	1		
+merge			0	
+merge-hash-collisions	pf	4		
+merge-with			1	
+meta	f	1		
+method-sig	f	1		
+methods	f	1		
+min	f	1,2	2	
+min-key	f	2,3	3	
+mix-collection-hash	f	2		
+mk-am	mpf	1		
+mk-bound-fn	pf	3		
+mod	f	2		
+most-specific	pf	1		
+munge	f	1		
+name	f	1		
+namespace	f	1		
+namespace-munge	f	1		
+nary-inline	pf	1,2		
+nat-int?	f	1		
+neg-int?	f	1		
+neg?	f	1		
+newline	f	0		
+next	f	1		
+nfirst	f	1		
+nil?	f	1		
+nnext	f	1		
+non-private-methods	pf	1		
+normalize-slurp-opts	pf	1		
+not	f	1		
+not-any?				
+not-empty	f	1		
+not-every?				
+not=	f	1,2	2	
+ns	m		1	
+ns-aliases	f	1		
+ns-imports	f	1		
+ns-interns	f	1		
+ns-map	f	1		
+ns-name	f	1		
+ns-publics	f	1		
+ns-refers	f	1		
+ns-resolve	f	2,3		
+ns-unalias	f	2		
+ns-unmap	f	2		
+nth	f	2,3		
+nthnext	f	2		
+nthrest	f	2		
+num	f	1		
+number?	f	1		
+numerator	f	1		
+object-array	f	1		
+odd?	f	1		
+or	mf	0,1	1	
+overload-name	pf	2		
+parents	f	1,2		
+parse-boolean	f	1		
+parse-double	f	1		
+parse-impls	pf	1		
+parse-long	f	1		
+parse-opts	pf	1		
+parse-opts+specs	pf	1		
+parse-uuid	f	1		
+parsing-err	pf	1		
+partial	f	1,2,3,4	4	
+partition	f	2,3,4		
+partition-all	f	1,2,3		
+partition-by	f	1,2		
+partitionv	f	2,3,4		
+partitionv-all	f	1,2,3		
+pcalls			0	
+peek	f	1		
+persistent!	f	1		
+pmap	f	2	2	
+pop	f	1		
+pop!	f	1		
+pop-thread-bindings	f	0		
+pos-int?	f	1		
+pos?	f	1		
+pr	f	0,1	1	
+pr-on	pf	2		
+pr-str			0	
+pref	pf	0,1,2		
+prefer-method	f	3		
+prefers	f	1		
+prep-hashes	pf	4		
+prep-ints	pf	2		
+prependss	pf	2		
+preserving-reduced	pf	1		
+prim->class	p			
+primitives-classnames				
+print			0	
+print-ctor	f	3		
+print-dup				
+print-initialized	p			
+print-map	pf	3		
+print-meta	pf	2		
+print-method				
+print-object	pf	2		
+print-prefix-map	pf	4		
+print-sequential	pf	6		
+print-simple	f	2		
+print-str			0	
+print-tagged-object	pf	3		
+print-throwable	pf	2		
+printf			1	
+println			0	
+println-str			0	
+prn			0	
+prn-str			0	
+process-annotation	pf	2		
+promise	f	0		
+protected-final-methods	pf	1		
+protocol?	pf	1		
+proxy	m		2	
+proxy-call-with-super	f	3		
+proxy-mappings	f	1		
+proxy-name	f	2		
+proxy-super	m		1	
+push-thread-bindings	f	1		
+pvalues	m		0	
+qualified-ident?	f	1		
+qualified-keyword?	f	1		
+qualified-symbol?	f	1		
+quot	f	2		
+quote	mf	1		
+rand	f	0,1		
+rand-int	f	1		
+rand-nth	f	1		
+random-sample	f	1,2		
+random-uuid	f	0		
+range	f	0,1,2,3		
+ratio?	f	1		
+rational?	f	1		
+rationalize	f	1		
+re-find	f	1,2		
+re-groups	f	1		
+re-matcher	f	2		
+re-matches	f	2		
+re-pattern	f	1		
+re-seq	f	2		
+read	f	0,1,2,3,4		
+read+string	f	0,1,2,3,4		
+read-line	f	0		
+read-string	f	1,2		
+reader-conditional	f	2		
+reader-conditional?	f	1		
+realized?	f	1		
+record?	f	1		
+reduce	f	2,3		
+reduce-kv	f	3		
+reduce1	pf	2,3		
+reduced	f	1		
+reduced?	f	1		
+reductions	f	2,3		
+ref	f	1	1	
+ref-history-count	f	1		
+ref-max-history	f	1,2		
+ref-min-history	f	1,2		
+ref-set	f	2		
+refer			1	
+refer-clojure	m		0	
+reify	m		0	
+release-pending-sends	f	0		
+rem	f	2		
+remove	f	1,2		
+remove-all-methods	f	1		
+remove-method	f	2		
+remove-ns	f	1		
+remove-tap	f	1		
+remove-watch	f	2		
+repeat	f	1,2		
+repeatedly	f	1,2		
+replace	f	1,2		
+replicate	f	2		1.3
+req!	f	2		
+require			0	
+requiring-resolve	f	1		
+reset!	f	2		
+reset-meta!	f	2		
+reset-vals!	f	2		
+resolve	f	1,2		
+resolve-unqualified-class-tag	pf	1		
+rest	f	1		
+restart-agent			2	
+resultset-seq	f	1		
+reverse	f	1		
+reversible?	f	1		
+root-directory	pf	1		
+root-resource	pf	1		
+rseq	f	1		
+rsubseq	f	3,5		
+run!	f	2		
+satisfies?	f	2		
+second	f	1		
+select-keys	f	2		
+send			2	
+send-off			2	
+send-via			3	
+seq	f	1		
+seq-to-map-for-destructuring	f	1		
+seq?	f	1		
+seqable?	f	1		
+seque	f	1,2		
+sequence	f	1,2	2	
+sequential?	f	1		
+serialized-require	p		0	
+set	f	1		
+set!	mf	2		
+set-agent-send-executor!	f	1		
+set-agent-send-off-executor!	f	1		
+set-error-handler!	f	2		
+set-error-mode!	f	2		
+set-validator!	f	2		
+set?	f	1		
+setup-reference	pf	2		
+shift-mask	pf	3		
+short	f	1		
+short-array	f	1,2		
+shorts	f	1		
+shuffle	f	1		
+shutdown-agents	f	0		
+sigs	pf	1		
+simple-ident?	f	1		
+simple-keyword?	f	1		
+simple-symbol?	f	1		
+slurp			1	
+some	f	2		
+some->	m		1	
+some->>	m		1	
+some-fn	f	1,2,3	3	
+some-vals	f	1		
+some?	f	1		
+sort	f	1,2		
+sort-by	f	2,3		
+sorted-map			0	
+sorted-map-by			1	
+sorted-set			0	
+sorted-set-by			1	
+sorted?	f	1		
+special-symbol?	f	1		
+spit			2	
+split-at	f	2		
+split-with	f	2		
+splitv-at	f	2		
+spread	pf	1		
+str	f	0,1	1	
+stream-into!	f	2,3		
+stream-reduce!	f	2,3		
+stream-seq!	f	1		
+stream-transduce!	f	3,4		
+string?	f	1		
+strip-ns	pf	1		
+struct			1	
+struct-map			1	
+subs	f	2,3		
+subseq	f	3,5		
+subvec	f	2,3		
+super-chain	pf	1		
+supers	f	1		
+swap!	f	2,3,4	4	
+swap-vals!	f	2,3,4	4	
+symbol	f	1,2		
+symbol?	f	1		
+sync	m		1	
+system-newline	p			
+tagged-literal	f	2		
+tagged-literal?	f	1		
+take	f	1,2		
+take-last	f	2		
+take-nth	f	1,2		
+take-while	f	1,2		
+tap-loop	p			
+tap>	f	1		
+tapq	p			
+tapset	p			
+test	f	1		
+the-array-class	pf	1		
+the-class	pf	1		
+the-ns	f	1		
+thread-bound?			0	
+throw	mf	1		
+throw-if	p		2	
+time	mf	1		
+to-array	f	1		
+to-array-2d	f	1		
+trampoline	f	1	1	
+transduce	f	3,4		
+transient	f	1		
+tree-seq	f	3		
+true?	f	1		
+type	f	1		
+unchecked-add	f	2		
+unchecked-add-int	f	2		
+unchecked-byte	f	1		
+unchecked-char	f	1		
+unchecked-dec	f	1		
+unchecked-dec-int	f	1		
+unchecked-divide-int	f	2		
+unchecked-double	f	1		
+unchecked-float	f	1		
+unchecked-inc	f	1		
+unchecked-inc-int	f	1		
+unchecked-int	f	1		
+unchecked-long	f	1		
+unchecked-multiply	f	2		
+unchecked-multiply-int	f	2		
+unchecked-negate	f	1		
+unchecked-negate-int	f	1		
+unchecked-remainder-int	f	2		
+unchecked-short	f	1		
+unchecked-subtract	f	2		
+unchecked-subtract-int	f	2		
+underive	f	2,3		
+unquote				
+unquote-splicing				
+unreduced	f	1		
+unsigned-bit-shift-right	f	2		
+update	f	3,4,5,6	6	
+update-in			3	
+update-keys	f	2		
+update-proxy	f	2		
+update-vals	f	2		
+uri?	f	1		
+use			0	
+uuid?	f	1		
+val	f	1		
+valid-java-method-name	pf	1		
+validate-fields	pf	2		
+validate-generate-class-options	pf	1		
+vals	f	1		
+var	mf	1		
+var-get	f	1		
+var-set	f	2		
+var?	f	1		
+vary-meta			2	
+vec	f	1		
+vector	f	0,1,2,3,4,5,6	6	
+vector-of	f	1,2,3,4,5	5	
+vector?	f	1		
+volatile!	f	1		
+volatile?	f	1		
+vreset!	f	2		
+vswap!	m		2	
+when	m		1	
+when-class	mp		1	
+when-first	m		1	
+when-let	m		1	
+when-not	m		1	
+when-some	m		1	
+while	m		1	
+with-bindings	m		1	
+with-bindings*			2	
+with-in-str	m		1	
+with-loading-context	m		0	
+with-local-vars	m		1	
+with-meta	f	2		
+with-open	m		1	
+with-out-str	m		0	
+with-precision	m		1	
+with-redefs	m		1	
+with-redefs-fn	f	2		
+xml-seq	f	1		
+zero?	f	1		
+zipmap	f	2		
+@clj clojure.data.json
+->ReaderPBR	f	1		
+->StringPBR	f	3		
+->hex-string	pf	2		
+-read	pf	4		
+-read1	pf	4		
+-write	f	3		
+InternalPBR				
+JSONWriter				
+ReaderPBR	c			
+StringPBR	c			
+codepoint	mpf	1		
+codepoint-case	mp		1	
+codepoint-clause	pf	1		
+codepoint-decoder				
+default-read-options				
+default-sql-date->instant-fn	pf	1		
+default-value-fn	pf	2		
+default-write-fn	pf	3		
+default-write-key-fn	pf	1		
+default-write-options				
+eof-array-exception	pf	0		
+eof-object-exception	pf	0		
+invalid-array-exception	f	0		
+invalid-key-exception	pf	1		
+json-str			1	
+next-token	pf	1		
+object-colon-exception	pf	0		
+on-extra-throw	f	2		
+on-extra-throw-remaining	f	2		
+pprint			1	
+pprint-array	pf	1		
+pprint-dispatch	pf	2		
+pprint-generic	pf	2		
+pprint-json			1	
+pprint-object	pf	2		
+print-json			1	
+pushback-pbr	pf	1		
+read			1	
+read-array	pf	2		
+read-array*	pf	2		
+read-decimal	pf	2		
+read-escaped-char	pf	1		
+read-hex-char	pf	1		
+read-integer	pf	1		
+read-json	f	1,2,4		
+read-key	pf	1		
+read-number	pf	2		
+read-object	pf	2		
+read-quoted-string	pf	1		
+read-str			1	
+slow-read-string	pf	2		
+slow-write-string	pf	3		
+string-pbr	pf	1		
+write			2	
+write-array	pf	3		
+write-bignum	pf	3		
+write-date	pf	3		
+write-double	pf	3		
+write-float	pf	3		
+write-generic	pf	3		
+write-indent	pf	2		
+write-instant	pf	3		
+write-json	f	3		
+write-named	pf	3		
+write-null	pf	3		
+write-object	pf	3		
+write-plain	pf	3		
+write-ratio	pf	3		
+write-sql-date	pf	3		
+write-str			1	
+write-string	pf	3		
+write-uuid	pf	3		
+@clj clojure.data
+Diff				
+EqualityPartition				
+as-set-value	pf	1		
+atom-diff	pf	2		
+diff	f	2		
+diff-associative	pf	3		
+diff-associative-key	pf	3		
+diff-sequential	pf	2		
+diff-similar	f	2		
+equality-partition	f	1		
+vectorize	pf	1		
+@clj clojure.datafy
+datafy	f	1		
+nav	f	3		
+sortmap	pf	1		
+@clj clojure.edn
+read	f	0,1,2		
+read-string	f	1,2		
+@clj clojure.inspector
+atom?	f	1		
+collection-tag	f	1		
+get-child				
+get-child-count				
+inspect	f	1		
+inspect-table	f	1		
+inspect-tree	f	1		
+is-leaf				
+list-model	f	1		
+list-provider				
+old-table-model	f	1		
+table-model				
+tree-model	f	1		
+@clj clojure.instant
+construct-calendar	pf	10		
+construct-date	pf	10		
+construct-timestamp	pf	10		
+days-in-month	p			
+divisible?	pf	2		
+fail	mpf	1		
+indivisible?	pf	2		
+leap-year?	pf	1		
+parse-int	pf	1		
+parse-timestamp	f	2		
+print-calendar	pf	2		
+print-date	pf	2		
+print-timestamp	pf	2		
+read-instant-calendar	f	1		
+read-instant-date	f	1		
+read-instant-timestamp	f	1		
+thread-local-utc-date-format	p			
+thread-local-utc-timestamp-format	p			
+timestamp	p			
+validated	f	1		
+verify	mpf	1,2		
+zero-fill-right	pf	2		
+@clj clojure.java.basis.impl
+init-basis				
+read-basis	pf	1		
+read-edn	pf	1		
+the-basis				
+update-basis!			1	
+@clj clojure.java.basis
+current-basis	f	0		
+initial-basis	f	0		
+@clj clojure.java.browse-ui
+open-url-in-swing	pf	1		
+@clj clojure.java.browse
+*open-url-script*				
+browse-url	f	1		
+macosx?	pf	0		
+open-url-in-browser	pf	1		
+open-url-in-swing	pf	1		
+open-url-script-val	pf	0		
+xdg-open-loc	pf	0		
+@clj clojure.java.io
+Coercions				
+IOFactory				
+append?	pf	1		
+as-file	f	1		
+as-relative-path	f	1		
+as-url	f	1		
+buffer-size	pf	1		
+byte-array-type	p			
+char-array-type	p			
+copy			2	
+default-streams-impl				
+delete-file			1	
+do-copy	p			
+encoding	pf	1		
+escaped-utf8-urlstring->str	pf	1		
+file	f	1,2	2	
+input-stream			1	
+inputstream->reader	pf	2		
+make-input-stream	f	2		
+make-output-stream	f	2		
+make-parents			1	
+make-reader	f	2		
+make-writer	f	2		
+output-stream			1	
+outputstream->writer	pf	2		
+reader			1	
+resource	f	1,2		
+writer			1	
+@clj clojure.java.javadoc
+*core-java-api*				
+*feeling-lucky*				
+*feeling-lucky-url*				
+*local-javadocs*				
+*remote-javadocs*				
+add-local-javadoc	f	1		
+add-remote-javadoc	f	2		
+fill-in-module-name	pf	2		
+javadoc	f	1		
+javadoc-url	pf	1		
+@clj clojure.java.process
+exec			0	
+exit-ref	f	1		
+from-file	f	1		
+io-executor	p			
+io-task	f	1		
+io-thread-factory	p			
+null-file	p			
+start			0	
+stderr	f	1		
+stdin	f	1		
+stdout	f	1		
+to-file			1	
+@clj clojure.java.shell
+*sh-dir*				
+*sh-env*				
+aconcat	p		1	
+as-env-strings	pf	1		
+parse-args	pf	1		
+sh			0	
+stream-to-bytes	pf	1		
+stream-to-enc	pf	2		
+stream-to-string	pf	1,2		
+with-sh-dir	m		1	
+with-sh-env	m		1	
+@clj clojure.main
+core-class?	pf	1		
+core-namespaces	p			
+demunge	f	1		
+err->msg	f	1		
+eval-opt	pf	1		
+ex-str	f	1		
+ex-triage	f	1		
+file-name	pf	1		
+file-path	pf	1		
+help-opt	pf	2		
+init-dispatch	pf	1		
+init-opt	pf	1		
+initialize	pf	2		
+java-loc->source	pf	2		
+legacy-repl	pf	1		
+legacy-script	pf	1		
+load-script	f	1		
+main			0	
+main-dispatch	pf	1		
+main-opt	pf	2		
+null-opt	pf	2		
+renumbering-read	f	3		
+repl			0	
+repl-caught	f	1		
+repl-exception	f	1		
+repl-opt	pf	2		
+repl-prompt	f	0		
+repl-read	f	2		
+repl-requires				
+report-error			1	
+root-cause	f	1		
+script-opt	pf	2		
+skip-if-eol	f	1		
+skip-whitespace	f	1		
+stack-element-str	f	1		
+with-bindings	m		0	
+with-read-known	m		0	
+@clj clojure.math
+E				
+IEEE-remainder	f	2		
+PI				
+acos	f	1		
+add-exact	f	2		
+asin	f	1		
+atan	f	1		
+atan2	f	2		
+cbrt	f	1		
+ceil	f	1		
+copy-sign	f	2		
+cos	f	1		
+cosh	f	1		
+decrement-exact	f	1		
+exp	f	1		
+expm1	f	1		
+floor	f	1		
+floor-div	f	2		
+floor-mod	f	2		
+get-exponent	f	1		
+hypot	f	2		
+increment-exact	f	1		
+log	f	1		
+log10	f	1		
+log1p	f	1		
+multiply-exact	f	2		
+negate-exact	f	1		
+next-after	f	2		
+next-down	f	1		
+next-up	f	1		
+pow	f	2		
+random	f	0		
+rint	f	1		
+round	f	1		
+scalb	f	2		
+signum	f	1		
+sin	f	1		
+sinh	f	1		
+sqrt	f	1		
+subtract-exact	f	2		
+tan	f	1		
+tanh	f	1		
+to-degrees	f	1		
+to-radians	f	1		
+ulp	f	1		
+@clj clojure.parallel
+a				
+binary-op	pf	1		
+binary-predicate	pf	1		
+int-and-object-predicate	pf	1		
+int-and-object-to-object	pf	1		
+op	pf	1		
+pa-to-vec	pf	1		
+pall	pf	1		
+pany	f	1		
+par	f	1	1	
+pcumulate	pf	3		
+pdistinct	f	1		
+pfilter-dupes	f	1		
+pfilter-nils	f	1		
+pmax	f	1,2		
+pmin	f	1,2		
+predicate	pf	1		
+preduce	f	3		
+psort	f	1,2		
+psummary	f	1,2		
+pvec	f	1		
+reducer	pf	1		
+summary-map	pf	1		
+v				
+@clj clojure.pprint
+*code-table*	p			
+*current-length*	p			
+*current-level*	p			
+*default-page-width*	p			
+*format-str*	p			
+*print-base*				
+*print-circle*	p			
+*print-lines*	p			
+*print-miser-width*				
+*print-pprint-dispatch*				
+*print-pretty*				
+*print-radix*				
+*print-right-margin*				
+*print-shared*	p			
+*print-suppress-namespaces*				
+*symbol-map*	p			
+PrettyFlush				
+abort?	pf	1		
+absolute-reposition	pf	2		
+absolute-tabulation	pf	3		
+add-core-ns	pf	1		
+add-english-scales	pf	2		
+add-to-buffer	pf	2		
+ancestor?	pf	2		
+arg-navigator				
+base-str	pf	2		
+binding-map	mp		1	
+boolean-conditional	pf	3		
+brackets	pf	1		
+buffer-length	pf	1		
+c-write-char	pf	2		
+cached-compile	p			
+capitalize-string	pf	2		
+capitalize-word-writer	pf	1		
+check-arg-conditional	pf	3		
+check-enumerated-arg	pf	2		
+check-flags	pf	2		
+choice-conditional	pf	3		
+cl-format			2	
+code-dispatch				
+collect-clauses	pf	3		
+column-writer	pf	1,2		
+compile-directive	pf	2		
+compile-format	pf	1		
+compile-raw-string	pf	2		
+compiled-directive				
+conditional-newline	pf	3		
+consume	pf	2		
+consume-while	pf	2		
+convert-ratio	pf	1		
+defdirectives	mp		0	
+deftype	mp		1	
+dollar-float	pf	3		
+downcase-writer	pf	1		
+else-separator?	pf	1		
+emit-nl	pf	2		
+emit-nl?	p			
+end-block	pf	1		
+english-cardinal-tens	p			
+english-cardinal-units	p			
+english-ordinal-tens	p			
+english-ordinal-units	p			
+english-scale-numbers	p			
+execute-format	pf	2,3		
+execute-sub-format	pf	3		
+expand-fixed	pf	3		
+exponential-float	pf	3		
+extract-flags	pf	2		
+extract-param	pf	1		
+extract-params	pf	2		
+fixed-float	pf	3		
+flag-defs	p			
+float-parts	pf	1		
+float-parts-base	pf	1		
+format-ascii	pf	4		
+format-cardinal-english	pf	3		
+format-error	pf	2		
+format-integer	pf	4		
+format-logical-block	pf	3		
+format-new-roman	pf	3		
+format-old-roman	pf	3		
+format-ordinal-english	pf	3		
+format-roman	pf	4		
+format-simple-cardinal	pf	1		
+format-simple-number	pf	1		
+format-simple-ordinal	pf	1		
+formatter	mf	1		
+formatter-out	mf	1		
+fresh-line	f	0		
+general-float	pf	3		
+get-column	pf	1		
+get-field	pf	2		
+get-fixed	pf	3		
+get-format-arg	pf	1		
+get-line	pf	1		
+get-max-column	pf	1		
+get-miser-width	pf	1		
+get-pretty-writer	f	1		
+get-section	pf	1		
+get-sub-section	pf	1		
+get-writer	pf	1		
+getf	mpf	1		
+group-by*	pf	2		
+inc-s	pf	1		
+indent	pf	3		
+init-cap-writer	pf	1		
+init-navigator	pf	1		
+insert-decimal	pf	2		
+insert-scaled-decimal	pf	2		
+integral?	pf	1		
+iterate-list-of-sublists	pf	3		
+iterate-main-list	pf	3		
+iterate-main-sublists	pf	3		
+iterate-sublist	pf	3		
+java-base-formats	p			
+justify-clauses	pf	3		
+level-exceeded	pf	0		
+linear-nl?	pf	3		
+logical-block				
+logical-block-or-justify	pf	3		
+ltrim	pf	2		
+make-pretty-writer	pf	3		
+map-params	pf	4		
+map-passing-context	pf	3		
+miser-nl?	pf	3		
+modify-case	pf	4		
+multi-defn	pf	2		
+needs-pretty	pf	1		
+new-roman-table	p			
+next-arg	pf	1		
+next-arg-or-nil	pf	1		
+nl	pf	2		
+old-roman-table	p			
+opt-base-str	pf	2		
+orig-pr	p			
+p-write-char	pf	2		
+param-pattern	p			
+parse-lb-options	pf	2		
+plain-character	pf	3		
+pll-mod-body	pf	2		
+pp	mf	0		
+pp-newline	p			
+pprint	f	1,2		
+pprint-anon-func	pf	1		
+pprint-array	p			
+pprint-binding-form	pf	1		
+pprint-code-list	pf	1		
+pprint-code-symbol	pf	1		
+pprint-cond	pf	1		
+pprint-condp	pf	1		
+pprint-defn	pf	1		
+pprint-hold-first	p			
+pprint-ideref	pf	1		
+pprint-if	p			
+pprint-indent	f	2		
+pprint-let	pf	1		
+pprint-list	pf	1		
+pprint-logical-block	m		0	
+pprint-map	pf	1		
+pprint-meta	pf	1		
+pprint-newline	f	1		
+pprint-ns	pf	1		
+pprint-ns-reference	pf	1		
+pprint-pqueue	p			
+pprint-reader-macro	pf	1		
+pprint-set	pf	1		
+pprint-simple-code-list	pf	1		
+pprint-simple-default	pf	1		
+pprint-simple-list	pf	1		
+pprint-tab	f	3		
+pprint-vector	pf	1		
+pr-with-base	pf	1		
+prefix-count	pf	2		
+prerr	p		0	
+pretty-character	pf	3		
+pretty-writer	pf	3		
+pretty-writer?	pf	1		
+print-length-loop	m		1	
+print-table	f	1,2		
+prlabel	mp		2	
+process-bracket	pf	2		
+process-clause	pf	3		
+process-directive-table-element	pf	1		
+process-nesting	pf	1		
+readable-character	pf	3		
+reader-macros	p			
+realize-parameter	pf	2		
+realize-parameter-list	pf	2		
+relative-reposition	pf	2		
+relative-tabulation	pf	3		
+remainders	pf	2		
+render-clauses	pf	3		
+right-bracket	pf	1		
+round-str	pf	4		
+rtrim	pf	2		
+section				
+separator?	pf	1		
+set-field	pf	3		
+set-indent	pf	3		
+set-logical-block-callback	pf	2		
+set-max-column	pf	2		
+set-miser-width	pf	2		
+set-pprint-dispatch	f	1		
+setf	mpf	2		
+simple-dispatch				
+single-defn	pf	2		
+special-chars	p			
+special-params	p			
+special-radix-markers	p			
+split-at-newline	pf	1		
+start-block	pf	4		
+table-ize	pf	2		
+tok	p			
+tokens-fit?	pf	2		
+toks	pf	1		
+translate-param	pf	1		
+tuple-map	pf	2		
+two-forms	pf	1		
+unzip-map	pf	1		
+upcase-writer	pf	1		
+update-nl-state	pf	1		
+use-method	pf	3		
+with-pprint-dispatch	m		1	
+with-pretty-writer	mp		1	
+write			1	
+write-buffered-output	pf	1		
+write-initial-lines	pf	2		
+write-line	pf	1		
+write-option-table	p			
+write-out	f	1		
+write-to-base	mp		0	
+write-token	p			
+write-token-string	pf	2		
+write-tokens	pf	3		
+write-white-space	pf	1		
+@clj clojure.reflect
+->AsmReflector	f	1		
+->Constructor	f	5		
+->Field	f	4		
+->JavaReflector	f	1		
+->Method	f	6		
+AsmReflector	c			
+ClassResolver				
+Constructor	c			
+Field	c			
+JavaReflector	c			
+Method	c			
+Reflector				
+TypeReference				
+access-flag	pf	1		
+constructor->map	pf	1		
+declared-constructors	pf	1		
+declared-fields	pf	1		
+declared-methods	pf	1		
+default-reflector	p			
+do-reflect	f	2		
+field->map	pf	1		
+field-descriptor->class-symbol	pf	1		
+flag-descriptors				
+internal-name->class-symbol	pf	1		
+map->Constructor	f	1		
+map->Field	f	1		
+map->Method	f	1		
+method->map	pf	1		
+parse-flags	pf	2		
+parse-method-descriptor	pf	1		
+reflect			1	
+resolve-class	f	2		
+resource-name	pf	1		
+type-reflect			1	
+typename	f	1		
+typeref->class	pf	2		
+typesym	pf	1		
+@clj clojure.repl.deps
+add-lib	f	1,2		
+add-libs	f	1		
+add-loader-url	pf	1		
+sync-deps			0	
+@clj clojure.repl
+apropos	f	1		
+demunge	f	1		
+dir	mf	1		
+dir-fn	f	1		
+doc	mf	1		
+find-doc	f	1		
+namespace-doc	pf	1		
+print-doc	pf	1		
+pst	f	0,1,2		
+root-cause	f	1		
+set-break-handler!	f	0,1		
+source	mf	1		
+source-fn	f	1		
+special-doc	pf	1		
+special-doc-map	p			
+stack-element-str	f	1		
+thread-stopper	f	0,1		
+@clj clojure.set
+bubble-max-key	pf	2		
+difference	f	1,2	2	
+index	f	2		
+intersection	f	1,2	2	
+join	f	2,3		
+map-invert	f	1		
+project	f	2		
+rename	f	2		
+rename-keys	f	2		
+select	f	2		
+subset?	f	2		
+superset?	f	2		
+union	f	0,1,2	2	
+xs				
+ys				
+@clj clojure.spec.alpha
+&	m		1	
+*	mf	1		
+*coll-check-limit*				
+*coll-error-limit*				
+*compile-asserts*				
+*explain-out*				
+*fspec-iterations*				
+*recursion-limit*				
++	mf	1		
+->sym	pf	1		
+?	mf	1		
+Spec				
+Specize				
+abbrev	f	1		
+accept	pf	1		
+accept-nil?	pf	1		
+accept?	pf	1		
+add-ret	pf	3		
+alt	m		0	
+alt*	pf	3		
+alt-impl	f	3		
+alt2	pf	2		
+alts	p		0	
+amp-impl	f	4		
+and	m		0	
+and-k-gen	pf	1		
+and-preds	pf	3		
+and-spec-impl	f	3		
+assert	mf	2		
+assert*	f	2		
+call-valid?	pf	3		
+cat	m		0	
+cat-impl	f	3		
+check-asserts	f	1		
+check-asserts?	f	0		
+coll-of	m		1	
+coll-prob	pf	10		
+conform	f	2		
+conform*	f	2		
+conformer	mf	1,2		
+deep-resolve	pf	2		
+def	mf	2		
+def-impl	f	3		
+deriv	pf	2		
+describe	f	1		
+describe*	f	1		
+double-in	m		0	
+dt	pf	3,4		
+empty-coll	p			
+every	m		1	
+every-impl	f	3,4		
+every-kv	m		2	
+exercise	f	1,2,3		
+exercise-fn	f	1,2,3		
+explain	f	2		
+explain*	f	5		
+explain-1	pf	6		
+explain-data	f	2		
+explain-data*	f	5		
+explain-out	f	1		
+explain-pred-list	pf	6		
+explain-printer	f	1		
+explain-str	f	2		
+fdef	m		1	
+filter-alt	pf	4		
+fn-sym	pf	1		
+form	f	1		
+fspec	m		0	
+fspec-impl	f	7		
+gen	f	1,2		
+gen*	f	4		
+gensub	pf	5		
+get-spec	f	1		
+inck	pf	2		
+inst-in	mf	2		
+inst-in-range?	f	3		
+int-in	mf	2		
+int-in-range?	f	3		
+invalid?	f	1		
+k-gen	pf	1		
+keys	m		0	
+keys*	m		0	
+macroexpand-check	pf	2		
+map-of	m		2	
+map-spec-impl	f	1		
+maybe-impl	f	2		
+maybe-spec	pf	1		
+merge	m		0	
+merge-spec-impl	f	3		
+multi-spec	mf	2		
+multi-spec-impl	f	3,4		
+nilable	mf	1		
+nilable-impl	f	3		
+nonconforming	f	1		
+noret?	pf	2		
+ns-qualify	pf	1		
+op-describe	pf	1		
+op-explain	pf	6		
+op-unform	pf	2		
+or	m		0	
+or-k-gen	pf	1,2		
+or-spec-impl	f	4		
+pcat	p		0	
+pcat*	pf	1		
+preturn	pf	1		
+pvalid?	pf	2,3		
+re-conform	pf	2		
+re-explain	pf	5		
+re-gen	pf	5		
+recur-limit?	pf	4		
+reg-resolve	pf	1		
+reg-resolve!	pf	1		
+regex-spec-impl	f	2		
+regex?	f	1		
+registry	f	0		
+registry-ref	p			
+rep*	pf	5		
+rep+impl	f	2		
+rep-impl	f	2		
+res	pf	1		
+res-kind	pf	1		
+spec	m		1	
+spec-impl	f	4,5		
+spec-name	pf	1		
+spec?	f	1		
+specize	pf	1,2		
+specize*	f	1,2		
+tagged-ret	pf	2		
+the-spec	pf	1		
+tuple	m		0	
+tuple-impl	f	2,3		
+unfn	pf	1		
+unform	f	2		
+unform*	f	2		
+valid?	f	2,3		
+validate-fn	pf	3		
+with-gen	f	2		
+with-gen*	f	2		
+with-name	pf	2		
+@clj clojure.spec.gen.alpha
+any				
+any-printable				
+bind				
+boolean				
+bytes				
+cat			0	
+char				
+char-alpha				
+char-alphanumeric				
+char-ascii				
+choose				
+delay	m		0	
+delay-impl	f	1		
+double				
+double*				
+dynaload	pf	1		
+dynalock	p			
+elements				
+fmap				
+for-all*			0	
+for-all*-ref	p			
+frequency				
+gen-builtins	p			
+gen-for-name	f	1		
+gen-for-pred	f	1		
+generate	f	1		
+generator	pf	1		
+generator?	pf	1		
+hash-map				
+int				
+keyword				
+keyword-ns				
+large-integer				
+large-integer*				
+lazy-combinator	mf	1		
+lazy-combinators	m		0	
+lazy-prim	mf	1		
+lazy-prims	m		0	
+list				
+map				
+not-empty				
+one-of				
+qualified?	pf	1		
+quick-check			0	
+quick-check-ref	p			
+ratio				
+return				
+sample				
+set				
+shuffle				
+simple-type				
+simple-type-printable				
+string				
+string-alphanumeric				
+string-ascii				
+such-that				
+symbol				
+symbol-ns				
+tuple				
+uuid				
+vector				
+vector-distinct				
+@clj clojure.spec.test.alpha
+*instrument-enabled*	p			
+->sym	f	1		
+->var	pf	1		
+abbrev-result	f	1		
+build-fixed-args-body	pf	2		
+build-flattener-code	pf	1		
+build-kwargs-body	pf	2		
+build-varargs-body	pf	2		
+check	f	0,1,2		
+check-1	pf	2		
+check-call	pf	3		
+check-fn	f	2,3		
+checkable-syms	f	0,1		
+collectionize	pf	1		
+enumerate-namespace	f	1		
+explain-check	pf	4		
+failure-type	pf	1		
+find-varargs-decl	pf	1		
+fn-spec-name?	pf	1		
+fn-spec?	pf	1		
+gen-fixed-args-syms	pf	1		
+has-kwargs?	pf	1		
+instrument	f	0,1,2		
+instrument-1	pf	2		
+instrument-choose-fn	pf	4		
+instrument-choose-spec	pf	3		
+instrumentable-syms	f	0,1		
+instrumented-vars	p			
+interpret-stack-trace-element	pf	1		
+kwargs->kvs	pf	1		
+make-check-result	pf	3		
+maybe-wrap-kvs-emulation	pf	2		
+no-fspec	pf	2		
+opt-syms	pf	1		
+quick-check	pf	3		
+result-type	pf	1		
+spec-checking-fn	pf	3		
+stacktrace-relevant-to-instrument	pf	1		
+summarize-results	f	1,2		
+sym->check-map	pf	1		
+throwable?	pf	1		
+thunk-frame?	pf	1		
+unstrument	f	0,1		
+unstrument-1	pf	1		
+unwrap-failure	pf	1		
+validate-check-opts	pf	1		
+with-instrument-disabled	m		0	
+@clj clojure.stacktrace
+e	f	0		
+print-cause-trace	f	1,2		
+print-stack-trace	f	1,2		
+print-throwable	f	1		
+print-trace-element	f	1		
+root-cause	f	1		
+@clj clojure.string
+blank?	f	1		
+capitalize	f	1		
+ends-with?	f	2		
+escape	f	2		
+includes?	f	2		
+index-of	f	2,3		
+join	f	1,2		
+last-index-of	f	2,3		
+lower-case	f	1		
+re-quote-replacement	f	1		
+replace	f	3		
+replace-by	pf	3		
+replace-first	f	3		
+replace-first-by	pf	3		
+replace-first-char	pf	3		
+replace-first-str	pf	3		
+reverse	f	1		
+split	f	2,3		
+split-lines	f	1		
+starts-with?	f	2		
+trim	f	1		
+trim-newline	f	1		
+triml	f	1		
+trimr	f	1		
+upper-case	f	1		
+@clj clojure.template
+apply-template	f	3		
+do-template	m		2	
+@clj clojure.test.junit
+*depth*				
+*var-context*				
+element-content	f	1		
+error-el	f	3		
+escape-xml	pf	1		
+escape-xml-map	p			
+failure-el	f	3		
+finish-case	f	0		
+finish-element	f	2		
+finish-suite	f	0		
+indent	f	0		
+junit-report				
+message-el	f	4		
+package-class	f	1		
+start-case	f	2		
+start-element			2	
+start-suite	f	1		
+suite-attrs	f	2		
+test-name	f	1		
+with-junit-output	m		0	
+@clj clojure.test.tap
+print-diagnostics	f	1		
+print-tap-diagnostic	f	1		
+print-tap-fail	f	1		
+print-tap-pass	f	1		
+print-tap-plan	f	1		
+tap-report				
+with-tap-output	m		0	
+@clj clojure.test
+*initial-report-counters*				
+*load-tests*				
+*report-counters*				
+*stack-trace-depth*				
+*test-out*				
+*testing-contexts*				
+*testing-vars*				
+add-ns-meta	pf	2		
+are	m		2	
+assert-any	f	2		
+assert-expr				
+assert-predicate	f	2		
+compose-fixtures	f	2		
+default-fixture	pf	1		
+deftest	m		1	
+deftest-	m		1	
+do-report	f	1		
+file-and-line	pf	2		1.8
+file-position	f	1		1.2
+function?	f	1		
+get-possibly-unbound-var	f	1		
+inc-report-counter	f	1		
+is	mf	1,2		
+join-fixtures	f	1		
+report				
+run-all-tests	f	0,1		
+run-test	mf	1		
+run-test-var	f	1		
+run-tests	f	0	0	
+set-test	m		1	
+stacktrace-file-and-line	pf	1		
+successful?	f	1		
+test-all-vars	f	1		
+test-ns	f	1		
+test-var	f	1		
+test-vars	f	1		
+testing	m		1	
+testing-contexts-str	f	0		
+testing-vars-str	f	1		
+try-expr	mf	2		
+use-fixtures				
+with-test	m		1	
+with-test-out	m		0	
+@clj clojure.tools.deps.interop
+build	p			
+cli-build	pf	0		
+invoke-tool	f	1		
+validate-version	pf	1		
+@clj clojure.tools.reader
+*alias-map*				
+*data-readers*				
+*default-data-reader-fn*				
+*read-delim*				
+*read-eval*				
+*suppress-read*				
+NO_MATCH	p			
+READ_EOF	p			
+READ_FINISHED	p			
+RESERVED_FEATURES	p			
+add-meta	pf	2		
+arg-env	p			
+check-eof-error	pf	3		
+check-invalid-read-cond	pf	3		
+check-reserved-features	pf	2		
+default-data-readers				
+dispatch-macros	pf	1		
+ending-line-col-info	pf	1		
+escape-char	pf	2		
+expand-list	pf	1		
+flatten-map	pf	1		
+garg	pf	1		
+gensym-env	p			
+has-feature?	pf	3		
+lower-limit	p			
+macro-terminating?	pf	1		
+macros	pf	1		
+map-func	f	1		
+match-feature	pf	4		
+ns-name*	pf	1		
+read	f	0,1,2,3		
+read*	pf	5,6		
+read+string	f	0,1,2,3		
+read-arg	pf	4		
+read-char*	pf	4		
+read-cond	pf	4		
+read-cond-delimited	pf	4		
+read-ctor	pf	4		
+read-delimited	pf	5		
+read-discard	pf	4		
+read-dispatch	pf	4		
+read-eval	pf	4		
+read-fn	pf	4		
+read-keyword	pf	4		
+read-list	pf	4		
+read-map	pf	4		
+read-meta	pf	4		
+read-namespaced-map	pf	4		
+read-number	pf	2		
+read-regex	f	4		
+read-set	pf	4		
+read-string	f	1,2		
+read-string*	pf	4		
+read-suppress	pf	4		
+read-symbol				
+read-symbolic-value	pf	4		
+read-syntax-quote	pf	4		
+read-tagged	pf	4		
+read-token	pf	3		
+read-unicode-char	pf	4,5		
+read-unmatched-delimiter	pf	4		
+read-unquote	pf	4		
+read-vector	pf	4		
+register-arg	pf	1		
+register-gensym	pf	1		
+resolve-alias	pf	1		
+resolve-ns	pf	1		
+resolve-symbol	f	1		
+starting-line-col-info	pf	1		
+syntax-quote	mf	1		
+syntax-quote*	pf	1		
+syntax-quote-coll	pf	2		
+unquote-splicing?	pf	1		
+unquote?	pf	1		
+upper-limit	p			
+wrapping-reader	pf	1		
+@clj clojure.uuid
+default-uuid-reader	pf	1		
+@clj clojure.walk
+keywordize-keys	f	1		
+macroexpand-all	f	1		
+postwalk	f	2		
+postwalk-demo	f	1		
+postwalk-replace	f	2		
+prewalk	f	2		
+prewalk-demo	f	1		
+prewalk-replace	f	2		
+stringify-keys	f	1		
+walk	f	3		
+@clj clojure.xml
+*current*				
+*sb*				
+*stack*				
+*state*				
+attrs				
+content				
+content-handler				
+disable-external-entities	f	1		
+element				
+emit	f	1		
+emit-element	f	1		
+parse	f	1,2		
+sax-parser	f	0		
+startparse-sax	f	2		
+startparse-sax-safe	f	2		
+tag				
+@clj clojure.zip
+append-child	f	2		
+branch?	f	1		
+children	f	1		
+data				
+down	f	1		
+dz				
+edit			2	
+end?	f	1		
+insert-child	f	2		
+insert-left	f	2		
+insert-right	f	2		
+left	f	1		
+leftmost	f	1		
+lefts	f	1		
+make-node	f	3		
+next	f	1		
+node	f	1		
+path	f	1		
+prev	f	1		
+remove	f	1		
+replace	f	2		
+right	f	1		
+rightmost	f	1		
+rights	f	1		
+root	f	1		
+seq-zip	f	1		
+up	f	1		
+vector-zip	f	1		
+xml-zip	f	1		
+zipper	f	4		
+@cljs cljs.core
+*	f	0,1,2	2	
+*1				
+*2				
+*3				
+*assert*				
+*clojurescript-version*				
+*command-line-args*				
+*e				
+*eval*				
+*exec-tap-fn*	f	1		
+*flush-on-newline*				
+*global*				
+*loaded-libs*				
+*main-cli-fn*				
+*ns*				
+*out*				
+*print-dup*				
+*print-err-fn*				
+*print-fn*				
+*print-fn-bodies*				
+*print-length*				
+*print-level*				
+*print-meta*				
+*print-namespace-maps*				
+*print-newline*				
+*print-readably*				
+*target*				
+*unchecked-arrays*				
+*unchecked-if*				
+*warn-on-infer*				
++	f	0,1,2	2	
+-	f	1,2	2	
+--destructure-map	f	1		
+->ArrayChunk	f	3		
+->ArrayIter	f	2		
+->ArrayList	f	1		
+->ArrayNode	f	3		
+->ArrayNodeIterator	f	3		
+->ArrayNodeSeq	f	5		
+->Atom	f	4		
+->BitmapIndexedNode	f	3		
+->BlackNode	f	5		
+->Box	f	1		
+->ChunkBuffer	f	2		
+->ChunkedCons	f	4		
+->ChunkedSeq	f	6		
+->Cons	f	4		
+->Cycle	f	5		
+->Delay	f	2		
+->ES6EntriesIterator	f	1		
+->ES6Iterator	f	1		
+->ES6IteratorSeq	f	3		
+->ES6SetEntriesIterator	f	1		
+->Eduction	f	2		
+->Empty	f	0		
+->EmptyList	f	1		
+->HashCollisionNode	f	4		
+->HashMapIter	f	3		
+->HashMapLite	f	4		
+->HashSetIter	f	1		
+->IndexedSeq	f	3		
+->IndexedSeqIterator	f	2		
+->IntegerRange	f	6		
+->IntegerRangeChunk	f	3		
+->Iterate	f	5		
+->KeySeq	f	2		
+->Keyword	f	4		
+->LazySeq	f	4		
+->List	f	5		
+->Many	f	1		
+->MapEntry	f	3		
+->MetaFn	f	2		
+->MultiFn	f	8		
+->MultiIterator	f	1		
+->Namespace	f	2		
+->NeverEquiv	f	0		
+->NodeIterator	f	4		
+->NodeSeq	f	5		
+->ObjMap	f	4		
+->ObjMapIterator	f	3		
+->PersistentArrayMap	f	4		
+->PersistentArrayMapIterator	f	3		
+->PersistentArrayMapSeq	f	3		
+->PersistentHashMap	f	6		
+->PersistentHashSet	f	3		
+->PersistentQueue	f	5		
+->PersistentQueueIter	f	2		
+->PersistentQueueSeq	f	4		
+->PersistentTreeMap	f	5		
+->PersistentTreeMapSeq	f	5		
+->PersistentTreeSet	f	3		
+->PersistentVector	f	6		
+->RSeq	f	3		
+->Range	f	7		
+->RangeIterator	f	3		
+->RangedIterator	f	6		
+->RecordIter	f	5		
+->RedNode	f	5		
+->Reduced	f	1		
+->Repeat	f	5		
+->SeqIter	f	2		
+->SetLite	f	3		
+->Single	f	1		
+->StringBufferWriter	f	1		
+->StringIter	f	2		
+->Subvec	f	5		
+->Symbol	f	5		
+->TaggedLiteral	f	2		
+->TransformerIterator	f	6		
+->TransientArrayMap	f	3		
+->TransientHashMap	f	5		
+->TransientHashSet	f	1		
+->TransientVector	f	4		
+->UUID	f	2		
+->ValSeq	f	2		
+->Var	f	3		
+->VectorLite	f	3		
+->VectorLiteIterator	f	2		
+->VectorNode	f	2		
+->Volatile	f	1		
+-add-method	f	3		
+-add-watch	f	3		
+-as-transient	f	1		
+-assoc	f	3		
+-assoc!	f	3		
+-assoc-n	f	3		
+-assoc-n!	f	3		
+-chunked-first	f	1		
+-chunked-next	f	1		
+-chunked-rest	f	1		
+-clj->js	f	1		
+-clone	f	1		
+-comparator	f	1		
+-compare	f	2		
+-conj	f	2		
+-conj!	f	2		
+-contains-key?	f	2		
+-count	f	1		
+-default-dispatch-val	f	1		
+-deref	f	1		
+-deref-with-timeout	f	3		
+-disjoin	f	2		
+-disjoin!	f	2		
+-dispatch-fn	f	1		
+-dissoc	f	2		
+-dissoc!	f	2		
+-drop	f	2		
+-drop-first	f	1		
+-empty	f	1		
+-entry-key	f	2		
+-equiv	f	2		
+-find	f	2		
+-first	f	1		
+-flush	f	1		
+-get-method	f	2		
+-global-hierarchy	p			
+-hash	f	1		
+-indexOf	pf	2,3		
+-invoke	f	1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22		
+-iterator	f	1		
+-js->clj	f	2		
+-key	f	1		
+-key->js	f	1		
+-kv-reduce	f	3		
+-lastIndexOf	pf	2,3		
+-lookup	f	2,3		
+-meta	f	1		
+-methods	f	1		
+-name	f	1		
+-namespace	f	1		
+-next	f	1		
+-notify-watches	f	3		
+-nth	f	2,3		
+-peek	f	1		
+-persistent!	f	1		
+-pop	f	1		
+-pop!	f	1		
+-pr-writer	f	3		
+-prefer-method	f	3		
+-prefers	f	1		
+-realized?	f	1		
+-reduce	f	2,3		
+-remove-method	f	2		
+-remove-watch	f	2		
+-reset	f	1		
+-reset!	f	2		
+-rest	f	1		
+-rseq	f	1		
+-seq	f	1		
+-sorted-seq	f	2		
+-sorted-seq-from	f	3		
+-swap!	f	2,3,4,5		
+-val	f	1		
+-vreset!	f	2		
+-with-meta	f	2		
+-write	f	2		
+/	f	1,2	2	
+<	f	1,2	2	
+<=	f	1,2	2	
+=	f	1,2	2	
+==	f	1,2	2	
+>	f	1,2	2	
+>=	f	1,2	2	
+APersistentVector				
+ASeq				
+ArrayChunk				
+ArrayIter				
+ArrayList				
+ArrayNode				
+ArrayNodeIterator				
+ArrayNodeSeq				
+Atom				
+BitmapIndexedNode				
+BlackNode				
+Box				
+CHAR_MAP				
+ChunkBuffer				
+ChunkedCons				
+ChunkedSeq				
+Cons				
+Cycle				
+DEMUNGE_MAP				
+DEMUNGE_PATTERN				
+Delay				
+EMPTY	p			
+ES6EntriesIterator				
+ES6Iterator				
+ES6IteratorSeq				
+ES6SetEntriesIterator				
+Eduction				
+Empty				
+EmptyList				
+ExceptionInfo	f	3		
+Fn				
+HashCollisionNode				
+HashMapIter				
+HashMapLite				
+HashSetIter				
+IAssociative				
+IAtom				
+IChunk				
+IChunkedNext				
+IChunkedSeq				
+ICloneable				
+ICollection				
+IComparable				
+ICounted				
+IDeref				
+IDerefWithTimeout				
+IDrop				
+IEditableCollection				
+IEmptyableCollection				
+IEncodeClojure				
+IEncodeJS				
+IEquiv				
+IFind				
+IFn				
+IHash				
+IIndexed				
+IIterable				
+IKVReduce				
+IList				
+ILookup				
+IMap				
+IMapEntry				
+IMeta				
+IMultiFn				
+INIT				
+INamed				
+INext				
+IPending				
+IPrintWithWriter				
+IRecord				
+IReduce				
+IReset				
+IReversible				
+ISeq				
+ISeqable				
+ISequential				
+ISet				
+ISorted				
+IStack				
+ISwap				
+ITER_SYMBOL				
+ITransientAssociative				
+ITransientCollection				
+ITransientMap				
+ITransientSet				
+ITransientVector				
+IUUID				
+IVector				
+IVolatile				
+IWatchable				
+IWithMeta				
+IWriter				
+IndexedSeq				
+IndexedSeqIterator				
+Inst				
+IntegerRange				
+IntegerRangeChunk				
+Iterate				
+KeySeq				
+Keyword				
+LITE_MODE				
+LazySeq				
+List				
+LongImpl				
+MODULE_INFOS				
+MODULE_URIS				
+Many				
+MapEntry				
+MetaFn				
+MultiFn				
+MultiIterator				
+NONE	p			
+NS_CACHE				
+NaN?	f	1		
+Namespace				
+NeverEquiv				
+NodeIterator				
+NodeSeq				
+ObjMap				
+ObjMapIterator				
+PROTOCOL_SENTINEL				
+PersistentArrayMap				
+PersistentArrayMapIterator				
+PersistentArrayMapSeq				
+PersistentHashMap				
+PersistentHashSet				
+PersistentQueue				
+PersistentQueueIter				
+PersistentQueueSeq				
+PersistentTreeMap				
+PersistentTreeMapSeq				
+PersistentTreeSet				
+PersistentVector				
+RSeq				
+Range				
+RangeIterator				
+RangedIterator				
+RecordIter				
+RedNode				
+Reduced				
+Repeat				
+START				
+SeqIter				
+SetLite				
+Single				
+StringBufferWriter				
+StringIter				
+Subvec				
+Symbol				
+TaggedLiteral				
+Throwable->map	f	1		
+TransformerIterator				
+TransientArrayMap				
+TransientHashMap				
+TransientHashSet				
+TransientVector				
+UNREALIZED-SEED	p			
+UUID				
+ValSeq				
+Var				
+VectorLite				
+VectorLiteIterator				
+VectorNode				
+Volatile				
+abs	f	1		
+accumulating-seq-count	pf	1		
+aclone	f	1		
+add-tap	f	1		
+add-to-string-hash-cache	f	1		
+add-watch	f	3		
+aget	f	2	2	
+alength	f	1		
+alter-meta!			2	
+ancestors	f	1,2		
+any?	f	1		
+apply	f	2,3,4,5	5	
+apply-to-simple	pf	2,3,4,5,6		
+array	f	1	0	
+array->transient-hash-map	pf	2		
+array-chunk	f	1,2,3		
+array-copy	pf	5		
+array-copy-downward	pf	5		
+array-extend-kv	pf	3		
+array-for	pf	2		
+array-index-of	f	2		
+array-index-of-equiv?	pf	2		
+array-index-of-identical?	pf	2		
+array-index-of-keyword?	pf	2		
+array-index-of-nil?	pf	1		
+array-index-of-symbol?	pf	2		
+array-iter	f	1		
+array-list	f	0		
+array-map			0	
+array-map-extend-kv	pf	3		
+array-map-index-of	pf	2		
+array-reduce	pf	2,3,4		
+array-seq	f	1,2		
+array?	f	1		
+aset	f	3	3	
+assoc	f	3	3	
+assoc!	f	3	3	
+assoc-in	f	3		
+associative?	f	1		
+atom	f	1	1	
+balance-left	pf	4		
+balance-left-del	pf	4		
+balance-right	pf	4		
+balance-right-del	pf	4		
+bases	f	1		
+bit-and	f	2	2	
+bit-and-not	f	2	2	
+bit-clear	f	2		
+bit-count	f	1		
+bit-flip	f	2		
+bit-not	f	1		
+bit-or	f	2	2	
+bit-set	f	2		
+bit-shift-left	f	2		
+bit-shift-right	f	2		
+bit-shift-right-zero-fill	f	2		
+bit-test	f	2		
+bit-xor	f	2	2	
+bitmap-indexed-node-index	pf	2		
+bitpos	pf	2		
+boolean	f	1		
+boolean?	f	1		
+booleans	f	1		
+bounded-count	f	2		
+build-subvec	pf	5		
+butlast	f	1		
+byte	f	1		
+bytes	f	1		
+cat	f	1		
+char	f	1		
+char-escapes	p			
+char?	f	1		
+chars	f	1		
+checked-aget	pf	2	2	
+checked-aget'	pf	2	2	
+checked-aset	pf	3	3	
+checked-aset'	pf	3	3	
+chunk	f	1		
+chunk-append	f	2		
+chunk-buffer	f	1		
+chunk-cons	f	2		
+chunk-first	f	1		
+chunk-next	f	1		
+chunk-rest	f	1		
+chunkIteratorSeq	pf	1		
+chunked-seq	f	3,4,5		
+chunked-seq?	f	1		
+ci-reduce	pf	2,3		
+clj->js			1	
+clone	f	1		
+clone-and-set	pf	3,5		
+cloneable?	f	1		
+coll?	f	1		
+comp	f	0,1,2,3	3	
+comparator	f	1		
+compare	f	2		
+compare-and-set!	f	3		
+compare-indexed	pf	2,4		
+compare-keywords	pf	2		
+compare-symbols	pf	2		
+complement	f	1		
+completing	f	1,2		
+concat	f	0,1,2	2	
+conj	f	0,1,2	2	
+conj!	f	0,1,2	2	
+cons	f	2		
+constantly	f	1		
+contains?	f	2		
+count	f	1		
+counted?	f	1		
+create-array-node-seq	pf	1,3		
+create-inode-seq	pf	1,3		
+create-node	pf	6,7		
+create-ns	f	1,2		
+create-tree-map-seq	pf	3		
+cycle	f	1		
+dec	f	1		
+dedupe	f	0,1		
+default-dispatch-val	f	1		
+delay?	f	1		
+demunge	f	1		
+demunge-pattern	pf	0		
+demunge-str	pf	1		
+deref	f	1		
+derive	f	2,3		
+descendants	f	1,2		
+disj	f	1,2	2	
+disj!	f	2	2	
+dispatch-fn	f	1		
+dissoc	f	1,2	2	
+dissoc!	f	2	2	
+distinct	f	0,1		
+distinct?	f	1,2	2	
+divide				
+do-assoc	pf	5		
+doall	f	1,2		
+dominates	pf	4		
+dorun	f	1,2		
+double	f	1		
+double-array	f	1,2		
+double?	f	1		
+doubles	f	1		
+drop	f	1,2		
+drop-last	f	1,2		
+drop-while	f	1,2		
+edit-and-set	pf	4,6		
+eduction			0	
+empty	f	1		
+empty-ordered-hash	p			
+empty-unordered-hash	p			
+empty?	f	1		
+enable-console-print!	f	0		
+ensure-reduced	f	1		
+equiv-map	f	2		
+equiv-sequential	pf	2		
+es6-entries-iterator	f	1		
+es6-iterator	f	1		
+es6-iterator-seq	f	1		
+es6-set-entries-iterator	f	1		
+eval	f	1		
+even?	f	1		
+every-pred	f	1,2,3	3	
+every?	f	2		
+ex-cause	f	1		
+ex-data	f	1		
+ex-info	f	2,3		
+ex-message	f	1		
+extend-object!	pf	2		
+false?	f	1		
+ffirst	f	1		
+filter	f	1,2		
+filterv	f	2		
+find	f	2		
+find-and-cache-best-method	pf	8		
+find-macros-ns	f	1		
+find-ns	f	1		
+find-ns-obj	f	1		
+find-ns-obj*	pf	2		
+first	f	1		
+first-array-for-longvec	pf	1		
+fix	pf	1		
+flatten	f	1		
+flatten1	pf	1		
+float	f	1		
+float?	f	1		
+floats	f	1		
+flush	f	0		
+fn->comparator	pf	1		
+fn?	f	1		
+fnext	f	1		
+fnil	f	2,3,4		
+force	f	1		
+frequencies	f	1		
+gensym	f	0,1		
+gensym_counter				
+get	f	2,3		
+get-global-hierarchy	pf	0		
+get-in	f	2,3		
+get-method	f	2		
+get-validator	f	1		
+group-by	f	2		
+halt-when	f	1,2		
+hash	f	1		
+hash-coll	pf	1		
+hash-collision-node-find-index	pf	3		
+hash-combine	f	2		
+hash-double	f	1		
+hash-imap	pf	1		
+hash-iset	pf	1		
+hash-keyword	f	1		
+hash-long	f	2		
+hash-map			0	
+hash-map-lite			0	
+hash-ordered-coll	f	1		
+hash-set	f	0	0	
+hash-string	f	1		
+hash-string*	f	1		
+hash-symbol	pf	1		
+hash-unordered-coll	f	1		
+ident?	f	1		
+identical?	f	2		
+identity	f	1		
+ifind?	f	1		
+ifn?	f	1		
+imul	f	2		
+inc	f	1		
+indexed?	f	1		
+infinite?	f	1		
+inode-kv-reduce	pf	3		
+inst-ms	f	1		
+inst-ms*	f	1		
+inst?	f	1		
+instance?	f	2		
+int	f	1		
+int-array	f	1,2		
+int-rotate-left	f	2		
+int?	f	1		
+integer?	f	1		
+interleave	f	0,1,2	2	
+interpose	f	1,2		
+into	f	0,1,2,3		
+into-array	f	1,2		
+ints	f	1		
+is_proto_	f	1		
+isa?	f	2,3		
+iter	f	1		
+iter-reduce	pf	2,3		
+iterable?	f	1		
+iterate	f	2		
+iteration			1	
+js->clj	f	1	1	
+js-delete	f	2		
+js-invoke			2	
+js-iterable?	f	1		
+js-keys	f	1		
+js-mod	f	2		
+js-obj	f	0	0	
+js-reserved				
+js-reserved-arr	p			
+js-reserved?	pf	1		
+js-symbol?	f	1		
+juxt	f	1,2,3	3	
+keep	f	1,2		
+keep-indexed	f	1,2		
+key	f	1		
+key->js	f	1,2		
+key-test	f	2		
+keys	f	1		
+keyword	f	1,2		
+keyword->obj-map-key	pf	1		
+keyword-identical?	f	2		
+keyword?	f	1		
+last	f	1		
+lift-ns	pf	1		
+linear-traversal-nth	pf	2,3		
+list			0	
+list*	f	1,2,3,4	4	
+list?	f	1		
+load-file	f	1		
+long	f	1		
+long-array	f	1,2		
+longs	f	1		
+lookup-sentinel	p			
+m3-C1				
+m3-C2				
+m3-fmix	f	2		
+m3-hash-int	f	1		
+m3-hash-unencoded-chars	f	1		
+m3-mix-H1	f	2		
+m3-mix-K1	f	1		
+m3-seed				
+make-array	f	1,2	2	
+make-hierarchy	f	0		
+map	f	1,2,3,4	4	
+map-entry?	f	1		
+map-indexed	f	1,2		
+map?	f	1		
+mapcat	f	1	1	
+mapv	f	2,3,4	4	
+mask	pf	2		
+max	f	1,2	2	
+max-key	f	2,3	3	
+maybe-enable-print!	pf	0		
+maybe-init-tapset	pf	0		
+maybe-warn	pf	1		
+memoize	f	1		
+merge			0	
+merge-with			1	
+meta	f	1		
+methods	f	1		
+min	f	1,2	2	
+min-key	f	2,3	3	
+missing-protocol	f	2		
+mix-collection-hash	f	2		
+mk-bound-fn	f	3		
+mod	f	2		
+munge	f	1		
+munge-str	f	1		
+name	f	1		
+namespace	f	1		
+nat-int?	f	1		
+native-satisfies?	f	2		
+neg-int?	f	1		
+neg?	f	1		
+never-equiv	p			
+new-path	pf	3		
+newline	f	0,1		
+next	f	1		
+next*	pf	1		
+nfirst	f	1		
+nil-iter	f	0		
+nil?	f	1		
+nnext	f	1		
+not	f	1		
+not-any?	f	2		
+not-empty	f	1		
+not-every?	f	2		
+not-native				
+not=	f	1,2	2	
+ns-interns*	f	1		
+ns-lookup	pf	2		
+ns-name	f	1		
+nth	f	2,3		
+nthnext	f	2		
+nthrest	f	2		
+number?	f	1		
+obj-clone	pf	2		
+obj-map			0	
+obj-map-compare-keys	pf	2		
+obj-map-key->keyword	pf	1		
+object-array	f	1,2		
+object?	f	1		
+odd?	f	1		
+pack-array-node	pf	3		
+pam-dupes?	pf	1		
+pam-grow-seed-array	pf	2		
+pam-new-size	pf	1		
+parents	f	1,2		
+parse-boolean	f	1		
+parse-double	f	1		
+parse-long	f	1		
+parse-uuid	f	1		
+parsing-err	pf	1		
+partial	f	1,2,3,4	4	
+partition	f	2,3,4		
+partition-all	f	1,2,3		
+partition-by	f	1,2		
+partitionv	f	2,3,4		
+partitionv-all	f	1,2,3		
+peek	f	1		
+persistent!	f	1		
+persistent-array-map-seq	f	3		
+pop	f	1		
+pop!	f	1		
+pop-tail	pf	3		
+pos-int?	f	1		
+pos?	f	1		
+pr			0	
+pr-opts	pf	0		
+pr-opts-dup	pf	1		
+pr-opts-fnl	pf	1		
+pr-opts-len	pf	1		
+pr-opts-meta	pf	1		
+pr-opts-readably	pf	1		
+pr-sb-with-opts	pf	2		
+pr-seq-writer	f	3		
+pr-sequential-writer	f	7		
+pr-str			0	
+pr-str*	f	1		
+pr-str-with-opts	f	2		
+pr-with-opts	pf	2		
+pr-writer	pf	3		
+pr-writer-ex-info	pf	3		
+pr-writer-impl	pf	3		
+prefer-method	f	3		
+prefers	f	1		
+prefers*	pf	3		
+preserving-reduced	pf	1		
+prim-seq	f	1,2		
+print	f		0	
+print-map	f	4		
+print-meta?	f	2		
+print-prefix-map	f	5		
+print-str			0	
+println			0	
+println-str			0	
+prn			0	
+prn-str			0	
+prn-str-with-opts	f	2		
+push-tail	pf	4		
+pv-aget	pf	2		
+pv-aset	pf	3		
+pv-clone-node	pf	1		
+pv-fresh-node	pf	1		
+pv-reduce	pf	4,5		
+qualified-ident?	f	1		
+qualified-keyword?	f	1		
+qualified-symbol?	f	1		
+quot	f	2		
+quote-string	pf	1		
+rand	f	0,1		
+rand-int	f	1		
+rand-nth	f	1		
+random-sample	f	1,2		
+random-uuid	f	0		
+range	f	0,1,2,3		
+range-count	pf	3		
+ranged-iterator	f	3		
+re-find	f	2		
+re-matches	f	2		
+re-pattern	f	1		
+re-seq	f	2		
+re-seq*	pf	2		
+realized?	f	1		
+record?	f	1		
+reduce	f	2,3		
+reduce-kv	f	3		
+reduceable?	f	1		
+reduced	f	1		
+reduced?	f	1		
+reductions	f	2,3		
+regexp?	f	1		
+rem	f	2		
+remove	f	1,2		
+remove-all-methods	f	1		
+remove-method	f	2		
+remove-pair	pf	2		
+remove-tap	f	1		
+remove-watch	f	2		
+repeat	f	1,2		
+repeatedly	f	1,2		
+replace	f	1,2		
+replicate	f	2		
+reset!	f	2		
+reset-cache	pf	4		
+reset-meta!	f	2		
+reset-vals!	f	2		
+rest	f	1		
+reverse	f	1		
+reversible?	f	1		
+root-obj	pf	0		
+rseq	f	1		
+rsubseq	f	3,5		
+run!	f	2		
+scan-array	pf	3		
+scan-array-equiv	pf	3		
+second	f	1		
+select-keys	f	2		
+seq	f	1		
+seq-iter	f	1		
+seq-reduce	pf	2,3		
+seq-to-map-for-destructuring	f	1		
+seq?	f	1		
+seqable?	f	1		
+sequence	f	1,2	2	
+sequential?	f	1		
+set	f	1		
+set-from-indexed-seq	f	1		
+set-lite	f	1		
+set-print-err-fn!	f	1		
+set-print-fn!	f	1		
+set-validator!	f	2		
+set?	f	1		
+short	f	1		
+shorts	f	1		
+shuffle	f	1		
+simple-ident?	f	1		
+simple-keyword?	f	1		
+simple-symbol?	f	1		
+some	f	2		
+some-fn	f	1,2,3	3	
+some?	f	1		
+sort	f	1,2		
+sort-by	f	2,3		
+sorted-map			0	
+sorted-map-by			1	
+sorted-set			0	
+sorted-set-by			1	
+sorted?	f	1		
+special-symbol?	f	1		
+split-at	f	2		
+split-with	f	2		
+splitv-at	f	2		
+spread	f	1		
+str	f	0,1	1	
+str_	pf	2		
+string-hash-cache				
+string-hash-cache-count				
+string-iter	f	1		
+string-print	f	1		
+string?	f	1		
+strip-ns	pf	1		
+subs	f	2,3		
+subseq	f	3,5		
+subvec	f	2,3		
+supers	f	1		
+swap!	f	2,3,4	4	
+swap-global-hierarchy!	p		1	
+swap-vals!	f	2,3,4	4	
+symbol	f	1,2		
+symbol-identical?	f	2		
+symbol?	f	1		
+system-time	f	0		
+tagged-literal	f	2		
+tagged-literal?	f	1		
+tail-off	pf	1		
+take	f	1,2		
+take-last	f	2		
+take-nth	f	1,2		
+take-while	f	1,2		
+tap>	f	1		
+tapset	p			
+test	f	1		
+throw-no-method-error	pf	2		
+to-array	f	1		
+to-array-2d	f	1		
+trampoline	f	1	1	
+transduce	f	3,4		
+transformer-iterator	f	3		
+transient	f	1		
+tree-map-add	pf	5		
+tree-map-append	pf	2		
+tree-map-kv-reduce	pf	3		
+tree-map-remove	pf	4		
+tree-map-replace	pf	4		
+tree-map-seq-push	pf	3		
+tree-seq	f	3		
+true?	f	1		
+truth_	f	1		
+tv-editable-root	pf	1		
+tv-editable-tail	pf	1		
+tv-ensure-editable	pf	2		
+tv-pop-tail	pf	3		
+tv-push-tail	pf	4		
+type	f	1		
+type->str	f	1		
+unchecked-add	f	0,1,2	2	
+unchecked-add-int	f	0,1,2	2	
+unchecked-array-for	pf	2		
+unchecked-byte	f	1		
+unchecked-char	f	1		
+unchecked-dec	f	1		
+unchecked-dec-int	f	1		
+unchecked-divide-int	f	1,2	2	
+unchecked-double	f	1		
+unchecked-editable-array-for	pf	2		
+unchecked-float	f	1		
+unchecked-inc	f	1		
+unchecked-inc-int	f	1		
+unchecked-int	f	1		
+unchecked-long	f	1		
+unchecked-multiply	f	0,1,2	2	
+unchecked-multiply-int	f	0,1,2	2	
+unchecked-negate	f	1		
+unchecked-negate-int	f	1		
+unchecked-remainder-int	f	2		
+unchecked-short	f	1		
+unchecked-subtract	f	1,2	2	
+unchecked-subtract-int	f	1,2	2	
+undefined?	f	1		
+underive	f	2,3		
+unreduced	f	1		
+unsigned-bit-shift-right	f	2		
+update	f	3,4,5,6	6	
+update-in	f	3,4,5,6	6	
+update-keys	f	2		
+update-vals	f	2		
+uri?	f	1		
+uuid	f	1		
+uuid-regex	p			
+uuid?	f	1		
+val	f	1		
+vals	f	1		
+var?	f	1		
+vary-meta	f	2,3,4,5,6	6	
+vec	f	1		
+vec-lite	f	1		
+vector			0	
+vector-index-out-of-bounds	pf	2		
+vector-lite			0	
+vector?	f	1		
+volatile!	f	1		
+volatile?	f	1		
+vreset!	f	2		
+with-meta	f	2		
+write-all			1	
+zero?	f	1		
+zipmap	f	2		
+@cljs cljs.js
+*eval-fn*				
+*load-fn*				
+*loaded*				
+alias-map	pf	2		
+analyze-deps	pf	5,6		
+analyze-str	f	3,4,5		
+analyze-str*	pf	5		
+append-source-map	pf	6		
+atom?	pf	1		
+check-macro-autoload-inferring-missing	pf	2		
+clear-fns!	pf	0		
+compile-str	f	3,4,5		
+compile-str*	pf	5		
+debug-prn	p		0	
+drop-macros-suffix	pf	1		
+elide-env	f	3		
+elide-macros-suffix	pf	1		
+emit-fn	pf	1		
+empty-state	f	0,1		
+eval	f	3,4		
+eval*	pf	4		
+eval-impl	pf	1,2		
+eval-str	f	3,4,5		
+eval-str*	pf	5		
+file->ns	f	1		
+fn-index	p			
+fn-refs	p			
+fs				
+get-fn	pf	1		
+global-exports-side-effects	pf	5		
+js-eval	f	1		
+libs				
+load-analysis-cache!	f	3		
+load-deps	pf	5,7		
+load-macros	pf	8		
+load-source-map!	f	3		
+node-eval	f	1		
+node-load	f	2		
+node-side-effects	pf	5		
+ns->relpath	f	1		
+ns-side-effects	pf	5,6		
+patch-alias-map	pf	4		
+post-file-side-effects	pf	2		
+pre-file-side-effects	pf	4		
+prefix	pf	2		
+process-deps	pf	4		
+process-libs-deps	pf	4		
+process-macros-deps	pf	4		
+put-fn	pf	1		
+read	pf	2		
+require	f	2,3,4,5		
+resolve-symbol	pf	1		
+rewrite-ns-ast	pf	2,3		
+run-async!	pf	4		
+self-require?	pf	2		
+sm-data	pf	0		
+st				
+trampoline-safe	pf	1		
+valid-name?	pf	1		
+valid-opts?	pf	1		
+vm				
+wrap-error	pf	1		
+@cljs cljs.loader
+*module-manager*				
+create-module-manager	f	0		
+deps-for	f	2		
+load	f	1,2		
+loaded?	f	1		
+module-infos				
+module-uris				
+munge-kw	f	1		
+prefetch	f	1		
+set-loaded!	f	1		
+to-js	f	1		
+to-tr-url	f	1		
+@cljs cljs.math
+DEGREES-TO-RADIANS	p			
+E				
+EXP-BIAS	p			
+EXP-BITMASK32	p			
+EXP-MAX	p			
+EXP-MIN	p			
+HI	p			
+HI-x	p			
+HI-y	p			
+IEEE-fmod	pf	2		
+IEEE-remainder	f	2		
+INT32-MASK	p			
+INT32-NON-SIGN-BIT	p			
+INT32-NON-SIGN-BITS	p			
+LO	p			
+LO-x	p			
+LO-y	p			
+MAX_SCALE	p			
+PI				
+RADIANS-TO-DEGREES	p			
+SIGNIFICAND-WIDTH32	p			
+TWO-TO-THE-52	p			
+Zero	p			
+acos	f	1		
+add-exact	f	2		
+add64	pf	4		
+asin	f	1		
+atan	f	1		
+atan2	f	2		
+cbrt	f	1		
+ceil	f	1		
+copy-sign	f	2		
+cos	f	1		
+cosh	f	1		
+decrement-exact	f	1		
+exp	f	1		
+expm1	f	1		
+fabs	pf	1		
+floor	f	1		
+floor-div	f	2		
+floor-mod	f	2		
+get-exponent	f	1		
+get-little-endian	pf	0		
+hi-lo->double	pf	2		
+hypot	f	2		
+ilogb	pf	2		
+increment-exact	f	1		
+little-endian?	p			
+log	f	1		
+log10	f	1		
+log1p	f	1		
+multiply-exact	f	2		
+negate-exact	f	1		
+next-after	f	2		
+next-down	f	1		
+next-up	f	1		
+pow	f	2		
+power-of-two	pf	1		
+random	f	0		
+rint	f	1		
+round	f	1		
+scalb	f	2		
+setup-hl	pf	3		
+signum	f	1		
+sin	f	1		
+sinh	f	1		
+sqrt	f	1		
+subtract-exact	f	2		
+tan	f	1		
+tanh	f	1		
+to-degrees	f	1		
+to-radians	f	1		
+two-to-the-double-scale-down	p			
+two-to-the-double-scale-up	p			
+u<	pf	2		
+ulp	f	1		
+xor	pf	2		
+xpos	p			
+ypos	p			
+@cljs cljs.nodejs
+enable-util-print!	f	0		
+process				
+require				
+@cljs cljs.pprint
+*code-table*	p			
+*current-length*	p			
+*current-level*	p			
+*default-page-width*	p			
+*format-str*	p			
+*print-base*				
+*print-circle*	p			
+*print-lines*	p			
+*print-miser-width*				
+*print-pprint-dispatch*				
+*print-pretty*				
+*print-radix*				
+*print-right-margin*				
+*print-shared*	p			
+*print-suppress-namespaces*				
+*symbol-map*	p			
+->arg-navigator	pf	3		
+->compiled-directive	pf	4		
+->logical-block	pf	10		
+-ppflush	f	1		
+IPrettyFlush				
+abort?	pf	1		
+absolute-reposition	pf	2		
+absolute-tabulation	pf	3		
+add-core-ns	pf	1		
+add-english-scales	pf	2		
+add-padding	pf	2		
+add-to-buffer	pf	2		
+ancestor?	pf	2		
+arg-navigator	p			
+base-str	pf	2		
+boolean-conditional	pf	3		
+brackets	pf	1		
+buffer-length	pf	1		
+c-write-char	pf	2		
+cached-compile	p			
+capitalize-string	pf	2		
+capitalize-word-writer	pf	1		
+char-code	f	1		
+check-arg-conditional	pf	3		
+check-enumerated-arg	pf	2		
+check-flags	pf	2		
+choice-conditional	pf	3		
+cl-format			2	
+code-dispatch				
+collect-clauses	pf	3		
+column-writer	pf	1,2		
+compile-directive	pf	2		
+compile-format	pf	1		
+compile-raw-string	pf	2		
+compiled-directive	p			
+conditional-newline	pf	3		
+consume	pf	2		
+consume-while	pf	2		
+convert-ratio	pf	1		
+dollar-float	pf	3		
+downcase-writer	pf	1		
+else-separator?	pf	1		
+emit-nl	pf	2		
+emit-nl?	p			
+end-block	pf	1		
+english-cardinal-tens	p			
+english-cardinal-units	p			
+english-ordinal-tens	p			
+english-ordinal-units	p			
+english-scale-numbers	p			
+execute-format	pf	2,3		
+execute-sub-format	pf	3		
+expand-fixed	pf	3		
+exponential-float	pf	3		
+extract-flags	pf	2		
+extract-param	pf	1		
+extract-params	pf	2		
+fixed-float	pf	3		
+flag-defs	p			
+float-parts	pf	1		
+float-parts-base	pf	1		
+float?	f	1		
+format-ascii	pf	4		
+format-cardinal-english	pf	3		
+format-error	pf	2		
+format-integer	pf	4		
+format-logical-block	pf	3		
+format-new-roman	pf	3		
+format-old-roman	pf	3		
+format-ordinal-english	pf	3		
+format-roman	pf	4		
+format-simple-cardinal	pf	1		
+format-simple-number	pf	1		
+format-simple-ordinal	pf	1		
+fresh-line	f	0		
+general-float	pf	3		
+get-column	pf	1		
+get-field	pf	2		
+get-fixed	pf	3		
+get-format-arg	pf	1		
+get-line	pf	1		
+get-max-column	pf	1		
+get-miser-width	pf	1		
+get-pretty-writer	f	1		
+get-section	pf	1		
+get-sub-section	pf	1		
+get-writer	pf	1		
+group-by*	pf	2		
+inc-s	pf	1		
+indent	pf	3		
+init-cap-writer	pf	1		
+init-navigator	pf	1		
+insert-decimal	pf	2		
+insert-scaled-decimal	pf	2		
+integral?	pf	1		
+iterate-list-of-sublists	pf	3		
+iterate-main-list	pf	3		
+iterate-main-sublists	pf	3		
+iterate-sublist	pf	3		
+javascript-base-formats	p			
+justify-clauses	pf	3		
+level-exceeded	pf	0		
+linear-nl?	pf	3		
+logical-block	p			
+logical-block-or-justify	pf	3		
+ltrim	pf	2		
+make-pretty-writer	pf	3		
+map->arg-navigator	pf	1		
+map->compiled-directive	pf	1		
+map->logical-block	pf	1		
+map-params	pf	4		
+map-passing-context	pf	3		
+map-ref-type	pf	1		
+miser-nl?	pf	3		
+modify-case	pf	4		
+multi-defn	pf	2		
+needs-pretty	pf	1		
+new-roman-table	p			
+next-arg	pf	1		
+next-arg-or-nil	pf	1		
+nl	pf	2		
+old-roman-table	p			
+opt-base-str	pf	2		
+p-write-char	pf	2		
+param-pattern	p			
+plain-character	pf	3		
+pp-newline	pf	0		
+pprint	f	1,2		
+pprint-anon-func	pf	1		
+pprint-array	p			
+pprint-binding-form	pf	1		
+pprint-code-list	pf	1		
+pprint-code-symbol	pf	1		
+pprint-cond	pf	1		
+pprint-condp	pf	1		
+pprint-defn	pf	1		
+pprint-hold-first	p			
+pprint-ideref	pf	1		
+pprint-if	p			
+pprint-indent	f	2		
+pprint-let	pf	1		
+pprint-list	pf	1		
+pprint-map	pf	1		
+pprint-newline	f	1		
+pprint-ns	pf	1		
+pprint-ns-reference	pf	1		
+pprint-pqueue	p			
+pprint-reader-macro	pf	1		
+pprint-set				
+pprint-simple-code-list	pf	1		
+pprint-simple-default	pf	1		
+pprint-simple-list	pf	1		
+pprint-tab	f	3		
+pprint-vector	pf	1		
+pr	p		0	
+prefix-count	pf	2		
+pretty-character	pf	3		
+pretty-writer	pf	3		
+pretty-writer?	pf	1		
+print	p		0	
+print-char	pf	1		
+print-table	f	1,2		
+println	p		0	
+prn	p		0	
+process-bracket	pf	2		
+process-clause	pf	3		
+process-nesting	pf	1		
+readable-character	pf	3		
+reader-macros	p			
+realize-parameter	pf	2		
+realize-parameter-list	pf	2		
+relative-reposition	pf	2		
+relative-tabulation	pf	3		
+remainders	pf	2		
+render-clauses	pf	3		
+right-bracket	pf	1		
+round-str	pf	4		
+rtrim	pf	2		
+separator?	pf	1		
+set-field	pf	3		
+set-indent	pf	3		
+set-max-column	pf	2		
+set-pprint-dispatch	f	1		
+simple-dispatch				
+single-defn	pf	2		
+special-chars	p			
+special-params	p			
+special-radix-markers	p			
+split-at-newline	pf	1		
+start-block	pf	4		
+table-ize	pf	2		
+tokens-fit?	pf	2		
+translate-param	pf	1		
+tuple-map	pf	2		
+two-forms	pf	1		
+type-dispatcher	pf	1		
+type-map	p			
+unzip-map	pf	1		
+upcase-writer	pf	1		
+update-nl-state	pf	1		
+use-method	pf	3		
+write			1	
+write-buffered-output	pf	1		
+write-initial-lines	pf	2		
+write-line	pf	1		
+write-out	f	1		
+write-token	p			
+write-token-string	pf	2		
+write-tokens	pf	3		
+write-white-space	pf	1		
+@cljs cljs.proxy.impl
+->MapIterator	f	2		
+->SimpleCache	f	2		
+MapIterator				
+SimpleCache				
+@cljs cljs.proxy
+builder	f	0,1,2		
+c				
+desc	p			
+k				
+kw				
+proxied-deep				
+proxied-map				
+proxied-vec				
+proxy				
+raw-map				
+write-through	pf	1		
+@cljs cljs.reader
+*default-data-reader-fn*				
+*tag-table*				
+check	pf	4		
+days-in-month	p			
+deregister-default-tag-parser!	f	0		
+deregister-tag-parser!	f	1		
+divisible?	pf	2		
+indivisible?	pf	2		
+leap-year?	pf	1		
+parse-and-validate-timestamp	f	1		
+parse-int	pf	1		
+parse-timestamp	f	1		
+read	f	1,2,4		
+read-date	pf	1		
+read-js	pf	1		
+read-queue	pf	1		
+read-string	f	1,2		
+read-uuid	pf	1		
+register-default-tag-parser!	f	1		
+register-tag-parser!	f	2		
+timestamp-regex	p			
+zero-fill-right-and-truncate	pf	2		
+@cljs cljs.repl
+Error->map	f	1		
+error->str	f	1		
+ex-str	f	1		
+ex-triage	f	1		
+print-doc	f	1		
+@cljs cljs.source-map.base64-vlq
+decode	f	1		
+encode	f	1		
+encode-val	f	1		
+from-vlq-signed	f	1		
+to-vlq-signed	f	1		
+vlq-base				
+vlq-base-mask				
+vlq-base-shift				
+vlq-continuation-bit				
+@cljs cljs.source-map.base64
+char->int				
+chars64				
+decode	f	1		
+encode	f	1		
+int->char				
+@cljs cljs.source-map
+decode	f	1,2		
+decode-reverse	f	1,2		
+encode	f	2		
+indexed-sources	f	1		
+invert-reverse-map	f	1		
+lines->segs	f	1		
+merge-source-maps	f	2		
+seg->map	f	2		
+seg-combine	f	2		
+source-compare	f	1		
+update-result	f	3		
+update-reverse-result	f	3		
+@cljs cljs.spec.alpha
+*coll-check-limit*				
+*coll-error-limit*				
+*compile-asserts*				
+*explain-out*				
+*fspec-iterations*				
+*recursion-limit*				
+*runtime-asserts*	p			
+->sym	pf	1		
+MAX_INT				
+Spec				
+Specize				
+abbrev	f	1		
+accept	pf	1		
+accept-nil?	pf	1		
+accept?	pf	1		
+add-ret	pf	3		
+alt*	pf	3		
+alt-impl	f	3		
+alt2	pf	2		
+alts	p		0	
+amp-impl	f	4		
+and-k-gen	pf	1		
+and-preds	pf	3		
+and-spec-impl	f	3		
+assert*	f	2		
+call-valid?	pf	3		
+cat-impl	f	3		
+check-asserts	f	1		
+check-asserts?	f	0		
+coll-prob	pf	10		
+conform	f	2		
+conform*	f	2		
+deep-resolve	pf	2		
+def-impl	f	3		
+deriv	pf	2		
+describe	f	1		
+describe*	f	1		
+dt	pf	3,4		
+empty-coll	p			
+every-impl	f	3,4		
+exercise	f	1,2,3		
+explain	f	2		
+explain*	f	5		
+explain-1	pf	6		
+explain-data	f	2		
+explain-data*	f	5		
+explain-out	f	1		
+explain-pred-list	pf	6		
+explain-printer	f	1		
+explain-str	f	2		
+filter-alt	pf	4		
+fn-sym	pf	1		
+form	f	1		
+fspec-impl	f	7		
+gen	f	1,2		
+gen*	f	4		
+gensub	pf	5		
+get-spec	f	1		
+inck	pf	2		
+inst-in-range?	f	3		
+int-in-range?	f	3		
+invalid?	f	1		
+k-gen	pf	1		
+macroexpand-check	pf	2		
+map-spec				
+map-spec-impl	f	1		
+maybe-impl	f	2		
+maybe-spec	pf	1		
+merge-spec-impl	f	3		
+multi-spec-impl	f	3,4		
+nilable-impl	f	3		
+nonconforming	f	1		
+noret?	pf	2		
+op-describe	pf	1		
+op-explain	pf	6		
+op-unform	pf	2		
+or-k-gen	pf	1,2		
+or-spec-impl	f	4		
+pcat	p		0	
+pcat*	pf	1		
+preturn	pf	1		
+pvalid?	pf	2,3		
+re-conform	pf	2		
+re-explain	pf	5		
+re-gen	pf	5		
+recur-limit?	pf	4		
+reg-resolve	pf	1		
+reg-resolve!	pf	1		
+regex-spec-impl	f	2		
+regex?	f	1		
+registry	f	0		
+registry-ref	p			
+rep*	pf	5		
+rep+impl	f	2		
+rep-impl	f	2		
+spec-impl	f	4,5		
+spec-name	pf	1		
+spec?	f	1		
+specize	pf	1,2		
+specize*	f	1,2		
+tagged-ret	pf	2		
+the-spec	pf	1		
+tuple-impl	f	2,3		
+unform	f	2		
+unform*	f	2		
+valid?	f	2,3		
+validate-fn	pf	3		
+with-gen	f	2		
+with-gen*	f	2		
+with-name	pf	2		
+@cljs cljs.spec.gen.alpha
+->LazyVar	f	2		
+LazyVar				
+any				
+any-printable				
+bind				
+boolean				
+cat			0	
+char				
+char-alpha				
+char-alphanumeric				
+char-ascii				
+choose				
+delay-impl	f	1		
+double				
+double*				
+elements				
+fmap				
+for-all*			0	
+for-all*-ref	p			
+frequency				
+gen-builtins	p			
+gen-for-pred	f	1		
+generate	f	1		
+generator	pf	1		
+generator?	pf	1		
+hash-map				
+int				
+keyword				
+keyword-ns				
+large-integer				
+large-integer*				
+list				
+map				
+not-empty				
+one-of				
+qualified?	pf	1		
+quick-check			0	
+quick-check-ref	p			
+ratio				
+return				
+sample				
+set				
+shuffle				
+simple-type				
+simple-type-printable				
+string				
+string-alphanumeric				
+string-ascii				
+such-that				
+symbol				
+symbol-ns				
+tuple				
+uuid				
+vector				
+vector-distinct				
+@cljs cljs.spec.test.alpha
+*instrument-enabled*	p			
+->sym	f	1		
+abbrev-result	f	1		
+check-call	pf	3		
+collectionize	pf	1		
+distinct-by	f	2		
+explain-check	pf	4		
+explain-data*	pf	2		
+failure-type	pf	1		
+find-caller	pf	1		
+fn-spec-name?	pf	1		
+fn-spec?	pf	1		
+foo	f	1,2		
+get-env	f	0		
+get-host-port	f	0		
+get-ua-product	f	0		
+instrument-1*	pf	3		
+instrument-choose-fn	pf	4		
+instrument-choose-spec	pf	3		
+instrumentable-syms	f	0,1		
+instrumented-vars	p			
+make-check-result	pf	4		
+no-fspec	pf	2		
+quick-check	pf	3		
+ranged-rand	f	2		
+result-type	pf	1		
+spec-checking-fn	pf	3		
+summarize-results	f	1,2		
+unstrument-1*	pf	2		
+unwrap-failure	pf	1		
+validate-check-opts	f	1		
+@cljs cljs.test
+*current-env*				
+IAsyncTest				
+async?	f	1		
+block	f	1		
+clear-env!	f	0		
+compose-fixtures	f	2		
+default-fixture	pf	1		
+disable-async	pf	1		
+do-report	f	1		
+empty-env	f	0,1		
+execution-strategy	pf	2		
+file-and-line	f	2		
+get-and-clear-env!	f	0		
+get-current-env	f	0		
+inc-report-counter!	f	1		
+join-fixtures	f	1		
+js-filename	f	1		
+js-line-and-column	f	1		
+mapped-line-and-column	f	3		
+print-comparison	pf	1		
+report				
+run-block	f	1		
+set-env!	f	1		
+successful?	f	1		
+test-var	f	1		
+test-var-block	f	1		
+test-var-block*	pf	2		
+test-vars	f	1		
+test-vars-block	f	1		
+testing-contexts-str	f	0		
+testing-vars-str	f	1		
+update-current-env!			2	
+wrap-map-fixtures	pf	2		
+@cljs clojure.browser.dom
+-element	f	1,2,3		
+DOMBuilder				
+append			1	
+click-element	f	1		
+element	f	1	1	
+ensure-element	f	1		
+get-element	f	1		
+get-value	f	1		
+html->dom	f	1		
+insert-at	f	3		
+log			0	
+log-obj	f	1		
+remove-children	f	1		
+replace-node	f	2		
+set-properties	f	2		
+set-text	f	2		
+set-value	f	2		
+@cljs clojure.browser.event
+IEventType				
+all-listeners	f	3		
+dispatch-event	f	2		
+event-types	f	1		
+expose	f	1		
+fire-listeners	f	4		
+get-listener	f	5		
+has-listener	f	3		
+listen	f	3,4		
+listen-once	f	3,4		
+remove-all	f	3		
+total-listener-count	f	0		
+unique-event-id	f	1		
+unlisten	f	3,4		
+unlisten-by-key	f	1		
+@cljs clojure.browser.net
+*timeout*				
+IConnection				
+ICrossPageChannel				
+IWebSocket				
+close	f	1		
+connect	f	1,2,3,4		
+event-types				
+open?	f	1		
+register-service	f	3,4		
+transmit	f	2,3,4,5,6		
+websocket-connection	f	0,1,2		
+xhr-connection	f	0		
+xpc-config-fields				
+xpc-connection	f	0,1		
+@cljs clojure.browser.repl.preload
+conn				
+@cljs clojure.browser.repl
+*repl*				
+HOST				
+PORT				
+bootstrap	f	0		
+connect	f	1		
+evaluate-javascript	f	2		
+flush-print-queue!	f	1		
+get-ua-product	f	0		
+load-queue				
+order				
+parent-connected?				
+print-queue				
+repl-print	f	1		
+send-print	f	2,3		
+send-result	f	3		
+start-evaluator	f	1		
+wrap-message	f	3		
+xpc-connection				
+@cljs clojure.core.protocols
+Datafiable				
+Navigable				
+datafy	f	1		
+nav	f	3		
+@cljs clojure.core.reducers
+->Cat	f	3		
+Cat				
+CollFold				
+append!	f	2		
+cat	f	0,1,2		
+coll-fold	f	4		
+fjfork	pf	1		
+fjinvoke	pf	1		
+fjjoin	pf	1		
+fjtask	pf	1		
+fold	f	2,3,4		
+foldcat	f	1		
+folder	f	2		
+foldvec	pf	4		
+monoid	f	2		
+reduce	f	2,3		
+reducer	f	2		
+v				
+@cljs clojure.data
+Diff				
+EqualityPartition				
+atom-diff	pf	2		
+diff	f	2		
+diff-associative	pf	2,3		
+diff-associative-key	pf	3		
+diff-sequential	pf	2		
+diff-set	pf	2		
+diff-similar	f	2		
+equality-partition	f	1		
+vectorize	pf	1		
+@cljs clojure.datafy
+datafy	f	1		
+datify-ref	pf	1		
+nav	f	3		
+@cljs clojure.edn
+read	f	1,2,4		
+read-string	f	1,2		
+@cljs clojure.reflect
+doc	f	1		
+evaluate-javascript	pf	1		
+macroexpand	f	1		
+meta	f	2		
+print-doc	f	1		
+query-reflection	pf	2		
+@cljs clojure.set
+bubble-max-key	pf	2		
+difference	f	1,2	2	
+index	f	2		
+intersection	f	1,2	2	
+join	f	2,3		
+map-invert	f	1		
+project	f	2		
+rename	f	2		
+rename-keys	f	2		
+select	f	2		
+subset?	f	2		
+superset?	f	2		
+union	f	0,1,2	2	
+xs				
+ys				
+@cljs clojure.string
+blank?	f	1		
+capitalize	f	1		
+discard-trailing-if-needed	pf	2		
+ends-with?	f	2		
+escape	f	2		
+includes?	f	2		
+index-of	f	2,3		
+join	f	1,2		
+last-index-of	f	2,3		
+lower-case	f	1		
+pop-last-while-empty	pf	1		
+re-surrogate-pair	p			
+replace	f	3		
+replace-all	pf	3		
+replace-first	f	3		
+replace-with	pf	1		
+reverse	f	1		
+seq-reverse	pf	1		
+split	f	2,3		
+split-lines	f	1		
+split-with-empty-regex	pf	2		
+starts-with?	f	2		
+trim	f	1		
+trim-newline	f	1		
+triml	f	1		
+trimr	f	1		
+upper-case	f	1		
+@cljs clojure.walk
+keywordize-keys	f	1		
+postwalk	f	2		
+postwalk-replace	f	2		
+prewalk	f	2		
+prewalk-replace	f	2		
+stringify-keys	f	1		
+walk	f	3		
+@cljs clojure.zip
+append-child	f	2		
+branch?	f	1		
+children	f	1		
+data				
+down	f	1		
+dz				
+edit			2	
+end?	f	1		
+insert-child	f	2		
+insert-left	f	2		
+insert-right	f	2		
+left	f	1		
+leftmost	f	1		
+lefts	f	1		
+make-node	f	3		
+next	f	1		
+node	f	1		
+path	f	1		
+prev	f	1		
+remove	f	1		
+replace	f	2		
+right	f	1		
+rightmost	f	1		
+rights	f	1		
+root	f	1		
+seq-zip	f	1		
+up	f	1		
+vector-zip	f	1		
+xml-zip	f	1		
+zipper	f	4		
+@cljc-clj cljs.analyzer.api
+all-ns	f	0,1		
+analyze	f	2,3,4,5		
+analyze-file	f	1,2,3		
+current-file	f	0		
+current-ns	f	0		
+current-state	f	0		
+default-passes				
+default-warning-handler	f	3		
+empty-env	f	0		
+empty-state	f	0,1		
+enabled-warnings	f	0		
+find-ns	f	1,2		
+forms-seq	f	1,2		
+get-js-index	f	0,1		
+get-options	f	0,1		
+in-cljs-user	m		1	
+no-warn	m		0	
+ns-interns	f	1,2		
+ns-publics	f	1,2		
+ns-resolve	f	2,3		
+parse-ns	f	1,2,3,4		
+read-analysis-cache	f	1		
+remove-ns	f	1,2		
+resolve	f	2		
+resolve-extern	f	1,2		
+the-ns	f	1,2		
+warning-enabled?	f	1		
+warning-message	f	2		
+with-passes	m		1	
+with-state	m		1	
+with-warning-handlers	m		1	
+@cljc-cljs cljs.analyzer.api
+all-ns	f	0,1		
+current-file	f	0		
+current-ns	f	0		
+current-state	f	0		
+default-passes				
+default-warning-handler	f	3		
+empty-env	f	0		
+empty-state	f	0,1		
+enabled-warnings	f	0		
+find-ns	f	1,2		
+get-js-index	f	0,1		
+get-options	f	0,1		
+in-cljs-user	m		1	
+no-warn	m		0	
+ns-interns	f	1,2		
+ns-publics	f	1,2		
+ns-resolve	f	2,3		
+remove-ns	f	1,2		
+resolve	f	2		
+resolve-extern	f	1,2		
+the-ns	f	1,2		
+warning-enabled?	f	1		
+warning-message	f	2		
+with-passes	m		1	
+with-state	m		1	
+with-warning-handlers	m		1	
+@cljc-clj cljs.analyzer.impl.namespaces
+check-and-remove-as-alias	f	1		
+check-as-alias-duplicates	f	2		
+elide-aliases-from-libspecs	f	1,2		
+elide-aliases-from-ns-specs	f	1		
+@cljc-cljs cljs.analyzer.impl.namespaces
+check-and-remove-as-alias	f	1		
+check-as-alias-duplicates	f	2		
+elide-aliases-from-libspecs	f	1,2		
+elide-aliases-from-ns-specs	f	1		
+@cljc-clj cljs.analyzer.impl
+ANY_SYM				
+BOOLEAN_OR_SEQ				
+BOOLEAN_SYM				
+IGNORE_SYM				
+NOT_NATIVE				
+@cljc-cljs cljs.analyzer.impl
+ANY_SYM				
+BOOLEAN_OR_SEQ				
+BOOLEAN_SYM				
+CLJS_CORE_MACROS_SYM				
+CLJS_CORE_SYM				
+CLJ_NIL_SYM				
+DOT_SYM				
+IGNORE_SYM				
+JS_STAR_SYM				
+NEW_SYM				
+NOT_NATIVE				
+NUMBER_SYM				
+STRING_SYM				
+cljs-map?	f	1		
+cljs-seq?	f	1		
+cljs-set?	f	1		
+cljs-vector?	f	1		
+@cljc-clj cljs.analyzer.passes.and-or
+->expr-env	f	1		
+no-statements?	f	1		
+optimizable-and?	f	1		
+optimizable-or?	f	1		
+optimize	f	3		
+optimize-and	f	1		
+optimize-or	f	1		
+remove-local-pass	f	1		
+remove-loop-let	f	2		
+returns-if?	f	1		
+simple-and?	f	1		
+simple-op?	f	1		
+simple-ops				
+simple-or?	f	1		
+simple-test-binding-let?	f	1		
+simple-test-expr?	f	1		
+single-binding-let?	f	1		
+test=else?	f	1		
+test=then?	f	1		
+@cljc-cljs cljs.analyzer.passes.and-or
+->expr-env	f	1		
+no-statements?	f	1		
+optimizable-and?	f	1		
+optimizable-or?	f	1		
+optimize	f	3		
+optimize-and	f	1		
+optimize-or	f	1		
+remove-local-pass	f	1		
+remove-loop-let	f	2		
+returns-if?	f	1		
+simple-and?	f	1		
+simple-op?	f	1		
+simple-ops				
+simple-or?	f	1		
+simple-test-binding-let?	f	1		
+simple-test-expr?	f	1		
+single-binding-let?	f	1		
+test=else?	f	1		
+test=then?	f	1		
+@cljc-clj cljs.analyzer.passes.lite
+ctor->ctor-lite				
+replace-var?	f	1		
+update-var	f	1		
+use-lite-types	f	3		
+var?	f	1		
+@cljc-cljs cljs.analyzer.passes.lite
+ctor->ctor-lite				
+replace-var?	f	1		
+update-var	f	1		
+use-lite-types	f	3		
+var?	f	1		
+@cljc-clj cljs.analyzer.passes
+apply-passes	f	2,3		
+walk	f	2,3		
+@cljc-cljs cljs.analyzer.passes
+apply-passes	f	2,3		
+walk	f	2,3		
+@cljc-clj cljs.analyzer
+*allow-ns*				
+*allow-redef*				
+*analyze-deps*				
+*check-alias-dupes*				
+*checked-arrays*				
+*cljs-dep-set*				
+*cljs-file*				
+*cljs-macros-is-classpath*				
+*cljs-macros-path*				
+*cljs-ns*				
+*cljs-static-fns*				
+*cljs-warning-handlers*				
+*cljs-warnings*				
+*file-defs*				
+*fn-invoke-direct*				
+*load-macros*				
+*load-tests*				
+*loop-lets*				
+*macro-infer*				
+*passes*				
+*private-var-access-nowarn*				
+*recur-frames*				
+*reload-macros*				
+*unchecked-arrays*				
+*unchecked-if*				
+*verbose*				
+->pre	f	1		
+->type-set	f	1		
+-cljs-macros-loaded				
+NUMERIC_SET				
+SENTINEL				
+accumulating-warning-handler	pf	1		
+add-consts	f	2		
+add-types	f	0,1,2	2	
+alias->type				
+aliasable-clj-ns?	f	1		
+all-values?	pf	1		
+all-warn	m		0	
+allowing-redef	m		0	
+analysis-error?	f	1		
+analyze	f	2,3,4		
+analyze*	f	4		
+analyze-const	f	2		
+analyze-deps	f	3,4		
+analyze-do-statements	f	2		
+analyze-do-statements*	f	2		
+analyze-dot	f	5		
+analyze-file	f	1,2,3		
+analyze-fn-method	pf	5		
+analyze-fn-method-body	f	3		
+analyze-fn-method-param	f	1		
+analyze-fn-methods-pass2	f	4		
+analyze-fn-methods-pass2*	f	4		
+analyze-form	f	4		
+analyze-form-seq	f	1,2,3		
+analyze-js-star	f	4		
+analyze-js-star*	f	4		
+analyze-js-star-args	pf	3		
+analyze-js-value	f	2		
+analyze-keyword	f	2		
+analyze-let	f	4		
+analyze-let-binding-init	f	3		
+analyze-let-bindings	f	3		
+analyze-let-bindings*	f	3		
+analyze-let-body	f	5		
+analyze-let-body*	f	3		
+analyze-list	f	2		
+analyze-map	f	2		
+analyze-record	f	2		
+analyze-seq	f	3,4		
+analyze-seq*	f	5		
+analyze-seq*-wrap	f	5		
+analyze-set	f	2		
+analyze-symbol	f	2		
+analyze-vector	f	2		
+analyze-wrap-meta	f	1		
+analyzed	f	1		
+analyzed?	f	1		
+array-type?	f	1		
+array-types				
+ast-children	f	1		
+ast?	f	1		
+basic-validate-ns-spec	f	3		
+build-affecting-options	f	1		
+build-affecting-options-sha	f	2		
+build-dot-form				
+build-method-call	pf	3		
+cache-analysis-ext	pf	0,1		
+cache-base-path	f	1,2		
+cache-file	f	1,2,3,4,5		
+cacheable-files	f	2,3		
+canonicalize-import-specs	f	1		
+canonicalize-specs	f	1		
+canonicalize-type	f	1		
+check-duplicate-aliases	pf	3		
+check-invoke-arg-types	f	3		
+check-rename-macros-inferring-missing	f	2		
+check-use-macros	f	2,3		
+check-use-macros-inferring-missing	f	2		
+check-uses	f	2		
+checked-arrays	f	0		
+classify-dot-form	pf	1		
+clj-ns->cljs-ns	f	1		
+compile-syntax-error	pf	3		
+compiler-options	f	0		
+confirm-bindings	f	2		
+confirm-ns	f	2		
+confirm-var-exist-warning	f	3		
+confirm-var-exists	f	3,4		
+confirm-var-exists-throw	f	0		
+const-expr->constant-value	f	1		
+constant-value?	f	1		
+constants-ns-sym				
+core-name?	f	2		
+core-ns?	pf	1		
+default-namespaces				
+default-passes				
+default-warning-handler	f	3		
+dep-has-global-exports?	f	1		
+desugar-dotted-expr	f	1		
+desugar-ns-specs	f	1		
+disallowing-ns*	m		0	
+disallowing-recur	m		0	
+do-macroexpand-check	pf	3		
+dotted-symbol?	f	1		
+dump-specs	f	1		
+earmuffed?	pf	1		
+elide-analyzer-meta	f	1		
+elide-env	f	3		
+elide-irrelevant-meta	f	1		
+elide-reader-meta	f	1		
+elide-to-string?	f	0		
+empty-env	f	0		
+ensure-defs	f	1		
+error	f	2,3		
+error-data	pf	2,3		
+error-message				
+es5-allowed				
+excluded?	f	2		
+extern-pre	f	2		
+external-dep?	f	1		
+find-def-clash	f	3		
+find-matching-method	f	2		
+fn-ast->tag	f	1		
+fn-name-var	f	3		
+foreign-dep?	f	1		
+forms-seq	f	1,2,3		
+forms-seq*	f	1,2		
+gen-constant-id	f	1		
+gen-user-ns	f	1		
+get-aliases	f	1		
+get-bridged-alias-map	f	0		
+get-col	f	2		
+get-data-readers				
+get-data-readers*	f	0,1		
+get-expander	f	2		
+get-expander*	f	2		
+get-expander-ns	f	2		
+get-externs	f	0		
+get-js-tag	f	1		
+get-let-tag	f	2		
+get-line	f	2		
+get-namespace	f	1,2		
+get-spec-vars	pf	0		
+get-tag	f	1		
+gets	f	3,4,5		
+global-ns?	f	1		
+goog-module-dep?	f	1		
+handle-symbol-local	f	2		
+has-error-data?	f	1		
+has-extern?	f	1,2		
+has-extern?*	f	2		
+hex-format	pf	2		
+implicit-import?	f	3		
+implicit-nses				
+infer-if	f	2		
+infer-invoke	f	2		
+infer-tag	f	2		
+infer-type	f	3		
+inferred-rename-macros	f	2		
+inferred-use-macros	f	2		
+intern-macros	f	1,2		
+internal-js-module-exists?	pf	2		
+invalid-arity?	pf	4		
+invoke-arg-type-validators				
+invokeable-ns?	f	2		
+js-module-exists?	f	1		
+js-module-exists?*				
+js-prim-ctor->tag				
+js-reserved				
+js-star-interp	f	2		
+js-star-seg	f	1		
+js-tag	f	1,2,3,4		
+js-tag?	f	1		
+js-var-fn?	f	1		
+js-var?	f	1		
+lib&sublib	f	1		
+lift-tag-to-js	f	1		
+lite-mode?	f	0		
+load-core	f	0		
+load-data-reader-file	pf	2		
+load-data-readers				
+load-data-readers*	f	0		
+load-mutex				
+loaded-js-ns?	f	2		
+locate-src	f	1		
+macro-autoload-ns?	f	1		
+macro-ns-name	f	1		
+macroexpand-1	f	2		
+macroexpand-1*	f	2		
+merge-ns-info	pf	3		
+message	f	2		
+missing-rename-macro?	f	1		
+missing-rename?	f	2		
+missing-renames	f	2		
+missing-use-macro?	f	2		
+missing-use-macros	f	2		
+missing-use?	f	3		
+missing-uses	f	2		
+munge-global-export	f	1		
+munge-goog-module-lib	f	1,2		
+munge-node-lib	f	1		
+namespaces				
+no-warn	m		0	
+node-like?	f	0,1		
+node-module-dep?	f	1		
+normalize-js-tag	f	1		
+normalize-unresolved-prefix	f	1		
+ns->module-type	f	1		
+ns-side-effects	f	3		
+ns-spec-cases				
+numeric-type?	f	1		
+parse				
+parse-global-refer-spec	f	2		
+parse-global-require-spec	f	5		
+parse-import-spec	f	3		
+parse-invoke	f	2		
+parse-invoke*	f	2		
+parse-ns	f	1,2,3		
+parse-ns-error-msg	f	2		
+parse-ns-excludes	f	2		
+parse-ns-excludes-impl	pf	2		
+parse-require-spec	f	5		
+parse-type	f	3		
+predicate->tag	p			
+prim-ctor?	f	1		
+private-var-access-exceptions	p			
+process-rewrite-form	f	1		
+property-symbol?	pf	1		
+public-name?	f	2		
+qualified->dotted	f	1		
+read-analysis-cache	f	2,3		
+record-basis	pf	1		
+record-ns+name	f	1		
+record-tag?	pf	1		
+record-with-field?	pf	2		
+register-constant!	pf	1,2		
+register-specs	f	1		
+repeat-char	pf	2		
+repl-self-require?	pf	2		
+replace-env-pass	f	1		
+replay-accumulated-warnings	pf	1		
+required?	f	2		
+requires-analysis?	f	1,2,3,4		
+resolve*				
+resolve-alias	f	2		
+resolve-existing-var	f	2		
+resolve-extern	f	1,2,4		
+resolve-import	f	2		
+resolve-invokeable-ns	f	3		
+resolve-macro-ns-alias	f	2,3		
+resolve-macro-var	f	2		
+resolve-ns-alias	f	2,3		
+resolve-symbol	f	1		
+resolve-var	f	2,3,4		
+rewrite-cljs-aliases	f	1		
+set-test-induced-tags	pf	2		
+simple-predicate-induced-tag	pf	2		
+source-info	f	1,2		
+source-info->error-data	pf	1		
+source-path	pf	1		
+specials				
+tag->js-prim-ctor	p			
+transit				
+transit-read-opts				
+transit-write-opts				
+truth-induced-tag	pf	2		
+type-check-induced-tag	pf	2		
+type?	f	2		
+unchecked-arrays?	f	0		
+unsorted-map?	pf	1		
+unwrap-quote	f	1		
+use->require	f	2		
+used?	f	2		
+valid-arity?	pf	2		
+valid-proto	f	1		
+var->sym	pf	1		
+var-ast	f	2		
+var-meta	f	1,2		
+warning	f	3		
+with-core-macros	m		1	
+with-core-macros-file	m		1	
+with-warning-handlers	m		1	
+wrapping-errors	m		1	
+write-analysis-cache	f	2,3		
+@cljc-cljs cljs.analyzer
+*allow-ns*				
+*allow-redef*				
+*analyze-deps*				
+*check-alias-dupes*				
+*checked-arrays*				
+*cljs-dep-set*				
+*cljs-file*				
+*cljs-macros-is-classpath*				
+*cljs-macros-path*				
+*cljs-ns*				
+*cljs-static-fns*				
+*cljs-warning-handlers*				
+*cljs-warnings*				
+*file-defs*				
+*fn-invoke-direct*				
+*load-macros*				
+*load-tests*				
+*loop-lets*				
+*macro-infer*				
+*passes*				
+*private-var-access-nowarn*				
+*recur-frames*				
+*reload-macros*				
+*verbose*				
+->pre	f	1		
+->type-set	f	1		
+-cljs-macros-loaded				
+NUMERIC_SET				
+SENTINEL				
+accumulating-warning-handler	pf	1		
+add-consts	f	2		
+add-types	f	0,1,2	2	
+alias->type				
+all-values?	pf	1		
+analysis-error?	f	1		
+analyze	f	2,3,4		
+analyze*	f	4		
+analyze-const	f	2		
+analyze-deps	f	3,4		
+analyze-do-statements	f	2		
+analyze-do-statements*	f	2		
+analyze-dot	f	5		
+analyze-fn-method	pf	5		
+analyze-fn-method-body	f	3		
+analyze-fn-method-param	f	1		
+analyze-fn-methods-pass2	f	4		
+analyze-fn-methods-pass2*	f	4		
+analyze-form	f	4		
+analyze-form-seq	f	1,2,3		
+analyze-js-star	f	4		
+analyze-js-star*	f	4		
+analyze-js-star-args	pf	3		
+analyze-js-value	f	2		
+analyze-keyword	f	2		
+analyze-let	f	4		
+analyze-let-binding-init	f	3		
+analyze-let-bindings	f	3		
+analyze-let-bindings*	f	3		
+analyze-let-body	f	5		
+analyze-let-body*	f	3		
+analyze-list	f	2		
+analyze-map	f	2		
+analyze-record	f	2		
+analyze-seq	f	3,4		
+analyze-seq*	f	5		
+analyze-seq*-wrap	f	5		
+analyze-set	f	2		
+analyze-symbol	f	2		
+analyze-vector	f	2		
+analyze-wrap-meta	f	1		
+analyzed	f	1		
+analyzed?	f	1		
+array-type?	f	1		
+array-types				
+ast-children	f	1		
+ast?	f	1		
+basic-validate-ns-spec	f	3		
+build-dot-form				
+build-method-call	pf	3		
+canonicalize-import-specs	f	1		
+canonicalize-specs	f	1		
+canonicalize-type	f	1		
+check-duplicate-aliases	pf	3		
+check-invoke-arg-types	f	3		
+check-macro-arity	pf	2		
+check-rename-macros-inferring-missing	f	2		
+check-use-macros	f	2,3		
+check-use-macros-inferring-missing	f	2		
+check-uses	f	2		
+checked-arrays	f	0		
+classify-dot-form	pf	1		
+clj-ns->cljs-ns	f	1		
+compile-syntax-error	pf	3		
+compiler-options	f	0		
+confirm-bindings	f	2		
+confirm-ns	f	2		
+confirm-var-exist-warning	f	3		
+confirm-var-exists	f	3,4		
+confirm-var-exists-throw	f	0		
+const-expr->constant-value	f	1		
+constant-value?	f	1		
+constants-ns-sym				
+core-name?	f	2		
+core-ns?	pf	1		
+default-namespaces				
+default-passes				
+default-warning-handler	f	3		
+dep-has-global-exports?	f	1		
+desugar-dotted-expr	f	1		
+desugar-ns-specs	f	1		
+do-macroexpand-check	pf	3		
+dotted-symbol?	f	1		
+dump-specs	f	1		
+earmuffed?	pf	1		
+elide-analyzer-meta	f	1		
+elide-env	f	3		
+elide-irrelevant-meta	f	1		
+elide-reader-meta	f	1		
+elide-to-string?	f	0		
+empty-env	f	0		
+ensure-defs	f	1		
+error	f	2,3		
+error-data	pf	2,3		
+error-message				
+es5-allowed				
+excluded?	f	2		
+extern-pre	f	2		
+external-dep?	f	1		
+find-def-clash	f	3		
+find-matching-method	f	2		
+fn-ast->tag	f	1		
+fn-name-var	f	3		
+foreign-dep?	f	1		
+gen-constant-id	f	1		
+get-aliases	f	1		
+get-col	f	2		
+get-expander	f	2		
+get-expander*	f	2		
+get-expander-ns	f	2		
+get-externs	f	0		
+get-js-tag	f	1		
+get-let-tag	f	2		
+get-line	f	2		
+get-macroexpand-check-var	f	0		
+get-namespace	f	1,2		
+get-spec-vars	pf	0		
+get-tag	f	1		
+gets	f	3,4,5		
+global-ns?	f	1		
+goog-module-dep?	f	1		
+handle-symbol-local	f	2		
+has-error-data?	f	1		
+has-extern?	f	1,2		
+has-extern?*	f	2		
+hex-format	pf	2		
+implicit-import?	f	3		
+implicit-nses				
+infer-if	f	2		
+infer-invoke	f	2		
+infer-tag	f	2		
+infer-type	f	3		
+inferred-rename-macros	f	2		
+inferred-use-macros	f	2		
+intern-macros	f	1,2		
+internal-js-module-exists?	pf	2		
+invalid-arity?	pf	4		
+invoke-arg-type-validators				
+invokeable-ns?	f	2		
+js-module-exists?	f	1		
+js-module-exists?*				
+js-prim-ctor->tag				
+js-reserved				
+js-star-interp	f	2		
+js-star-seg	f	1		
+js-tag	f	1,2,3,4		
+js-tag?	f	1		
+js-var-fn?	f	1		
+js-var?	f	1		
+lib&sublib	f	1		
+lift-tag-to-js	f	1		
+lite-mode?	f	0		
+loaded-js-ns?	f	2		
+macro-autoload-ns?	f	1		
+macro-ns-name	f	1		
+macroexpand-1	f	2		
+macroexpand-1*	f	2		
+merge-ns-info	pf	3		
+message	f	2		
+missing-rename-macro?	f	1		
+missing-rename?	f	2		
+missing-renames	f	2		
+missing-use-macro?	f	2		
+missing-use-macros	f	2		
+missing-use?	f	3		
+missing-uses	f	2		
+munge-global-export	f	1		
+munge-goog-module-lib	f	1,2		
+munge-node-lib	f	1		
+munge-path	f	1		
+namespaces				
+node-like?	f	0,1		
+node-module-dep?	f	1		
+normalize-js-tag	f	1		
+normalize-unresolved-prefix	f	1		
+ns->module-type	f	1		
+ns->relpath	f	1,2		
+ns-spec-cases				
+numeric-type?	f	1		
+parse				
+parse-global-refer-spec	f	2		
+parse-global-require-spec	f	5		
+parse-import-spec	f	3		
+parse-invoke	f	2		
+parse-invoke*	f	2		
+parse-ns-error-msg	f	2		
+parse-ns-excludes	f	2		
+parse-ns-excludes-impl	pf	2		
+parse-require-spec	f	5		
+parse-type	f	3		
+predicate->tag	p			
+prim-ctor?	f	1		
+private-var-access-exceptions	p			
+property-symbol?	pf	1		
+public-name?	f	2		
+qualified->dotted	f	1		
+record-basis	pf	1		
+record-ns+name	f	1		
+record-tag?	pf	1		
+record-with-field?	pf	2		
+register-constant!	pf	1,2		
+register-specs	f	1		
+repeat-char	pf	2		
+repl-self-require?	pf	2		
+replace-env-pass	f	1		
+replay-accumulated-warnings	pf	1		
+required?	f	2		
+resolve*				
+resolve-alias	f	2		
+resolve-existing-var	f	2		
+resolve-extern	f	1,2,4		
+resolve-import	f	2		
+resolve-invokeable-ns	f	3		
+resolve-macro-ns-alias	f	2,3		
+resolve-macro-var	f	2		
+resolve-ns-alias	f	2,3		
+resolve-symbol	f	1		
+resolve-var	f	2,3,4		
+set-test-induced-tags	pf	2		
+simple-predicate-induced-tag	pf	2		
+source-info	f	1,2		
+source-info->error-data	pf	1		
+specials				
+tag->js-prim-ctor	p			
+topo-sort	f	2,4		
+truth-induced-tag	pf	2		
+type-check-induced-tag	pf	2		
+type?	f	2		
+unchecked-arrays?	f	0		
+unsorted-map?	pf	1		
+unwrap-quote	f	1		
+use->require	f	2		
+used?	f	2		
+valid-arity?	pf	2		
+valid-proto	f	1		
+var->sym	pf	1		
+var-ast	f	2		
+var-meta	f	1,2		
+warning	f	3		
+@cljc-clj cljs.compiler
+*inputs*				
+*lexical-renames*				
+*recompiled*				
+*source-map-data*				
+*source-map-data-gen-col*				
+_emitln	pf	0		
+all-distinct?	f	1		
+array-map-threshold	p			
+base-types				
+cached-core	f	3		
+checking-types?	f	0		
+cljs-files-in	f	1		
+cljs-reserved-file-names				
+comma-sep	pf	1		
+compile-file	f	1,2,3		
+compile-file*	f	2,3		
+compile-root	f	1,2,3		
+compiled-by-string	f	0,1		
+distinct-constants?	f	1		
+distinct-keys?	f	1		
+emit	f	1		
+emit*				
+emit-apply-to	f	1		
+emit-arguments-to-array	f	1		
+emit-cached-core	f	4		
+emit-comment	f	2,3		
+emit-constant	f	1		
+emit-constant*				
+emit-constant-no-meta	f	1		
+emit-constants-comma-sep	f	1		
+emit-constants-table	f	1		
+emit-constants-table-to-file	f	2		
+emit-dot	f	1		
+emit-externs	f	1,4		
+emit-fn-method	f	1		
+emit-fn-params	f	1		
+emit-global-export	f	4		
+emit-inferred-externs-to-file	f	2		
+emit-inst	pf	1		
+emit-js-array	f	2		
+emit-js-object	f	2		
+emit-let	f	2		
+emit-list	f	2		
+emit-lite-map	f	4		
+emit-lite-set	f	3		
+emit-lite-vector	f	2		
+emit-map	f	4		
+emit-obj-map	f	4		
+emit-record-value	f	3		
+emit-set	f	3		
+emit-source	f	4		
+emit-source-map	f	4		
+emit-str	f	1		
+emit-var	f	1		
+emit-variadic-fn-method	f	1		
+emit-vector	f	2		
+emit-with-meta	f	2		
+emit-wrap	m		1	
+emitln	f	0,1,2,3,4,5	5	
+emits	f	0,1,2,3,4,5	5	
+emits-keyword	f	1		
+emits-symbol	f	1		
+es5>=	p			
+escape-char	pf	1		
+escape-string	pf	1		
+falsey-constant?	f	1		
+find-ns-starts-with	f	1		
+find-root-sources	f	1		
+find-source	f	1		
+fn-self-name	f	1		
+get-define	f	2		
+get-first-ns-segment	f	1		
+hash-scope	f	1		
+iife-close	f	1		
+iife-open	f	1		
+js-reserved				
+load-libs	f	5		
+macro-ns?	f	3		
+mapped-types				
+munge	f	1,2		
+munge-param-return	f	2		
+munge-reserved	f	1		
+obj-map-key	f	1		
+protocol-prefix	f	1		
+rename-to-js	f	1		
+requires-compilation?	f	2,3		
+resolve-type	f	2		
+resolve-types	f	2		
+safe-test?	f	2		
+shadow-depth	f	1		
+sublib-select	f	1		
+truthy-constant?	f	1		
+url-path	f	1		
+valid-define-value?	f	1		
+with-core-cljs	f	0,1,2		
+wrap-in-double-quotes	pf	1		
+@cljc-cljs cljs.compiler
+*inputs*				
+*lexical-renames*				
+*recompiled*				
+*source-map-data*				
+*source-map-data-gen-col*				
+_emitln	pf	0		
+all-distinct?	f	1		
+array-map-threshold	p			
+base-types				
+checking-types?	f	0		
+cljs-reserved-file-names				
+comma-sep	pf	1		
+distinct-constants?	f	1		
+distinct-keys?	f	1		
+emit	f	1		
+emit*				
+emit-apply-to	f	1		
+emit-arguments-to-array	f	1		
+emit-comment	f	2,3		
+emit-constant	f	1		
+emit-constant*				
+emit-constant-no-meta	f	1		
+emit-constants-comma-sep	f	1		
+emit-constants-table	f	1		
+emit-dot	f	1		
+emit-externs	f	1,4		
+emit-fn-method	f	1		
+emit-fn-params	f	1		
+emit-global-export	f	4		
+emit-inst	pf	1		
+emit-js-array	f	2		
+emit-js-object	f	2		
+emit-let	f	2		
+emit-list	f	2		
+emit-lite-map	f	4		
+emit-lite-set	f	3		
+emit-lite-vector	f	2		
+emit-map	f	4		
+emit-obj-map	f	4		
+emit-record-value	f	3		
+emit-set	f	3		
+emit-str	f	1		
+emit-var	f	1		
+emit-variadic-fn-method	f	1		
+emit-vector	f	2		
+emit-with-meta	f	2		
+emitln	f	0,1,2,3,4,5	5	
+emits	f	0,1,2,3,4,5	5	
+emits-keyword	f	1		
+emits-symbol	f	1		
+es5>=	p			
+escape-char	pf	1		
+escape-string	pf	1		
+falsey-constant?	f	1		
+find-ns-starts-with	f	1		
+fn-self-name	f	1		
+get-define	f	2		
+get-first-ns-segment	f	1		
+hash-scope	f	1		
+iife-close	f	1		
+iife-open	f	1		
+js-reserved				
+load-libs	f	5		
+mapped-types				
+munge	f	1,2		
+munge-param-return	f	2		
+munge-reserved	f	1		
+obj-map-key	f	1		
+protocol-prefix	f	1		
+resolve-type	f	2		
+resolve-types	f	2		
+safe-test?	f	2		
+shadow-depth	f	1		
+sublib-select	f	1		
+truthy-constant?	f	1		
+valid-define-value?	f	1		
+wrap-in-double-quotes	pf	1		
+@cljc-clj cljs.core.specs.alpha
+even-number-of-forms?	f	1		
+quoted	pf	1		
+@cljc-cljs cljs.core.specs.alpha
+even-number-of-forms?	f	1		
+quoted	pf	1		
+@cljc-clj cljs.core
+*	mf	0,1,2	2	
++	mf	0,1,2	2	
+-	mf	1,2	2	
+->impl-map	pf	1		
+/	mf	1,2	2	
+<	mf	1,2	2	
+<=	mf	1,2	2	
+==	mf	1,2	2	
+>	mf	1,2	2	
+>=	mf	1,2	2	
+adapt-ifn-invoke-params	pf	2		
+adapt-ifn-params	pf	2		
+adapt-obj-params	pf	2		
+adapt-proto-params	pf	2		
+add-ifn-methods	pf	3		
+add-obj-methods	pf	3		
+add-proto-methods*	pf	4		
+aget	mf	2	2	
+alength	mf	1		
+amap	mf	4		
+and	mf	0,1	1	
+annotate-specs	pf	3		
+areduce	mf	5		
+array	m		0	
+array-map	mf	0	0	
+aset	mf	3	3	
+assert	mf	1,2		
+assert-valid-fdecl	pf	1		
+assoc-test	pf	4		
+await	mf	1		
+base-assign-impls	pf	5		
+base-type	p			
+binding	m		1	
+bit-and	mf	2	2	
+bit-and-not	mf	2	2	
+bit-clear	mf	2		
+bit-flip	mf	2		
+bit-not	mf	1		
+bit-or	mf	2	2	
+bit-set	mf	2		
+bit-shift-left	mf	2		
+bit-shift-right	mf	2		
+bit-shift-right-zero-fill	mf	2		
+bit-test	mf	2		
+bit-xor	mf	2	2	
+bitpos	mf	2		
+bool-expr	pf	1		
+build-map-factory	pf	3		
+build-positional-factory	pf	3		
+byte	mf	1		
+caching-hash	mf	3		
+case	m		1	
+check-valid-options	p		1	
+coercive-=	mf	2		
+coercive-boolean	mf	1		
+coercive-not	mf	1		
+coercive-not=	mf	2		
+collect-protocols	pf	2		
+compatible?	pf	2		
+compile-time-constant?	pf	1		
+condp	m		2	
+const?	pf	2		
+copy-arguments	mf	1		
+cs	p			
+dec	mf	1		
+def	mf	1,2,3		
+defcurried	mp		4	
+defmacro	m		2	
+defmethod	m		2	
+defmulti	m		1	
+defn	m		2	
+defn-	m		2	
+defonce	mf	2		
+defprotocol	m		1	
+defrecord	m		2	
+deftype	m		2	
+delay	m		0	
+destructure	f	1		
+divide	mf	1,2	2	
+do-curried	pf	5		
+do-rfn	pf	3		
+doseq	m		1	
+dotimes	m		1	
+doto	m		1	
+double	mf	1		
+dt->et	f	3,4		
+elide-implicit-macro-args	pf	1		
+emit-defrecord	pf	5		
+es6-iterable	mf	1		
+exists?	mf	1		
+extend-prefix	p			
+extend-type	m		1	
+false?	mf	1		
+fast-path-protocol-partitions-count				
+fast-path-protocols				
+float	mf	1		
+fn	m		0	
+for	mf	2		
+gen-apply-to	mf	0		
+gen-apply-to-helper	pf	0,1		
+gen-apply-to-simple	mf	3		
+gen-apply-to-simple-helper	pf	3		
+goog-define	mf	2		
+hash-map	mf	0	0	
+hash-set	mf	0	0	
+identical?	mf	2		
+if-let	f	2,3		
+if-some	f	2,3		
+ifn-invoke-methods	pf	3		
+implements?	mf	2		
+import	m		0	
+import-macros	mf	2		
+inc	mf	1		
+instance?	mf	2		
+int	mf	1		
+js-arguments	mf	0		
+js-base-type	p			
+js-comment	mf	1		
+js-debugger	mf	0		
+js-delete	mf	2		
+js-fn?	mf	1		
+js-in	mf	2		
+js-inline-comment	mf	1		
+js-mod	mf	2		
+js-obj	m		0	
+js-obj*	pf	1		
+js-str	mf	1		
+js-this	mpf	0		
+keyword?	mf	1		
+lazy-cat	m		0	
+lazy-seq	m		0	
+let	m		1	
+list	mf	0,1	1	
+load-file*	mf	1		
+locking	m		1	
+loop	m		1	
+macroexpand	mf	1		
+macroexpand-1	mf	1		
+make-array	mf	1,2	2	
+mask	mf	2		
+maybe-destructured	pf	2		
+memfn	m		1	
+multi-arity-fn	pf	4		
+multi-arity-fn?	pf	1		
+neg?	mf	1		
+nil?	mf	1		
+ns-imports	mf	1		
+ns-interns	mf	1		
+ns-publics	mf	1		
+ns-special-form	mpf	0		
+ns-unmap	mf	2		
+number?	mf	1		
+or	mf	0,1	1	
+pos?	mf	1		
+prepare-protocol-masks	pf	2		
+proto-assign-impls	pf	5		
+protocol-prefix	pf	1		
+quote	mf	1		
+refer-clojure	m		0	
+refer-global	m		0	
+reify	m		0	
+require	m		0	
+require-global	m		0	
+require-macros	m		0	
+resolve	mf	1		
+resolve-var	pf	2		
+return-first	mp		0	
+rfn	mpf	2		
+satisfies?	mf	2		
+set!	mf	2		
+short	mf	1		
+sigs	pf	1		
+simple-benchmark	m		3	
+simple-test-expr?	pf	2		
+some?	mf	1		
+specify	m		1	
+specify!	m		1	
+str	m		0	
+str_	mf	0,1	1	
+string-expr	pf	1		
+string?	mf	1		
+symbol?	mf	1		
+this-as	m		1	
+time	mf	1		
+to-property	pf	1		
+true?	mf	1		
+truth_	mf	1		
+type-hint-first-arg	pf	2		
+type-hint-impl-map	pf	2		
+type-hint-multi-arity-sig	pf	2		
+type-hint-multi-arity-sigs	pf	2		
+type-hint-sigs	pf	2		
+type-hint-single-arity-sig	pf	2		
+typed-expr?	pf	3		
+unchecked-add	m		0	
+unchecked-add-int	m		0	
+unchecked-byte	mf	1		
+unchecked-char	mf	1		
+unchecked-dec	mf	1		
+unchecked-dec-int	mf	1		
+unchecked-divide-int	m		0	
+unchecked-double	mf	1		
+unchecked-float	mf	1		
+unchecked-get	mf	2		
+unchecked-inc	mf	1		
+unchecked-inc-int	mf	1		
+unchecked-max	mf	1,2	2	
+unchecked-min	mf	1,2	2	
+unchecked-multiply	m		0	
+unchecked-multiply-int	m		0	
+unchecked-negate	mf	1		
+unchecked-negate-int	mf	1		
+unchecked-remainder-int	mf	2		
+unchecked-set	mf	3		
+unchecked-short	mf	1		
+unchecked-subtract	m		0	
+unchecked-subtract-int	m		0	
+undefined?	mf	1		
+unsafe-bit-and	mf	2	2	
+unsafe-cast	mf	2		
+unsigned-bit-shift-right	mf	2		
+update-protocol-var	pf	3		
+use	m		0	
+use-macros	m		0	
+validate-fields	pf	3		
+validate-impl-sigs	pf	3		
+validate-impls	pf	2		
+var	mf	1		
+variadic-fn	pf	4		
+variadic-fn*	pf	2,3		
+variadic-fn?	pf	1		
+vector	mf	0	0	
+vswap!	m		2	
+when-assert	mpf	1		
+with-out-str	m		0	
+with-redefs	m		1	
+zero?	mf	1		
+@cljc-cljs cljs.core
+*	mf	0,1,2	2	
++	mf	0,1,2	2	
+-	mf	1,2	2	
+->	m		1	
+->>	m		1	
+->impl-map	pf	1		
+..	mf	2	2	
+/	mf	1,2	2	
+<	mf	1,2	2	
+<=	mf	1,2	2	
+==	mf	1,2	2	
+>	mf	1,2	2	
+>=	mf	1,2	2	
+adapt-ifn-invoke-params	pf	2		
+adapt-ifn-params	pf	2		
+adapt-obj-params	pf	2		
+adapt-proto-params	pf	2		
+add-ifn-methods	pf	3		
+add-obj-methods	pf	3		
+add-proto-methods*	pf	4		
+aget	mf	2	2	
+alength	mf	1		
+amap	mf	4		
+and	mf	0,1	1	
+annotate-specs	pf	3		
+areduce	mf	5		
+array	m		0	
+array-map	mf	0	0	
+as->	m		2	
+aset	mf	3	3	
+assert	mf	1,2		
+assert-valid-fdecl	pf	1		
+assoc-test	pf	4		
+await	mf	1		
+base-assign-impls	pf	5		
+base-type	p			
+binding	m		1	
+bit-and	mf	2	2	
+bit-and-not	mf	2	2	
+bit-clear	mf	2		
+bit-flip	mf	2		
+bit-not	mf	1		
+bit-or	mf	2	2	
+bit-set	mf	2		
+bit-shift-left	mf	2		
+bit-shift-right	mf	2		
+bit-shift-right-zero-fill	mf	2		
+bit-test	mf	2		
+bit-xor	mf	2	2	
+bitpos	mf	2		
+bool-expr	pf	1		
+build-map-factory	pf	3		
+build-positional-factory	pf	3		
+byte	mf	1		
+caching-hash	mf	3		
+case	m		1	
+check-valid-options	p		1	
+coercive-=	mf	2		
+coercive-boolean	mf	1		
+coercive-not	mf	1		
+coercive-not=	mf	2		
+collect-protocols	pf	2		
+comment	m		0	
+compatible?	pf	2		
+compile-time-constant?	pf	1		
+cond	m		0	
+cond->	m		1	
+cond->>	m		1	
+condp	m		2	
+const?	pf	2		
+copy-arguments	mf	1		
+cs	p			
+dec	mf	1		
+declare	m		0	
+def	mf	1,2,3		
+defcurried	mp		4	
+defmacro	m		2	
+defmethod	m		2	
+defmulti	m		1	
+defn	m		2	
+defn-	m		2	
+defonce	mf	2		
+defprotocol	m		1	
+defrecord	m		2	
+deftype	m		2	
+delay	m		0	
+destructure	f	1		
+divide	mf	1,2	2	
+do-curried	pf	5		
+do-rfn	pf	3		
+doseq	m		1	
+dotimes	m		1	
+doto	m		1	
+double	mf	1		
+dt->et	f	3,4		
+elide-implicit-macro-args	pf	1		
+emit-defrecord	pf	5		
+emit-extend-protocol	pf	2		
+es6-iterable	mf	1		
+exists?	mf	1		
+extend-prefix	p			
+extend-protocol	m		1	
+extend-type	m		1	
+false?	mf	1		
+fast-path-protocol-partitions-count				
+fast-path-protocols				
+float	mf	1		
+fn	m		0	
+for	mf	2		
+gen-apply-to	mf	0		
+gen-apply-to-helper	pf	0,1		
+gen-apply-to-simple	mf	3		
+gen-apply-to-simple-helper	pf	3		
+goog-define	mf	2		
+hash-map	mf	0	0	
+hash-set	mf	0	0	
+identical?	mf	2		
+if-let	mf	2,3		
+if-not	mf	2,3		
+if-some	mf	2,3		
+ifn-invoke-methods	pf	3		
+implements?	mf	2		
+import	m		0	
+inc	mf	1		
+instance?	mf	2		
+int	mf	1		
+js-arguments	mf	0		
+js-base-type	p			
+js-comment	mf	1		
+js-debugger	mf	0		
+js-delete	mf	2		
+js-fn?	mf	1		
+js-in	mf	2		
+js-inline-comment	mf	1		
+js-mod	mf	2		
+js-obj	m		0	
+js-obj*	pf	1		
+js-str	mf	1		
+js-this	mpf	0		
+keyword?	mf	1		
+lazy-cat	m		0	
+lazy-seq	m		0	
+let	m		1	
+letfn	m		1	
+list	mf	0,1	1	
+load-file*	mf	1		
+locking	m		1	
+loop	m		1	
+macroexpand	mf	1		
+macroexpand-1	mf	1		
+make-array	mf	1,2	2	
+mask	mf	2		
+maybe-destructured	pf	2		
+memfn	m		1	
+multi-arity-fn	pf	4		
+multi-arity-fn?	pf	1		
+neg?	mf	1		
+nil?	mf	1		
+ns-imports	mf	1		
+ns-interns	mf	1		
+ns-publics	mf	1		
+ns-special-form	mpf	0		
+ns-unmap	mf	2		
+number?	mf	1		
+or	mf	0,1	1	
+parse-impls	pf	1		
+pos?	mf	1		
+prepare-protocol-masks	pf	2		
+proto-assign-impls	pf	5		
+protocol-prefix	pf	1		
+quote	mf	1		
+refer-clojure	m		0	
+refer-global	m		0	
+reify	m		0	
+require	m		0	
+require-global	m		0	
+require-macros	m		0	
+resolve	mf	1		
+resolve-var	pf	2		
+return-first	mp		0	
+rfn	mpf	2		
+satisfies?	mf	2		
+set!	mf	2,3		
+short	mf	1		
+sigs	pf	1		
+simple-benchmark	m		3	
+simple-test-expr?	pf	2		
+some->	m		1	
+some->>	m		1	
+some?	mf	1		
+specify	m		1	
+specify!	m		1	
+str	m		0	
+str_	mf	0,1	1	
+string-expr	pf	1		
+string?	mf	1		
+symbol?	mf	1		
+this-as	m		1	
+time	mf	1		
+to-property	pf	1		
+true?	mf	1		
+truth_	mf	1		
+type-hint-first-arg	pf	2		
+type-hint-impl-map	pf	2		
+type-hint-multi-arity-sig	pf	2		
+type-hint-multi-arity-sigs	pf	2		
+type-hint-sigs	pf	2		
+type-hint-single-arity-sig	pf	2		
+typed-expr?	pf	3		
+unchecked-add	m		0	
+unchecked-add-int	m		0	
+unchecked-byte	mf	1		
+unchecked-char	mf	1		
+unchecked-dec	mf	1		
+unchecked-dec-int	mf	1		
+unchecked-divide-int	m		0	
+unchecked-double	mf	1		
+unchecked-float	mf	1		
+unchecked-get	mf	2		
+unchecked-inc	mf	1		
+unchecked-inc-int	mf	1		
+unchecked-max	mf	1,2	2	
+unchecked-min	mf	1,2	2	
+unchecked-multiply	m		0	
+unchecked-multiply-int	m		0	
+unchecked-negate	mf	1		
+unchecked-negate-int	mf	1		
+unchecked-remainder-int	mf	2		
+unchecked-set	mf	3		
+unchecked-short	mf	1		
+unchecked-subtract	m		0	
+unchecked-subtract-int	m		0	
+undefined?	mf	1		
+unsafe-bit-and	mf	2	2	
+unsafe-cast	mf	2		
+unsigned-bit-shift-right	mf	2		
+update-protocol-var	pf	3		
+use	m		0	
+use-macros	m		0	
+validate-fields	pf	3		
+validate-impl-sigs	pf	3		
+validate-impls	pf	2		
+var	mf	1		
+variadic-fn	pf	4		
+variadic-fn*	pf	2,3		
+variadic-fn?	pf	1		
+vector	mf	0	0	
+vswap!	m		2	
+when	m		1	
+when-assert	mpf	1		
+when-first	m		1	
+when-let	m		1	
+when-not	m		1	
+when-some	m		1	
+while	m		1	
+with-out-str	m		0	
+with-redefs	m		1	
+zero?	mf	1		
+@cljc-clj cljs.env
+*compiler*				
+default-compiler-env	f	0,1		
+default-compiler-env*	f	1		
+ensure	m		0	
+with-compiler-env	m		1	
+@cljc-cljs cljs.env
+*compiler*				
+default-compiler-env	f	0,1		
+default-compiler-env*	f	1		
+@cljc-clj cljs.js-deps
+-closure-lib?	f	1		
+-foreign?	f	1		
+-provides	f	1		
+-relative-path	f	1,2		
+-requires	f	1		
+-source	f	1,2		
+-url	f	1,2		
+IJavaScript				
+build-index	f	1		
+classpath-files	pf	0		
+dependency-order	f	1		
+dependency-order-visit	f	2,3		
+find-classpath-lib	f	1		
+find-js-classpath	f	1		
+find-js-fs	f	1		
+find-js-jar	f	2		
+find-js-resources	f	1		
+find-url	f	1		
+get-file	f	2		
+goog-dependencies				
+goog-dependencies*	f	0		
+jar-entry-names				
+jar-entry-names*	f	1		
+java-8?	p			
+js-dependency-index	f	1		
+lib-spec-merge	f	2		
+library-dependencies	f	1		
+library-graph-node	pf	1,2		
+load-foreign-library				
+load-foreign-library*	f	1,2		
+load-library				
+load-library*	f	1		
+native-node-modules				
+pack-string	pf	1		
+parse-js-ns	f	1		
+to-url				
+unpack-string	pf	1		
+zip-file	f	1		
+@cljc-cljs cljs.js-deps
+-closure-lib?	f	1		
+-foreign?	f	1		
+-provides	f	1		
+-relative-path	f	1,2		
+-requires	f	1		
+-source	f	1,2		
+-url	f	1,2		
+IJavaScript				
+build-index	f	1		
+classpath-files	pf	0		
+dependency-order	f	1		
+dependency-order-visit	f	2,3		
+find-classpath-lib	f	1		
+find-js-classpath	f	1		
+find-js-fs	f	1		
+find-js-jar	f	2		
+find-js-resources	f	1		
+find-url	f	1		
+get-file	f	2		
+goog-dependencies				
+goog-dependencies*	f	0		
+jar-entry-names				
+jar-entry-names*	f	1		
+java-8?	p			
+js-dependency-index	f	1		
+lib-spec-merge	f	2		
+library-dependencies	f	1		
+library-graph-node	pf	1,2		
+load-foreign-library				
+load-foreign-library*	f	1,2		
+load-library				
+load-library*	f	1		
+native-node-modules				
+pack-string	pf	1		
+parse-js-ns	f	1		
+to-url				
+unpack-string	pf	1		
+zip-file	f	1		
+@cljc-clj cljs.module-graph
+add-cljs-base	f	1		
+add-cljs-base-dep	f	1		
+annotate-depths	f	1		
+canonical-name	f	2		
+deepest-common-parent	f	2		
+deps-for	f	3		
+deps-for-entry	f	2		
+deps-for-module	f	2		
+depth-of	f	2		
+expand-modules	f	2		
+find-sources-for-module-entry	f	2		
+index-inputs	f	1		
+inputs->assigned-modules	f	2		
+maybe-add-out-file	f	2		
+module-for	f	2		
+modules->module-infos	f	1		
+modules->module-uris	f	3		
+ms				
+normalize	f	1		
+normalize-input	f	1		
+parent?	f	2		
+sort-modules	f	1		
+topo-sort	f	2		
+validate-inputs	f	1,3		
+validate-inputs*	f	4		
+validate-modules	f	2		
+@cljc-cljs cljs.module-graph
+add-cljs-base	f	1		
+add-cljs-base-dep	f	1		
+annotate-depths	f	1		
+canonical-name	f	2		
+deepest-common-parent	f	2		
+deps-for	f	3		
+deps-for-entry	f	2		
+deps-for-module	f	2		
+depth-of	f	2		
+expand-modules	f	2		
+find-sources-for-module-entry	f	2		
+index-inputs	f	1		
+inputs->assigned-modules	f	2		
+maybe-add-out-file	f	2		
+module-for	f	2		
+modules->module-infos	f	1		
+modules->module-uris	f	3		
+ms				
+normalize	f	1		
+normalize-input	f	1		
+parent?	f	2		
+sort-modules	f	1		
+topo-sort	f	2		
+validate-inputs	f	1,3		
+validate-inputs*	f	4		
+validate-modules	f	2		
+@cljc-clj cljs.pprint
+defdirectives	mp		0	
+deftype	m		1	
+formatter	mf	1		
+formatter-out	mf	1		
+getf	mf	1		
+parse-lb-options	pf	2		
+pll-mod-body	pf	3		
+pp	mf	0		
+pprint-logical-block	m		0	
+print-length-loop	m		1	
+process-directive-table-element	pf	1		
+setf	mf	2		
+with-pprint-dispatch	m		1	
+with-pretty-writer	m		1	
+@cljc-cljs cljs.pprint
+defdirectives	mp		0	
+deftype	m		1	
+formatter	mf	1		
+formatter-out	mf	1		
+getf	mf	1		
+macroexpand	f	2		
+parse-lb-options	pf	2		
+pll-mod-body	pf	3		
+pp	mf	0		
+pprint-logical-block	m		0	
+print-length-loop	m		1	
+process-directive-table-element	pf	1		
+setf	mf	2		
+with-pprint-dispatch	m		1	
+with-pretty-writer	m		1	
+@cljc-clj cljs.repl
+*cljs-verbose*				
+*repl-env*				
+*repl-opts*				
+-evaluate	f	4		
+-get-error	f	4		
+-load	f	3		
+-parse-error	f	3		
+-parse-stacktrace	f	4		
+-print-stacktrace	f	4		
+-repl-options	f	1		
+-setup	f	2		
+-tear-down	f	1		
+IGetError				
+IJavaScriptEnv				
+IParseError				
+IParseStacktrace				
+IPrintStacktrace				
+IReplEnvOptions				
+add-url	f	1		
+aenv				
+analyze-source	f	1,2		
+apropos	mf	1		
+bytes-to-base64-str	pf	1		
+cenv				
+compilable?	f	1		
+core-class?	pf	1		
+core-namespaces	p			
+decorate-specs	f	1		
+default-special-fns				
+demunge	f	1		
+dir	mf	1		
+display-error	pf	4,5		
+doc	mf	1		
+env->opts	pf	1,2		
+err-out	mp		0	
+eval-cljs	f	3,4		
+evaluate	f	4		
+evaluate-form	f	4,5,6		
+ex-str	f	1		
+ex-triage	f	1		
+file-display	f	2		
+file-name	pf	1		
+find-doc	mf	1		
+init-wrap-fn	pf	1		
+initial-prompt	f	2		
+java-loc->source	pf	2		
+js-src->cljs-src	f	1		
+known-repl-opts				
+load	f	3		
+load-cljs-loader	pf	3		
+load-dependencies	pf	2,3		
+load-file	f	2,3		
+load-namespace	f	2,3		
+load-path->cp-path	pf	1		
+load-sources	pf	3		
+load-stream	f	3		
+mapped-frame	pf	2		
+mapped-line-column-call	pf	3		
+mapped-stacktrace	f	1,2		
+maybe-install-npm-deps	f	1		
+named-publics-vars	pf	1		
+ns->input	f	2		
+ns-info	f	1		
+print-mapped-stacktrace	f	1,2		
+pst	mf	0,1		
+read-source-map	f	1		
+repl			1	
+repl*	f	2		
+repl-caught	f	3		
+repl-nil?	f	1		
+repl-options	f	1		
+repl-prompt	f	0		
+repl-quit-prompt	f	0		
+repl-read	f	2,3		
+repl-special-doc	pf	1		
+repl-special-doc-map				
+repl-title	f	0		
+resolve-ns	pf	1		
+root-directory	pf	1		
+root-resource	pf	1		
+run-inits	f	2		
+setup	f	2		
+skip-if-eol	f	1		
+skip-whitespace	f	1		
+source	mf	1		
+source-fn	f	2		
+special-doc	pf	1		
+special-doc-map				
+st				
+tear-down	f	1		
+wrap-fn	pf	1		
+wrap-self	pf	1		
+wrap-special-fns	pf	2		
+@cljc-cljs cljs.repl
+*cljs-verbose*				
+*repl-env*				
+*repl-opts*				
+-evaluate	f	4		
+-get-error	f	4		
+-load	f	3		
+-parse-error	f	3		
+-parse-stacktrace	f	4		
+-print-stacktrace	f	4		
+-repl-options	f	1		
+-setup	f	2		
+-tear-down	f	1		
+IGetError				
+IJavaScriptEnv				
+IParseError				
+IParseStacktrace				
+IPrintStacktrace				
+IReplEnvOptions				
+add-url	f	1		
+aenv				
+analyze-source	f	1,2		
+apropos	mf	1		
+bytes-to-base64-str	pf	1		
+cenv				
+compilable?	f	1		
+core-class?	pf	1		
+core-namespaces	p			
+decorate-specs	f	1		
+default-special-fns				
+demunge	f	1		
+dir	mf	1		
+display-error	pf	4,5		
+doc	mf	1		
+env->opts	pf	1,2		
+err-out	mp		0	
+eval-cljs	f	3,4		
+evaluate	f	4		
+evaluate-form	f	4,5,6		
+ex-str	f	1		
+ex-triage	f	1		
+file-display	f	2		
+file-name	pf	1		
+find-doc	mf	1		
+init-wrap-fn	pf	1		
+initial-prompt	f	2		
+java-loc->source	pf	2		
+js-src->cljs-src	f	1		
+known-repl-opts				
+load	f	3		
+load-cljs-loader	pf	3		
+load-dependencies	pf	2,3		
+load-file	f	2,3		
+load-namespace	f	2,3		
+load-path->cp-path	pf	1		
+load-sources	pf	3		
+load-stream	f	3		
+mapped-frame	pf	2		
+mapped-line-column-call	pf	3		
+mapped-stacktrace	f	1,2		
+maybe-install-npm-deps	f	1		
+named-publics-vars	pf	1		
+ns->input	f	2		
+ns-info	f	1		
+print-mapped-stacktrace	f	1,2		
+pst	mf	0,1		
+read-source-map	f	1		
+repl			1	
+repl*	f	2		
+repl-caught	f	3		
+repl-nil?	f	1		
+repl-options	f	1		
+repl-prompt	f	0		
+repl-quit-prompt	f	0		
+repl-read	f	2,3		
+repl-special-doc	pf	1		
+repl-special-doc-map				
+repl-title	f	0		
+resolve-ns	pf	1		
+root-directory	pf	1		
+root-resource	pf	1		
+run-inits	f	2		
+setup	f	2		
+skip-if-eol	f	1		
+skip-whitespace	f	1		
+source	mf	1		
+source-fn	f	2		
+special-doc	pf	1		
+special-doc-map				
+st				
+tear-down	f	1		
+wrap-fn	pf	1		
+wrap-self	pf	1		
+wrap-special-fns	pf	2		
+@cljc-clj cljs.spec.alpha
+&	m		1	
+*	mf	1		
++	mf	1		
+->sym	pf	1		
+?	mf	1		
+_speced_vars	p			
+alt	m		0	
+and	m		0	
+assert	mf	2		
+cat	m		0	
+coll-of	m		1	
+conformer	mf	1,2		
+def	mf	2		
+double-in	m		0	
+every	m		1	
+every-kv	m		2	
+exercise-fn	mf	1,2,3		
+fdef	m		1	
+fspec	m		0	
+init-compile-asserts	mpf	0		
+inst-in	mf	2		
+int-in	mf	2		
+keys	m		0	
+keys*	m		0	
+map-of	m		2	
+merge	m		0	
+mres	mpf	1		
+multi-spec	mf	2		
+nilable	mf	1		
+ns-qualify	pf	2		
+or	m		0	
+registry-ref				
+res	pf	2		
+res-kind	pf	2		
+spec	m		1	
+speced-vars	f	0		
+tuple	m		0	
+unfn	pf	1		
+@cljc-cljs cljs.spec.alpha
+&	m		1	
+*	mf	1		
++	mf	1		
+->sym	pf	1		
+?	mf	1		
+_speced_vars	p			
+alt	m		0	
+and	m		0	
+assert	mf	2		
+cat	m		0	
+coll-of	m		1	
+conformer	mf	1,2		
+def	mf	2		
+double-in	m		0	
+every	m		1	
+every-kv	m		2	
+exercise-fn	mf	1,2,3		
+fdef	m		1	
+fspec	m		0	
+init-compile-asserts	mpf	0		
+inst-in	mf	2		
+int-in	mf	2		
+keys	m		0	
+keys*	m		0	
+map-of	m		2	
+merge	m		0	
+mres	mpf	1		
+multi-spec	mf	2		
+nilable	mf	1		
+ns-qualify	pf	2		
+or	m		0	
+registry-ref				
+res	pf	2		
+res-kind	pf	2		
+spec	m		1	
+speced-vars	f	0		
+tuple	m		0	
+unfn	pf	1		
+@cljc-clj cljs.spec.gen.alpha
+delay	m		0	
+dynaload	mf	1		
+lazy-combinator	mf	1		
+lazy-combinators	m		0	
+lazy-prim	mf	1		
+lazy-prims	m		0	
+@cljc-cljs cljs.spec.gen.alpha
+delay	m		0	
+dynaload	mf	1		
+lazy-combinator	mf	1		
+lazy-combinators	m		0	
+lazy-prim	mf	1		
+lazy-prims	m		0	
+@cljc-clj cljs.spec.test.alpha
+check	mf	0,1,2		
+check-1	mf	4		
+check-fn	mf	2,3		
+checkable-syms	mf	0,1		
+checkable-syms*	f	0,1		
+collectionize	pf	1		
+enumerate-namespace	mf	1		
+enumerate-namespace*	pf	1		
+fn-spec-name?	pf	1		
+form->sym-or-syms	pf	1		
+instrument	mf	0,1,2		
+instrument-1	mf	2		
+instrumented-vars	p			
+maybe-setup-static-dispatch	mpf	4		
+registry-ref	pf	0		
+setup-static-dispatches	mpf	4		
+sym-or-syms->syms	pf	1		
+unstrument	mf	0,1		
+unstrument-1	mf	1		
+with-instrument-disabled	m		0	
+@cljc-cljs cljs.spec.test.alpha
+check	mf	0,1,2		
+check-1	mf	4		
+check-fn	mf	2,3		
+checkable-syms	mf	0,1		
+checkable-syms*	f	0,1		
+collectionize	pf	1		
+enumerate-namespace	mf	1		
+enumerate-namespace*	pf	1		
+fn-spec-name?	pf	1		
+form->sym-or-syms	pf	1		
+instrument	mf	0,1,2		
+instrument-1	mf	2		
+instrumented-vars	p			
+maybe-setup-static-dispatch	mpf	4		
+registry-ref	pf	0		
+setup-static-dispatches	mpf	4		
+sym-or-syms->syms	pf	1		
+unstrument	mf	0,1		
+unstrument-1	mf	1		
+with-instrument-disabled	m		0	
+@cljc-clj cljs.stacktrace
+chrome-st-el->frame	f	3		
+ends-with?	f	2		
+firefox-clean-function	f	1		
+firefox-st-el->frame	f	3		
+mapped-frame	f	3		
+mapped-line-column-call	f	4		
+mapped-stacktrace	f	2,3		
+mapped-stacktrace-str	f	2,3		
+output-directory	f	1		
+parse-file	f	3		
+parse-file-line-column	f	1		
+parse-int	f	1		
+parse-stacktrace				
+remove-ext	f	1		
+safari-st-el->frame	f	3		
+sms				
+starts-with?	f	2		
+string->regex	f	1		
+@cljc-cljs cljs.stacktrace
+chrome-st-el->frame	f	3		
+ends-with?	f	2		
+firefox-clean-function	f	1		
+firefox-st-el->frame	f	3		
+mapped-frame	f	3		
+mapped-line-column-call	f	4		
+mapped-stacktrace	f	2,3		
+mapped-stacktrace-str	f	2,3		
+output-directory	f	1		
+parse-file	f	3		
+parse-file-line-column	f	1		
+parse-int	f	1		
+parse-stacktrace				
+remove-ext	f	1		
+safari-st-el->frame	f	3		
+sms				
+starts-with?	f	2		
+string->regex	f	1		
+@cljc-clj cljs.support
+assert-args	m		1	
+@cljc-cljs cljs.support
+assert-args	m		1	
+@cljc-clj cljs.tagged-literals
+*cljs-data-readers*				
+->JSValue	f	1		
+JSValue	c			
+read-inst	f	1		
+read-js	f	1		
+read-queue	f	1		
+read-uuid	f	1		
+valid-js-literal-key?	f	1		
+@cljc-cljs cljs.tagged-literals
+*cljs-data-readers*				
+->JSValue	f	1		
+JSValue				
+read-inst	f	1		
+read-js	f	1		
+read-queue	f	1		
+read-uuid	f	1		
+valid-js-literal-key?	f	1		
+@cljc-clj cljs.test
+are	m		2	
+assert-any	f	2		
+assert-expr				
+assert-predicate	f	2		
+async	m		1	
+cljs-output-dir	mpf	0		
+deftest	m		1	
+function?	f	2		
+is	mf	1,2		
+ns?	f	1		
+run-all-tests	mf	0,1,2		
+run-test	mf	1		
+run-tests	mf	0,1	1	
+run-tests-block	m		1	
+test-all-vars	mf	1		
+test-all-vars-block	mf	1		
+test-ns	mf	1,2		
+test-ns-block	mf	2		
+testing	m		1	
+try-expr	mf	2		
+use-fixtures	m		1	
+@cljc-cljs cljs.test
+are	m		2	
+assert-any	f	2		
+assert-expr				
+assert-predicate	f	2		
+async	m		1	
+cljs-output-dir	mpf	0		
+deftest	m		1	
+function?	f	2		
+is	mf	1,2		
+ns?	f	1		
+run-all-tests	mf	0,1,2		
+run-test	mf	1		
+run-tests	mf	0,1	1	
+run-tests-block	m		1	
+test-all-vars	mf	1		
+test-all-vars-block	mf	1		
+test-ns	mf	1,2		
+test-ns-block	mf	2		
+testing	m		1	
+try-expr	mf	2		
+use-fixtures	m		1	
+@cljc-clj cljs.util
+*clojurescript-version*				
+boolean?	f	1		
+build-options	f	1		
+bytes-to-hex-str	pf	1		
+changed?	f	2		
+cljs-built-dep?	f	0		
+clojurescript-version	f	0		
+compilation-error	f	1		
+compile-if	mf	2,3		
+compile-when	mf	2		
+compiled-by-version	f	1		
+conjunction-str	f	1		
+content-sha	f	1,2		
+debug-prn			0	
+debug-prn-mutex				
+distinct-by	f	2		
+ext	f	1		
+file-hash	pf	1		
+file-or-resource	f	1		
+file?	f	1		
+filename	f	1		
+get-name	f	1		
+hex-digits	p			
+last-modified	f	1		
+levenshtein-distance	f	2		
+main-src-directory	pf	0		
+map-merge	f	2		
+measure	mf	2,3		
+mkdirs	f	1		
+module-file-seq	f	1		
+module-file-seq-1	f	1		
+munge-path	f	1		
+node-path-modules	f	1		
+normalize-path	f	1		
+ns->relpath	f	1,2,3		
+ns->source	f	1		
+output-directory	f	1,2		
+path	f	1		
+path-seq	f	1		
+relative-name	f	1		
+split-paths	f	1		
+suggestion	f	3		
+synthethetic-version-prefix	p			
+synthetic-clojurescript-version	p			
+synthetic-version?	f	0		
+to-path	f	1,2		
+to-target-file	f	2,3		
+topo-sort	f	2,4		
+unknown-opts	f	2		
+url?	f	1		
+valid-js-id-start?	f	1		
+windows?				
+@cljc-cljs cljs.util
+*clojurescript-version*				
+boolean?	f	1		
+build-options	f	1		
+bytes-to-hex-str	pf	1		
+changed?	f	2		
+cljs-built-dep?	f	0		
+clojurescript-version	f	0		
+compilation-error	f	1		
+compile-if	mf	2,3		
+compile-when	mf	2		
+compiled-by-version	f	1		
+conjunction-str	f	1		
+content-sha	f	1,2		
+debug-prn			0	
+debug-prn-mutex				
+distinct-by	f	2		
+ext	f	1		
+file-hash	pf	1		
+file-or-resource	f	1		
+file?	f	1		
+filename	f	1		
+get-name	f	1		
+hex-digits	p			
+last-modified	f	1		
+levenshtein-distance	f	2		
+main-src-directory	pf	0		
+map-merge	f	2		
+measure	mf	2,3		
+mkdirs	f	1		
+module-file-seq	f	1		
+module-file-seq-1	f	1		
+munge-path	f	1		
+node-path-modules	f	1		
+normalize-path	f	1		
+ns->relpath	f	1,2,3		
+ns->source	f	1		
+output-directory	f	1,2		
+path	f	1		
+path-seq	f	1		
+relative-name	f	1		
+split-paths	f	1		
+suggestion	f	3		
+synthethetic-version-prefix	p			
+synthetic-clojurescript-version	p			
+synthetic-version?	f	0		
+to-path	f	1,2		
+to-target-file	f	2,3		
+topo-sort	f	2,4		
+unknown-opts	f	2		
+url?	f	1		
+valid-js-id-start?	f	1		
+windows?				

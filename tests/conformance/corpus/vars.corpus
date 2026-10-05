@@ -1,0 +1,65 @@
+;; vars.corpus -- dynamic/compiler-knob var surface. One form per line.
+;; Grows with M4b (binding stack); today it pins the vars' default values.
+;; Promoted from pending (M2: set! + compiler-knob vars defined with Clojure defaults).
+*assert*
+;; Promoted from pending (M2: set! + compiler-knob vars defined with Clojure defaults).
+*flush-on-newline*
+;; M4b binding/with-redefs core -- self-contained equivalents of the
+;; four pending vars-binding forms that started conforming (their
+;; original pending lines depended on session-earlier defs whose own
+;; return values still diverge -- var printing -- so the coverage
+;; moves here in do-wrapped form instead of verbatim).
+(do (def ^:dynamic *mb-a* 1) (binding [*mb-a* 2] *mb-a*))
+(do (def ^:dynamic *mb-b* 1) (binding [*mb-b* 10] (set! *mb-b* 20) *mb-b*))
+(do (def ^:dynamic *mb-c* 1) (binding [*mb-c* 1] (binding [*mb-c* 2] *mb-c*)))
+(do (defn mb-f [] :orig) (with-redefs [mb-f (fn [] :redef)] (mb-f)))
+(do (def ^:dynamic *mb-d* 1) [(binding [*mb-d* 7] *mb-d*) *mb-d*])
+(do (def ^:dynamic *mb-e* 1) (binding [*mb-e* 42] (deref (future *mb-e*))))
+;; S6/libstatics: `var?` landed (predicates.rs) -- promoted from
+;; pending/vars-binding.corpus's `(var? (var counter))`, self-contained
+;; in do-wrapped form for the same reason as the M4b block above (the
+;; original pending line's session-earlier `(def counter 0)` own return
+;; value still diverges from Clojure's `#'user/counter` print -- var
+;; printing -- so it can't be a bare corpus line by itself).
+(do (def s6-var-check-counter 0) (var? (var s6-var-check-counter)))
+;; W3e-3: `*math-context*` reaches the BigDecimal arithmetic no matter
+;; WHICH form installed it -- `with-precision`'s binding (S5) or a bare
+;; `(set! *math-context* (java.math.MathContext. n))`
+;; (clojure.test-clojure.vars/test-settable-math-context). Full probe +
+;; oracle transcript: compat/math-context-probe.clj /
+;; compat/math-context-oracle-transcript.txt.
+(clojure.main/with-bindings (set! *math-context* (java.math.MathContext. 8)) (+ 3.55555555555555M 1))
+(do (clojure.main/with-bindings (set! *math-context* (java.math.MathContext. 4)) nil) (+ 3.55555555555555M 1))
+(with-precision 4 (with-precision 8 (+ 3.55555555555555M 1)))
+(do (with-precision 4 (+ 1M 1M)) (+ 3.55555555555555M 1))
+(clojure.main/with-bindings (set! *math-context* (java.math.MathContext. 8)) [(with-precision 4 (+ 3.55555555555555M 1)) (+ 3.55555555555555M 1)])
+;; D5: `alter-var-root`/`var-get` landed (builtins::nsfns, core.mova) --
+;; promoted from pending/vars-binding.corpus's three now-conforming forms,
+;; self-contained in do-wrapped form for the same reason as the blocks
+;; above (their session-earlier `(def counter 0)` still diverges on var
+;; printing).
+(do (def d5-counter 0) (alter-var-root (var d5-counter) inc))
+(do (def d5-counter2 0) (alter-var-root (var d5-counter2) inc) d5-counter2)
+(do (def d5-counter3 0) (alter-var-root (var d5-counter3) inc) (var-get (var d5-counter3)))
+
+;; W3b: promoted out of tests/conformance/pending/vars-binding.corpus.
+;; `*print-length*` used to be a plain inert global (defined in
+;; core.mova but never consulted) -- `src/printer.rs`'s `write_truncated`
+;; now reads it at the same `realize_all_pr_str` boundary
+;; `*print-meta*`/`*print-dup*` use, truncating an infinite/long seq's
+;; print to N elements plus a trailing `...`. Self-contained, needs no
+;; prior `def` in this session.
+(binding [*print-length* 3] (pr-str (range 10)))
+
+;; W4D-TIERS: promoted out of tests/conformance/pending/vars-binding.corpus
+;; (`(my-name)`, form 20/20) -- `&form` implicit macro-args binding now
+;; resolves inside a macro body, so `(str (first &form))` works. Wrapped
+;; in two `eval`s inside one `do` (rather than the pending file's plain
+;; two top-level forms) so this is ONE self-contained corpus line with
+;; ONE golden value: a bare top-level `defmacro` followed immediately by
+;; its own invocation would need a second corpus line whose own printed
+;; value (mova's `#<macro ..>` vs Clojure's `#'user/..`) is a real,
+;; already-known, still-pending divergence in its own right -- `eval`
+;; forces each form through its own top-level compile, same as two real
+;; top-level forms, without adding a second line/golden to this file.
+(do (eval (quote (defmacro my-name-w4d [] (str (first &form))))) (eval (quote (my-name-w4d))))

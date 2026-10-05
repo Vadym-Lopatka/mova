@@ -1,0 +1,36 @@
+{
+ "name": "j01_dynamic_middleware",
+ "doc": "expected: unknown-op in 1.8.0",
+ "sessions": [],
+ "steps": [
+  {
+   "send": {
+    "op": "ls-middleware",
+    "id": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "add-middleware",
+    "id": "2",
+    "middleware": [
+     "nrepl.middleware.session/session"
+    ]
+   }
+  },
+  {
+   "send": {
+    "op": "swap-middleware",
+    "id": "3",
+    "middleware": []
+   }
+  },
+  {
+   "send": {
+    "op": "ls-middleware",
+    "id": "4",
+    "session": "$s1"
+   }
+  }
+ ]
+}

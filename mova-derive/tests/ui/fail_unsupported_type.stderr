@@ -1,0 +1,5 @@
+error: field `count: u64` has no Value conversion; add #[mova(skip)], or #[mova(getter = "...")] with a method returning a supported type, or narrow the field
+ --> tests/ui/fail_unsupported_type.rs:8:5
+  |
+8 |     count: u64,
+  |     ^^^^^

@@ -1,0 +1,99 @@
+;; higher-order.corpus -- comp/partial/juxt/fnil/max-key/min-key,
+;; case (incl. list clauses)/condp, while via atom counters, letfn mutual
+;; recursion. One session. Deliberately avoids `macroexpand`/`macroexpand-1`
+;; on any auto-gensym-bearing macro (e.g. `case`/`condp`/`->`/`if-let`
+;; expand through a `gensym`'d local) -- that output is NOT deterministic
+;; across runs/implementations, so no macroexpand forms appear here at all.
+
+;; ---- comp ----
+((comp inc inc) 5)
+((comp) 5)
+((comp inc) 5)
+((comp str inc) 5)
+((comp inc dec inc) 5)
+(map (comp inc inc) [1 2 3])
+((comp first rest) [1 2 3])
+((apply comp [inc inc inc]) 0)
+
+;; ---- partial ----
+((partial + 1) 2)
+((partial + 1 2) 3 4)
+((partial + 1 2 3) 4 5)
+((partial + 1 2 3 4) 5 6)
+((partial conj [1 2]) 3)
+(map (partial * 2) [1 2 3])
+((partial - 10) 3)
+
+;; ---- juxt ----
+((juxt inc dec) 5)
+((juxt first last) [1 2 3 4])
+((juxt count identity) [1 2 3])
+(map (juxt inc dec) [1 2 3])
+((apply juxt [inc dec (partial * 2)]) 10)
+
+;; ---- fnil ----
+((fnil + 0) nil 5)
+((fnil + 0) 3 5)
+((fnil conj []) nil 1)
+((fnil str "a") nil "b")
+(map (fnil inc 0) [1 nil 3 nil])
+((fnil + 0 0) nil nil)
+((fnil + 0 0) 1 nil)
+((fnil vector :x :y :z) nil nil nil)
+
+;; ---- max-key / min-key ----
+(max-key count [1] [1 2 3] [1 2])
+(min-key count [1] [1 2 3] [1 2])
+(max-key inc 1 5 3)
+(min-key inc 1 5 3)
+(apply max-key count [[1] [1 2] [1 2 3] [1 2]])
+
+;; ---- case (constants + list clauses + default) ----
+;; A bare top-level `(defn ...)` is never left as the compared golden line:
+;; real Clojure's `def`/`defn` returns the newly-bound Var (prints as
+;; `#'ns/name`), while mova's `def` returns the plain value -- an
+;; established, out-of-scope-for-A4 deviation -- so definitions are wrapped
+;; `(do (defn ...) nil)` (both sides agree on printing `nil`).
+(do (defn size-name [n] (case n 1 :small 2 :medium 3 :large :unknown)) nil)
+[(size-name 1) (size-name 2) (size-name 3) (size-name 99)]
+(do (defn describe [n] (case n (1 2 3) :small (4 5 6) :medium :other)) nil)
+[(describe 2) (describe 5) (describe 100)]
+(case :b :a 1 :b 2 :c 3)
+(case "x" "x" :ex "y" :why :neither)
+(case (+ 1 1) 2 :two 3 :three)
+
+;; ---- condp ----
+(condp = 2 1 :one 2 :two 3 :three :dflt)
+(condp = 99 1 :one 2 :two :dflt)
+(condp < 5 10 :small 3 :medium :large)
+(condp <= 5 3 :ge3 10 :ge10)
+(do (defn grade [score] (condp <= score 90 :a 80 :b 70 :c :f)) nil)
+[(grade 95) (grade 85) (grade 72) (grade 40)]
+
+;; ---- while via atom counters ----
+(let [a (atom 0)] (while (< @a 5) (swap! a inc)) @a)
+(let [a (atom 0) acc (atom [])] (while (< @a 5) (swap! acc conj @a) (swap! a inc)) @acc)
+(let [a (atom 10)] (while (pos? @a) (swap! a dec)) @a)
+(let [a (atom 0) sum (atom 0)] (while (< @a 10) (swap! sum + @a) (swap! a inc)) @sum)
+
+;; ---- letfn mutual recursion ----
+(letfn [(ev? [n] (if (zero? n) true (od? (dec n)))) (od? [n] (if (zero? n) false (ev? (dec n))))] (ev? 10))
+(letfn [(ev? [n] (if (zero? n) true (od? (dec n)))) (od? [n] (if (zero? n) false (ev? (dec n))))] (od? 7))
+(letfn [(fact [n] (if (<= n 1) 1 (* n (fact (dec n)))))] (fact 6))
+(letfn [(fib [n] (if (< n 2) n (+ (fib (dec n)) (fib (- n 2)))))] (fib 10))
+(letfn [(sum-to [n acc] (if (zero? n) acc (sum-to (dec n) (+ acc n))))] (sum-to 100 0))
+
+;; ---- combined: comp/partial/juxt riding on case/condp/letfn ----
+(let [classify (fn [n] (condp <= n 5 :small 10 :medium :large))] (classify 3))
+((juxt (partial max-key count) (partial min-key count)) [1] [1 2 3])
+(map (fn [n] (case n 1 :one 2 :two :many)) [1 2 3 4])
+(reduce (comp inc +) 0 [1 2 3])
+((comp (partial * 2) inc) 4)
+
+;; C10 (data_structures.clj wave): promoted from tests/conformance/pending/
+;; transducers.corpus -- `reduced`/`reduced?` now exist (Value::Reduced),
+;; and `deref`/`@` unwraps one. `ensure-reduced`/`unreduced` are NOT
+;; implemented yet -- those three forms stay behind in pending.
+(reduced? (reduced 1))
+(reduced? 1)
+(deref (reduced 42))

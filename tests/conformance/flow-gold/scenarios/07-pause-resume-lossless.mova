@@ -1,0 +1,50 @@
+;;RUNS 5
+;; scenario 07: flood 200 msgs through a 2-proc pipeline, pause mid-stream
+;; (best-effort timing via a portable sleep -- see below), resume;
+;; invariant: sink sequence == 0..200 exactly regardless of exactly when
+;; pause/resume land (control priority + lossless on both sides: gold
+;; impl.clj's `send-outputs`/proc `run` loop always services `control` with
+;; `:priority true` in `alts!!` before data, and re-delivers rather than
+;; drops when paused mid-send; mova's proc loop mirrors this). The sleeps
+;; here only give pause a CHANCE to land mid-flood -- the invariant holds
+;; unconditionally whether or not that actually happens (per SPEC.md rule
+;; 6: sleeps may let an allowed behavior manifest, never manufacture a
+;; guarantee).
+;;
+;; Portable sleep idiom: `(<!! (timeout MS))` -- `timeout` and `<!!` are
+;; both in the fixed JVM prelude/mova globals; `sleep-ms` is mova-only
+;; (src/builtins/conc.rs), not available under that spelling on the JVM
+;; side, so it cannot appear in a portable scenario body.
+
+(def out-ch (chan 300))
+
+(def pass-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process pass-step)}
+                  :s {:proc (flow/process sink-step)}}
+          :conns [[[:p :out] [:s :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(def fut (flow/inject fl [:p :in] (range 200)))
+(<!! (timeout 5))
+(flow/pause fl)
+(<!! (timeout 20))
+(flow/resume fl)
+(deref fut 5000 :timed-out)
+
+(def result (deref (future (vec (repeatedly 200 #(<!! out-ch)))) 15000 :timed-out))
+(println "RESULT count" (if (= result :timed-out) :timed-out (count result)))
+(println (if (= result (vec (range 200))) "PASS lossless-order" "FAIL lossless-order"))
+
+(flow/stop fl)

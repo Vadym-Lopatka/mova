@@ -1,0 +1,88 @@
+OK	1
+OK	2
+OK	1
+OK	nil
+OK	:yes
+OK	:b
+OK	:truthy
+OK	1
+OK	nil
+OK	:yes
+OK	:ran
+OK	nil
+OK	nil
+OK	1
+OK	2
+OK	3
+OK	:b
+OK	:a
+OK	:b
+OK	:only-then
+OK	true
+OK	1
+OK	3
+OK	nil
+OK	false
+OK	nil
+OK	nil
+OK	3
+OK	1
+OK	nil
+OK	1
+OK	3
+OK	2
+OK	3
+OK	10
+OK	3628800
+OK	:done
+OK	25
+OK	5
+OK	120
+OK	7
+OK	16
+OK	2
+OK	2
+OK	9
+OK	12
+OK	2
+OK	6
+OK	:none
+OK	:falsy-or-nil
+OK	10
+OK	nil
+OK	nil
+OK	10
+OK	[0 1 2]
+OK	42
+OK	3
+OK	3
+ERR	CompilerException
+ERR	CompilerException
+OK	(1 2 3)
+OK	(1 2 3)
+OK	(a b c)
+OK	(a (b c) d)
+OK	a
+OK	a
+OK	true
+OK	(1 2 3)
+OK	(1 2 3)
+OK	[1 2 6]
+OK	(:a :b :c)
+OK	(1 2 3 4)
+OK	(:a 10 :b)
+OK	5
+OK	5
+OK	2
+OK	99
+OK	1
+OK	42
+OK	nil
+OK	2
+OK	2
+OK	7
+OK	true
+OK	false
+OK	3
+OK	nil
+OK	3

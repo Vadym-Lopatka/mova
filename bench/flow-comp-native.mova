@@ -1,0 +1,43 @@
+;; flow-comp-native.mova -- the native-step tier's FUSED row (N4, see
+;; NATIVE-STEP-DESIGN.md), the "after" half of the step-comp fusion
+;; comparison: the EXACT same 3-passthrough-hop topology as
+;; flow-4hop-native.mova, but composed into ONE native step via
+;; `flow/step-comp` and run as a SINGLE proc -- one OS thread, one promoted
+;; run_proc_fast loop, ZERO inter-proc channel handoffs for the 3 fused
+;; hops (only the source->fused and fused->sink boundaries are still real
+;; channels).
+;;
+;;   gen -> [step-comp pt1 pt2 pt3] -> sink   (3 procs, 3 OS threads)
+;;
+;; Compare this row's msg/s against flow-4hop-native.mova's directly (same
+;; N, same machine, same binary) for the fusion delta -- an earlier Rust flow library's own
+;; 1:1-chain-fusion analog measured +27% end to end (FLOW-DESIGN.md's
+;; "Fusion (future work)" section); step-comp is mova's fusion primitive
+;; for the same shape, minus the "grow the engine's threading model" part
+;; that section explicitly deferred (the caller fuses explicitly with
+;; step-comp, rather than the engine detecting fusable runs automatically).
+;;
+;;   ./target/release/mova bench/flow-comp-native.mova
+
+(def N 1000000)
+(def done (promise))
+(def tick (chan 1024))
+
+(def fused (flow/step-comp (flow/step-passthrough) (flow/step-passthrough) (flow/step-passthrough)))
+
+(def fl (flow/create-flow
+         {:procs {:gen {:proc (flow/process (flow/step-source tick))}
+                  :fused {:proc (flow/process fused)}
+                  :sink {:proc (flow/process (flow/step-sink-deliver N done))}}
+          :conns [[[:gen :out] [:fused :in]]
+                  [[:fused :out] [:sink :in]]]}))
+
+(def t0 (time-ms))
+(flow/start fl)
+(flow/resume fl)
+(flow/feed-range! tick N)
+(deref done)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-comp-native" N elapsed rate)
+(flow/stop fl)

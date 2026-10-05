@@ -1,0 +1,5 @@
+error: MovaStruct requires T: 'static (found lifetime parameter 'a)
+ --> tests/ui/fail_lifetime.rs:9:17
+  |
+9 | struct Borrowed<'a> {
+  |                 ^^

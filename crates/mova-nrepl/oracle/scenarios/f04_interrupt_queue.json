@@ -1,0 +1,71 @@
+{
+ "name": "f04_interrupt_queue",
+ "doc": "queued evals in one session run in order; interrupt a queued one",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(Thread/sleep 100000)",
+    "session": "$s1"
+   },
+   "await": false
+  },
+  {
+   "wait": 0.3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(+ 1 2)",
+    "session": "$s1"
+   },
+   "await": false
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(+ 3 4)",
+    "session": "$s1"
+   },
+   "await": false
+  },
+  {
+   "wait": 0.3
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "4",
+    "session": "$s1",
+    "interrupt-id": "2"
+   }
+  },
+  {
+   "wait": 0.3
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "5",
+    "session": "$s1",
+    "interrupt-id": "1"
+   }
+  },
+  {
+   "await": {
+    "id": "3",
+    "status": "done"
+   }
+  },
+  {
+   "wait": 0.4
+  }
+ ],
+ "flaky": "race: eval-thread replies (err/ex/value/out) vs interrupt-thread replies (interrupted/done)"
+}

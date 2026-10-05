@@ -1,0 +1,32 @@
+;; hierarchies.corpus -- derive/underive/parents/ancestors/descendants/
+;; make-hierarchy (S4, global hierarchy only; the 3-arity/isolated-
+;; hierarchy forms live in multimethods.corpus). One session (later
+;; forms depend on earlier derives, all against the global hierarchy).
+;; Promoted from tests/conformance/pending/hierarchies.corpus once S4
+;; landed the derivation-hierarchy machinery.
+(derive ::ha ::hb)
+(isa? ::ha ::hb)
+(derive ::hb ::hc)
+(underive ::ha ::hb)
+;; the derive->underive round-trip ends false; do-wrapped so it stays a
+;; meaningful assertion (rather than a bare top-level `false`) if a
+;; future session's earlier lines ever leave stray global-hierarchy state
+(do (derive ::hu ::hv) (underive ::hu ::hv) (isa? ::hu ::hv))
+;; isa? on vectors compares pairwise, element by element
+(derive ::hb2 ::hc2)
+(isa? [::hb2 ::hx] [::hc2 ::hx])
+;; a custom (isolated) hierarchy built via make-hierarchy/derive and
+;; consulted via 3-arity isa? -- `def`'s own return value diverges from
+;; real Clojure (mova's `def` returns the value, not the var; a separate,
+;; pre-existing gap), so this line do-wraps the def alongside its use
+(do (def customhier123 (derive (make-hierarchy) ::hx2 ::hy2)) (isa? customhier123 ::hx2 ::hy2))
+;; the global hierarchy never saw ::hx2 -- parents on it is nil
+(parents ::hx2)
+
+;; C3d (reader: auto-resolved keywords): promoted from tests/conformance/
+;; pending/hierarchies.corpus -- `::kw` now resolves against *ns* like real
+;; Clojure, so a printed/compared `::`-derived keyword's namespaced text
+;; (`:user/foo`) byte-matches. `customhier123` reuses the def two forms up.
+(do (derive ::hp1 ::hp2) (derive ::hp1 ::hp3) (= (ancestors ::hp1) #{:user/hp2 :user/hp3}))
+(do (derive ::hd1 ::hd2) (= (descendants ::hd2) #{:user/hd1}))
+(parents customhier123 ::hx2)

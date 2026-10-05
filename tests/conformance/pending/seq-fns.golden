@@ -1,0 +1,10 @@
+OK	((1 (2 3) 4) 1 (2 3) 2 3 4)
+OK	100
+OK	\e
+OK	true
+OK	false
+ERR	UnsupportedOperationException
+OK	([1 :b] [1 :f] [2 :d] [3 :a] [3 :c] [3 :e])
+OK	([1 :b] [1 :f] [2 :d] [3 :a] [3 :c] [3 :e])
+OK	([2 :b] [2 :d] [1 :a] [1 :c])
+OK	([3 :a] [3 :c] [3 :e] [2 :d] [1 :b] [1 :f])

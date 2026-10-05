@@ -1,0 +1,22 @@
+{
+ :empty-loop {:jvm 0.7},
+ :call-0arg {:jvm 3.7},
+ :call-1arg {:jvm 3.7},
+ :call-3arg {:jvm 2.2},
+ :call-local-fn {:jvm 1.5},
+ :call-closure-capture {:jvm 3.5},
+ :call-multi-arity {:jvm 4.3},
+ :call-variadic {:jvm 1.9},
+ :var-deref {:jvm 7.4},
+ :kw-get-4map {:jvm 4.0},
+ :get-4map {:jvm 4.0},
+ :assoc-4map {:jvm 14.9},
+ :conj-vector {:jvm 8.7},
+ :let-binding {:jvm 0.8},
+ :destructure-keys {:jvm 10.6},
+ :protocol-call {:jvm 2.1},
+ :multimethod {:jvm 8.2},
+ :instance? {:jvm 0.9},
+ :lazy-map-per-elem {:jvm 57.7},
+ :reduce-per-step {:jvm 18.1}
+}

@@ -1,0 +1,65 @@
+{
+ "name": "z01_forward_system_output",
+ "doc": "",
+ "sessions": [
+  "s1",
+  "s2"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "forward-system-output",
+    "id": "1",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(.println System/out \"fwd-out\")",
+    "session": "$s2"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(.println System/err \"fwd-err\")",
+    "session": "$s2"
+   }
+  },
+  {
+   "wait": 0.3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(do (.print System/out \"partial\") (.flush System/out) 1)",
+    "session": "$s2"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(println \"normal-out\")",
+    "session": "$s2"
+   }
+  },
+  {
+   "wait": 0.3
+  },
+  {
+   "send": {
+    "op": "forward-system-output",
+    "id": "7"
+   }
+  },
+  {
+   "wait": 0.2
+  }
+ ],
+ "flaky": "race: forwarded System.out output vs the eval's value/done"
+}

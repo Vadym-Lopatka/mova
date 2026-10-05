@@ -1,0 +1,132 @@
+;; multimethods.corpus -- defmulti/defmethod/dispatch/prefer-method/
+;; hierarchy-option corpus (S4). One session (later forms build on
+;; earlier defs, same convention as every other corpus file). Every row
+;; measured on 1.13.0-alpha6 (compat/multimethods-probe.clj,
+;; compat/multimethods-probe2.clj, and the promotions this file absorbed
+;; from tests/conformance/pending/multimethods.corpus).
+;;
+;; defmulti/defmethod/remove-method/prefer-method all return the raw
+;; MultiFn object, whose printed form embeds a JVM identity hashcode
+;; (#object[clojure.lang.MultiFn 0x... "...@..."]) -- non-deterministic
+;; across runs (and mova's own `Native` printer spells it differently
+;; regardless), so every use below whose return value isn't itself the
+;; thing under test is wrapped in `(do ... :ok)` to pin a stable result.
+(defmulti greet123 (fn [x] (:lang x)))
+(do (defmethod greet123 :en [x] "hello") :ok)
+(do (defmethod greet123 :fr [x] "bonjour") :ok)
+(do (defmethod greet123 :default [x] "?") :ok)
+(greet123 {:lang :en})
+(greet123 {:lang :fr})
+;; remove-method
+(do (remove-method greet123 :fr) :ok)
+(greet123 {:lang :fr})
+(= (set (keys (methods greet123))) #{:en :default})
+;; get-method: returns the fn for an exact/hierarchy-resolved dispatch
+;; value; falls back to whatever is registered under :default too
+((get-method greet123 :en) {:lang :en})
+(= (get-method greet123 :zz) (get-method greet123 :default))
+;; custom dispatch fn + hierarchy-based ambiguity
+(derive ::square123 ::rect123)
+(derive ::square123 ::shape123)
+(defmulti area456 (fn [s] (:type s)))
+(do (defmethod area456 ::rect123 [s] :rect) :ok)
+(do (defmethod area456 ::shape123 [s] :shape) :ok)
+;; prefer-method resolves the ambiguity; prefers reflects it
+(do (prefer-method area456 ::rect123 ::shape123) :ok)
+(area456 {:type ::square123})
+(contains? (get (prefers area456) ::rect123) ::shape123)
+;; :hierarchy option -- a custom (isolated) hierarchy, not the global one
+(do (def customh123 (atom (make-hierarchy))) (defmulti fromcustom123 identity :hierarchy customh123) (defmethod fromcustom123 :x [v] :got-x) (fromcustom123 :x))
+;; calling a multimethod on an unresolvable dispatch value with no
+;; :default and no matching hierarchy entry throws IllegalArgumentException
+(defmulti strict123 (fn [x] x))
+(do (defmethod strict123 :a [x] :a-val) :ok)
+
+;; ---------------------------------------------------------------------
+;; class dispatch (defmulti m class), inheritance via isa?, and the
+;; class-only isa? fallback with no derive in sight.
+;; ---------------------------------------------------------------------
+(defmulti mm2-classy class)
+(do (defmethod mm2-classy String [x] :string) :ok)
+(do (defmethod mm2-classy Number [x] :number) :ok)
+(do (defmethod mm2-classy :default [x] :other) :ok)
+(mm2-classy "hi")
+(mm2-classy 5)
+(mm2-classy true)
+(isa? Long Number)
+
+;; ---------------------------------------------------------------------
+;; defmulti's defonce-like no-redefinition: a second defmulti on an
+;; already-multimethod var is a silent no-op (returns nil) and keeps the
+;; OLD dispatch-fn/method-table intact.
+;; ---------------------------------------------------------------------
+(defmulti mm2-noredef identity)
+(do (defmethod mm2-noredef :a [x] :a) :ok)
+(defmulti mm2-noredef (fn [x] :ignored))
+(mm2-noredef :a)
+
+;; ---------------------------------------------------------------------
+;; remove-all-methods
+;; ---------------------------------------------------------------------
+(defmulti mm2-remall identity)
+(do (defmethod mm2-remall :a [x] :a) :ok)
+(do (defmethod mm2-remall :b [x] :b) :ok)
+(methods (remove-all-methods mm2-remall))
+
+;; ---------------------------------------------------------------------
+;; automatic specificity: a hierarchy-derived exact-match key wins over a
+;; less-specific ancestor key with NO prefer-method needed at all.
+;; ---------------------------------------------------------------------
+(derive :mm2/rect :mm2/shape)
+(defmulti mm2-area (fn [s] (:type s)))
+(do (defmethod mm2-area :mm2/rect [s] :rect) :ok)
+(do (defmethod mm2-area :mm2/shape [s] :shape) :ok)
+(mm2-area {:type :mm2/rect})
+
+;; ---------------------------------------------------------------------
+;; genuine ambiguity: two sibling (unrelated) hierarchy tags both match,
+;; neither dominates -- IllegalArgumentException, no prefer registered.
+;; ---------------------------------------------------------------------
+(derive :mm2/square2 :mm2/rect2)
+(derive :mm2/square2 :mm2/shape2)
+(defmulti mm2-area2 (fn [s] (:type s)))
+(do (defmethod mm2-area2 :mm2/rect2 [s] :rect2) :ok)
+(do (defmethod mm2-area2 :mm2/shape2 [s] :shape2) :ok)
+(mm2-area2 {:type :mm2/square2})
+
+;; ---------------------------------------------------------------------
+;; no match at all, no :default -- IllegalArgumentException
+;; ---------------------------------------------------------------------
+(defmulti mm2-strict2 (fn [x] x))
+(do (defmethod mm2-strict2 :a [x] :a) :ok)
+(mm2-strict2 :never-there)
+
+;; ---------------------------------------------------------------------
+;; isa? on vectors: elementwise, same length only
+;; ---------------------------------------------------------------------
+(derive :mm2/vb :mm2/vc)
+(isa? [:mm2/vb :mm2/x] [:mm2/vc :mm2/x])
+(isa? [:mm2/vb :mm2/x] [:mm2/vc :mm2/x :mm2/x])
+(isa? [:mm2/vb] [:mm2/vb])
+
+;; ---------------------------------------------------------------------
+;; 3-arity pure derive/isa?/parents/ancestors/descendants against an
+;; explicit (isolated) hierarchy value -- the global hierarchy is
+;; unaffected by it.
+;; ---------------------------------------------------------------------
+(do (def mm2-hier1 (derive (make-hierarchy) :mm2/hx :mm2/hy)) :ok)
+(isa? mm2-hier1 :mm2/hx :mm2/hy)
+(isa? :mm2/hx :mm2/hy)
+(parents mm2-hier1 :mm2/hx)
+(ancestors mm2-hier1 :mm2/hx)
+(descendants mm2-hier1 :mm2/hy)
+(= (make-hierarchy) (make-hierarchy))
+
+;; ---------------------------------------------------------------------
+;; derive's 2-arity (global) namespace assertion: non-namespaced keywords
+;; are rejected; underive on a relationship that was never established is
+;; a silent no-op either way.
+;; ---------------------------------------------------------------------
+(derive :mm2-bare-child :mm2-bare-parent)
+(underive :mm2-bare-child :mm2-bare-parent)
+(isa? :mm2-bare-child :mm2-bare-parent)

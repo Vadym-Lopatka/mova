@@ -1,0 +1,13 @@
+ERR	{:type :error/unresolved, :message "Unable to resolve symbol: clojure.lang.ExceptionInfo"}
+ERR	{:type :error/divide-by-zero, :message "Divide by zero"}
+ERR	{:type :error/other, :message "nth: index 10 out of bounds for vector of length 3"}
+ERR	{:type :error/type, :message "inc: expected a number, got nil"}
+ERR	#error {:via [{:type java.lang.AssertionError, :message "Assert failed: (= 1 2)"}], :trace [], :cause "Assert failed: (= 1 2)"}
+ERR	#error {:via [{:type java.lang.AssertionError, :message "Assert failed: custom message\n(= 1 2)"}], :trace [], :cause "Assert failed: custom message\n(= 1 2)"}
+OK	#<fn pre-check>
+OK	-1
+OK	#<fn post-check>
+ERR	{:type :error/unresolved, :message "Unable to resolve symbol: %"}
+ERR	{:type :error/arity, :message "loop: recur expected 2 argument(s), got 1"}
+ERR	{:type :error/other, :message "recur used outside loop/fn tail position"}
+TIMEOUT

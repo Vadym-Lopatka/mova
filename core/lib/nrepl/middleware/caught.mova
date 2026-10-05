@@ -1,0 +1,28 @@
+;; Mova-level stand-in for the built-in nREPL middleware of the same name: the real
+;; work is native. It carries the descriptor so user middleware can order itself
+;; against it (`:requires` / `:expects`, var or op name) and `describe` lists it.
+(ns nrepl.middleware.caught
+  (:require [nrepl.middleware :refer [set-descriptor!]]
+            [nrepl.middleware.print :as print]))
+
+(def ^:dynamic *caught-fn*
+  "Function to use to convey interactive errors (generally by printing to
+  `*err*`). Takes one argument, the throwable. nil: the default report."
+  nil)
+
+(def configuration-keys
+  [::caught-fn ::print?])
+
+(defn wrap-caught
+  "Native; this wrapper passes every message on."
+  [h]
+  h)
+
+(set-descriptor! #'wrap-caught {:requires #{"clone" #'print/wrap-print}
+                                :expects #{}
+                                :handles {}
+                                :session-dynvars #{#'*caught-fn*}})
+
+(def wrap-caught-optional-arguments
+  {"nrepl.middleware.caught/caught" "A fully-qualified symbol naming a var whose function to use to convey interactive errors. Must point to a function that takes a `java.lang.Throwable` as its sole argument."
+   "nrepl.middleware.caught/print?" "Boolean; if true, the printed value of any exception will be returned in the response map, keyed by `:nrepl.middleware.caught/throwable`."})

@@ -1,0 +1,88 @@
+{
+ "name": "a04_clone_copies",
+ "doc": "clone copies parent bindings; plain clone does not",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(set! *print-length* 2)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(def cl-a 5)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(in-ns 'clone.ns)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "clone",
+    "id": "4",
+    "session": "$s1"
+   },
+   "save_as": "c"
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(range 10)",
+    "session": "$c"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(str *ns*)",
+    "session": "$c"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(range 10)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "clone",
+    "id": "8"
+   },
+   "save_as": "d"
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(range 10)",
+    "session": "$d"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(str *ns*)",
+    "session": "$d"
+   }
+  }
+ ]
+}

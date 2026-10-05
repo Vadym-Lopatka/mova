@@ -1,0 +1,21 @@
+;; topology.mova -- COMMUNICATION ONLY. No business logic lives here.
+;;
+;; This file's entire job is wiring: which procs exist, and which output
+;; port feeds which input port. It references the three step vars the
+;; host already loaded (ingest-step, plugin-stage-step, sink-step) by
+;; name and has no idea what any of them actually compute -- swap any one
+;; of procs/*.mova for a different implementation of the same step-name and
+;; this file would not need to change at all.
+;;
+;; :plugin-stage is the only proc with two input ports; leaving both
+;; :ingest's :in and :plugin-stage's :ctl unconnected in `:conns` is what
+;; makes them "injectable" -- the host reaches data and control messages
+;; in from Rust via `flow/inject` at exactly those two ports.
+
+(def pipeline
+  (flow/create-flow
+   {:procs {:ingest {:proc (flow/process ingest-step)}
+            :plugin-stage {:proc (flow/process plugin-stage-step)}
+            :sink {:proc (flow/process sink-step)}}
+    :conns [[[:ingest :out] [:plugin-stage :in]]
+            [[:plugin-stage :out] [:sink :in]]]}))

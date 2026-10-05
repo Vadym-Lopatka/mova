@@ -1,0 +1,75 @@
+;; strdot.corpus -- S6 (strdot) instance-method dot-form dispatch on a
+;; `Value::Str` receiver: `(.startsWith s "a")`-shaped forms, backed by
+;; `builtins::strings::str_dot_method` (see that fn's doc comment for the
+;; full rationale). One session.
+;;
+;; Every form here was measured against real Clojure 1.13.0-alpha6 before
+;; being added -- three surprises worth flagging up front, since they drove
+;; the implementation and are easy to get backwards:
+;;   - `.split`'s pattern arg is ALWAYS a regex source, even a plain string
+;;     like "," -- `(.split "a.b" ".")` returns `[]` (every char matches
+;;     the "." pattern, giving all-empty pieces, all stripped as trailing).
+;;   - `.split` given a COMPILED `#"..."` regex literal THROWS
+;;     (`ClassCastException`) rather than working -- `String.split`'s
+;;     parameter type is `String`, not `Pattern`, so a `Pattern` argument
+;;     fails to reflect. Real, measured, deliberately covered below.
+;;   - `.replace` is ALWAYS literal text, never regex, even on a pattern
+;;     string full of regex metacharacters.
+;;   - `.indexOf`/`.lastIndexOf` return `-1` on no match, never `nil`
+;;     (unlike the bare `clojure.string/index-of`/`last-index-of`).
+
+(.startsWith "abc" "a")
+(.startsWith "abc" "d")
+(.startsWith "" "")
+(.endsWith "abc" "c")
+(.endsWith "abc" "d")
+(.contains "hello world" "wor")
+(.contains "hello world" "xyz")
+(.toUpperCase "pow")
+(.toLowerCase "POW")
+(.toUpperCase "")
+(.trim "  padded  ")
+(.length "hello")
+(.length "")
+(.isEmpty "")
+(.isEmpty "x")
+(.toString "hello")
+(= "hello" (.toString "hello"))
+(.concat "ab" "cd")
+(.concat "" "x")
+(.charAt "hello" 0)
+(.charAt "hello" 4)
+(class (.charAt "hello" 0))
+(try (.charAt "hello" 5) (catch Exception e :threw))
+(try (.charAt "" 0) (catch Exception e :threw))
+(.substring "hello" 2)
+(.substring "hello" 0)
+(.substring "hello" 1 3)
+(.substring "hello" 5)
+(try (.substring "hello" 6) (catch Exception e :threw))
+(try (.substring "hello" 3 1) (catch Exception e :threw))
+(.indexOf "hello" "x")
+(.indexOf "hello" "l")
+(.indexOf "hello" "")
+(.indexOf "abcabc" "b" 2)
+(.indexOf "abcabc" "b" 10)
+(try (.indexOf "hello" \l) (catch Exception e :threw))
+(.indexOf "hello" (int \l))
+(.lastIndexOf "abcabc" "b")
+(.lastIndexOf "abcabc" "x")
+(.lastIndexOf "abcabc" "b" 2)
+(.replace "aaa" "a" "b")
+(.replace "a.b.c" "." "-")
+(.replace "no-match" "x" "y")
+(vec (.split "a.b" "."))
+(vec (.split "a,b,c" ","))
+(vec (.split "a,b,c" "," 2))
+(vec (.split "a,b,,c," ","))
+(vec (.split "a,b,,c," "," -1))
+(vec (.split "a1b2c3" "[0-9]"))
+(class (.split "a,b" ","))
+(seq (.split "a,b,c" ","))
+(first (.split "clojure.core$foo" "_"))
+(try (.split "a,b" #",") (catch Exception e :threw))
+(try (.bogusMethod "abc") (catch Exception e :threw))
+(try (.-length "abc") (catch Exception e :threw))

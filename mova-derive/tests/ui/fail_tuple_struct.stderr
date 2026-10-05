@@ -1,0 +1,5 @@
+error: #[derive(MovaStruct)] does not support tuple structs (v1 restriction -- named fields are required, since the script-visible key comes from the field's Rust identifier or #[mova(rename = "...")])
+ --> tests/ui/fail_tuple_struct.rs:6:13
+  |
+6 | struct Tuple(i64, String);
+  |             ^^^^^^^^^^^^^

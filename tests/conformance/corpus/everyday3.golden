@@ -1,0 +1,60 @@
+OK	[:a 1]
+OK	nil
+OK	nil
+OK	[1 20]
+OK	nil
+OK	nil
+ERR	IllegalArgumentException
+ERR	IllegalArgumentException
+OK	(1 2 3)
+OK	(1 2 3 4)
+OK	(1 2 3)
+OK	(1 2)
+OK	nil
+OK	(5)
+OK	(1 2 3 4 5 6)
+OK	(1 2 3)
+OK	()
+OK	()
+OK	([:a 1])
+OK	(\a \b)
+OK	(1 2 3)
+OK	(2 3 4)
+OK	(1 3 5)
+OK	()
+OK	()
+OK	(11 22 33)
+OK	(11 22)
+OK	(2 4 6)
+OK	(2 3 4)
+OK	(11 22 33)
+OK	()
+OK	(1 2 3)
+OK	(1 2 3)
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	true
+OK	0
+OK	42
+ERR	IndexOutOfBoundsException
+OK	true
+OK	true
+ERR	IllegalStateException
+OK	["a" "a" "a" nil]
+OK	"aaa"
+OK	["a" "a" nil]
+OK	nil
+ERR	IllegalStateException
+OK	[["1" "1" nil] ["22" "2" "2"] ["3" "3" nil] nil]
+OK	[]
+OK	{}
+OK	#{}
+OK	()
+OK	()
+OK	nil
+OK	nil
+OK	nil
+OK	nil

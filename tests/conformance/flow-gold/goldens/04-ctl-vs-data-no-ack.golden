@@ -1,0 +1,3 @@
+RESULT total 200
+PASS total-exact
+PASS no-torn-state

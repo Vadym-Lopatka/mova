@@ -1,0 +1,101 @@
+;; everyday3.corpus -- S4 batch 3 "everyday" builtins: find, list*,
+;; sequence (1-arity + the transducer arities, via map/filter's new
+;; 1-arity transducer clauses in core/core.mova -- see that file for the
+;; documented "not a general transducer protocol, just enough for
+;; sequence" scope note), pmap/pcalls/pvalues, the rand family, re-matcher/
+;; re-groups/stateful re-find, and empty's two divergences (fixed here:
+;; throws on a record, nil on any other non-collection). One session.
+;; `find`/`empty` on a RECORD are pinned in records.corpus instead (reuses
+;; that file's already-established `Rec123` fixture rather than declaring
+;; a second one here).
+;;
+;; Multi-entry map/set literals are never left as the printed RESULT
+;; (unordered iteration) -- same rule as collections.corpus. The rand
+;; family's non-deterministic OUTPUTS are never printed raw either: every
+;; form there asserts a deterministic PROPERTY (a boolean) instead.
+
+;; -- find: maps/vectors (by index)/nil are associative; sets/lists throw --
+(find {:a 1 :b 2} :a)
+(find {:a 1} :z)
+(find nil :a)
+(find [10 20 30] 1)
+(find [10 20] 5)
+(find [10 20] -1)
+(find #{1 2 3} 1)
+(find '(1 2 3) 0)
+
+;; -- list*: uniform fold-right cons; 1-arity is bare `seq` (empty -> nil) --
+(list* [1 2 3])
+(list* 1 2 [3 4])
+(list* 1 [2 3])
+(list* 1 2 nil)
+(list* [])
+(list* 5 nil)
+(list* 1 2 3 4 [5 6])
+
+;; -- sequence: 1-arity is a total, non-nil `seq` (empty/nil -> `()`,
+;; unlike bare `seq`'s `nil`); xform arities drive map/filter's new
+;; transducer clauses, including the multi-collection form and comp --
+(sequence [1 2 3])
+(sequence nil)
+(sequence [])
+(sequence {:a 1})
+(sequence "ab")
+(sequence (seq [1 2 3]))
+(sequence (map inc) [1 2 3])
+(sequence (filter odd?) [1 2 3 4 5])
+(sequence (map inc) nil)
+(sequence (map inc) [])
+(sequence (map +) [1 2 3] [10 20 30])
+(sequence (map +) [1 2 3] [10 20])
+(sequence (comp (map inc) (filter even?)) [1 2 3 4 5])
+
+;; -- pmap/pcalls/pvalues: pure functions only (result order is always
+;; input order regardless of parallelism). See DEVIATIONS.md for the
+;; documented realize-ahead-of-consumption divergence this corpus does
+;; NOT exercise (that property is inherently timing-shaped, not a stable
+;; pr-str comparison) --
+(pmap inc [1 2 3])
+(pmap + [1 2 3] [10 20 30])
+(pmap inc [])
+(pcalls (fn [] 1) (fn [] 2) (fn [] 3))
+(pvalues 1 2 3)
+
+;; -- rand family: properties only, never a raw random value --
+;; (number? (rand))/(int? (rand-int 10)) promoted verbatim from
+;; tests/conformance/pending/numerics.corpus.
+(number? (rand))
+(int? (rand-int 10))
+(float? (rand))
+(let [r (rand)] (and (<= 0 r) (< r 1)))
+(let [r (rand 10)] (and (<= 0 r) (< r 10)))
+(let [r (rand-int 10)] (and (<= 0 r) (<= r 9) (int? r)))
+(rand-int 1)
+(rand-nth [42])
+(rand-nth [])
+(let [s (shuffle [1 2 3])] (and (vector? s) (= (sort s) [1 2 3])))
+(let [s (shuffle '(1 2 3))] (and (vector? s) (= (sort s) [1 2 3])))
+
+;; -- re-matcher/re-groups/stateful re-find: re-groups throws (no match
+;; attempted yet, OR the last attempt failed); successive re-find calls
+;; on one matcher advance a search cursor --
+(re-groups (re-matcher #"a" "aaa"))
+(let [m (re-matcher #"a" "aaa")] [(re-find m) (re-find m) (re-find m) (re-find m)])
+(let [m (re-matcher #"a+" "xxaaayy")] (re-find m) (re-groups m))
+(let [m (re-matcher #"(a)(b)?" "ac")] (re-find m) (re-groups m))
+(let [m (re-matcher #"z" "aaa")] (re-find m))
+(let [m (re-matcher #"z" "aaa")] (re-find m) (re-groups m))
+(let [m (re-matcher #"(\d)(\d)?" "1 22 3")] [(re-find m) (re-find m) (re-find m) (re-find m)])
+
+;; -- empty: fixed divergences -- nil for any non-collection (was a
+;; throw), throws for a record (was a widen-to-{}); see records.corpus
+;; for the record case --
+(empty [1 2 3])
+(empty {:a 1})
+(empty #{1 2 3})
+(empty '(1 2 3))
+(empty (map inc [1 2 3]))
+(empty nil)
+(empty "abc")
+(empty 5)
+(empty :a)

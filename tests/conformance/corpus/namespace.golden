@@ -1,0 +1,9 @@
+OK	"a"
+OK	nil
+OK	"c"
+OK	nil
+OK	"long.dotted.ns"
+OK	"a.b.c"
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	NullPointerException

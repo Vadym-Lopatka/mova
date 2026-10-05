@@ -1,0 +1,27 @@
+;; Namespaced map literals -- `#:ns{...}`, `#::{...}`, `#::alias{...}`
+;; (Clojure 1.9's LispReader.readNamespacedMap). Promoted here from
+;; tests/conformance/pending/reader.corpus by SPEC-W6b, which taught the
+;; reader the form; the two lines that were pending are the first two
+;; below.
+;;
+;; Every form below prints something OTHER than a bare map on purpose.
+;; Whether a map with namespaced keys PRINTS as `#:ns{...}` or as
+;; `{:ns/k ...}` is `*print-namespace-maps*`'s business, and the two hosts
+;; default it differently (`clojure.main` turns it on, mova leaves it
+;; off) -- that is a separate, still-pending divergence, and mixing it in
+;; here would test the printer instead of the reader.
+(get #:foo{:a 1} :foo/a)
+(get #::{:a 1} :user/a)
+(sort (keys #:foo{:a 1 :b 2}))
+(= #:foo{:a 1 :bar/b 2} {:foo/a 1 :bar/b 2})
+(= #:foo{:_/a 1} {:a 1})
+(= '#:foo{a 1 _/b 2} {'foo/a 1 'b 2})
+(count #:foo{:a 1 :b 2})
+(get #:foo{"s" 1 42 2} "s")
+(get #:foo{"s" 1 42 2} 42)
+(get-in #:a{:m #:b{:x 1}} [:a/m :b/x])
+(= #::{:a 1} {:user/a 1})
+(require '[clojure.string :as str])
+(get #::str{:a 1} :clojure.string/a)
+(get-in #:foo{:a #::{:b 2}} [:foo/a :user/b])
+(vec (sort-by str (keys #:x{:a 1 :y/b 2 :_/c 3})))

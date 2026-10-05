@@ -1,0 +1,76 @@
+;; errors.corpus -- exception-handling gap corpus (pending). Every form
+;; on this list currently DIVERGES between real Clojure 1.13.0-alpha6 and
+;; mova; it is a ledger of failures, not aspirational syntax. One session.
+;;
+;; NOTE on what already CONFORMS (excluded here, not repeated): mova's
+;; ex-data/ex-message/ex-cause work correctly (`ex-cause` as of W-ERR,
+;; field2 -- this file used to list `(ex-message (ex-cause (ex-info
+;; "outer" {} (ex-info "inner" {}))))` as its own first pending line, an
+;; inconsistency with this very sentence's older claim that predates
+;; `ex-cause` actually existing; that line now conforms and was promoted
+;; to `tests/conformance/corpus/errors.corpus`); a `try`/`catch`/`finally`
+;; whose declared catch CLASS happens to match the actually-thrown
+;; error's category (ArithmeticException/ClassCastException/
+;; IllegalArgumentException/IndexOutOfBoundsException/
+;; NullPointerException/ExceptionInfo, each verified individually) gives
+;; the SAME `:caught` result on both sides -- but only because mova's
+;; `catch` ignores the declared class entirely and matches ANY thrown
+;; error (see the MISMATCHED-class lines below, which is where that gap
+;; actually becomes visible); `finally` correctly runs and does not
+;; swallow a propagating error on both sides (also excluded).
+;;
+;; Headline finding #1 -- "any class catches anything": a catch clause
+;; whose declared class does NOT match the real exception still catches
+;; it in mova (returns the catch body's value) where Clojure rethrows
+;; the real exception uncaught. Three independent (class, actual-error)
+;; mismatches below all show the same pattern.
+;;
+;; Headline finding #2 -- a second `catch` clause is rejected outright by
+;; mova's parser ("try: only one catch clause is supported"), so
+;; multi-catch fall-through-to-the-matching-clause is entirely
+;; unavailable, unlike the single-catch-mismatch case above which mova
+;; silently mishandles instead of rejecting.
+;;
+;; Headline finding #3 (silent-wrongness) -- `:pre`/`:post` are BOTH
+;; ignored by mova's `defn`, but not in the same way: `:pre`'s condition
+;; is evaluated for its side effects and its (unused) value discarded --
+;; the call quietly succeeds with the true return value instead of
+;; raising AssertionError. `:post`'s condition uses the compiler-special
+;; `%` binding for the return value, which mova's `defn` does not
+;; implement at all, so `%` is an ordinary unresolved symbol AT CALL TIME
+;; -- a different failure mode (loud, but for the wrong reason) than
+;; `:pre`'s silent wrongness.
+;;
+;; Headline finding #4 -- STALE as of wave-C small sweep item 5: `assert`
+;; (S6) and a best-effort `Throwable->map` (core.mova, single-exception
+;; only -- no cause-chain walk, no real stack trace) now exist. Their
+;; `assert`/`(Throwable->map (Exception. ...))` rows below are ERR-BOTH
+;; (both sides now throw `AssertionError`, but the pending driver never
+;; auto-promotes ERR-BOTH -- mova has no exception-class taxonomy to
+;; prove the SAME thing was thrown, see this dir's own README); the two
+;; `Throwable->map`-on-`ex-info` rows that DID start conforming (both
+;; sides `OK`) were promoted to `tests/conformance/corpus/libstatics.
+;; corpus`. `*assert*` still does not exist (still unresolved-symbol --
+;; unmeasured by this task, not touched).
+;;
+;; Headline finding #5 -- `recur` misuse: wrong arity and recur-outside-
+;; loop are BOTH caught immediately by mova (not a compile-time rejection
+;; like Clojure, but also not a hang) -- see the `arity error`/`error`
+;; lines. The THIRD case, `recur` used in non-tail position inside a
+;; `loop`, is the one form in this whole pending corpus family that
+;; HANGS mova forever (confirmed with a 6s timeout via a piped mova REPL
+;; session; Clojure rejects it at compile time instead). Kept as the
+;; LAST line of this file since nothing after it would ever run.
+(instance? clojure.lang.ExceptionInfo (ex-info "m" {}))
+(try (/ 1 0) (catch ClassCastException e :caught-wrong))
+(try (nth [1 2 3] 10) (catch NullPointerException e :wrong2))
+(try (inc nil) (catch ArithmeticException e :wrong3))
+(assert (= 1 2))
+(assert (= 1 2) "custom message")
+(defn pre-check [x] {:pre [(pos? x)]} x)
+(pre-check -1)
+(defn post-check [x] {:post [(> % 0)]} x)
+(post-check -5)
+(loop [i 0 j 0] (recur i))
+(recur 1)
+(loop [i 0] (+ 1 (recur i)))

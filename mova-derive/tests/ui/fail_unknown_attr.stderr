@@ -1,0 +1,5 @@
+error: unknown `#[mova(...)]` field attribute key -- expected one of `rename`, `skip`, `getter`
+ --> tests/ui/fail_unknown_attr.rs:9:12
+  |
+9 |     #[mova(renme = "oops")]
+  |            ^^^^^

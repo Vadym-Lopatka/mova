@@ -1,0 +1,4 @@
+;; Oracle deps: cljfmt 0.16.4 + rewrite-clj 1.2.55 + tools.reader 1.6.0 sources (read-only).
+;; run.sh adds their dirs to :paths via -Sdeps from $MOVA_FMT_VENDOR_DIR; do the same for manual runs.
+{:paths ["."]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}}}

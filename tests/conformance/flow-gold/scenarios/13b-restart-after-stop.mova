@@ -1,0 +1,30 @@
+;;RUNS 5
+;;DIVERGENT
+;; 13b-restart-after-stop: split out from 13-stop-semantics per SPEC.md's
+;; catalog note under scenario 13 -- this is a genuinely separate fact
+;; from the report/error-chan close behavior tested there.
+;; - Gold: `impl.clj`'s `Graph/start` checks `@chans` and only short-
+;;   circuits to `{:already-running true, ...}` when it's still truthy;
+;;   `stop` resets `@chans` to `nil`, so a `start` AFTER a `stop` finds
+;;   `@chans` nil and proceeds through the full fresh-channels/fresh-
+;;   proc-threads path exactly like a first start -- i.e. restart
+;;   SUCCEEDS and the flow is fully functional again (`start`'s own
+;;   docstring: "can be started again"). Confirmed by probe, not just
+;;   docstring: a `flow/start` immediately after `flow/stop` returns
+;;   normally, no exception.
+;; - mova: `native_start` only accepts a flow in `FlowPhase::Created`;
+;;   `stop` transitions it to `FlowPhase::Stopped`, which never goes back
+;;   to `Created` -- so a second `flow/start` always errors. Already
+;;   pinned by `tests/flow_test.rs`'s
+;;   `starting_a_stopped_flow_again_errors_restart_is_not_supported`
+;;   (message contains "already been started").
+;; Verdict-ized via try/catch so this is deterministic on both sides
+;; despite one side throwing and the other not.
+
+(def step (flow/map->step {:describe (fn [] {:ins {} :outs {}}) :transform (fn [s _ m] [s {}])}))
+(def fl (flow/create-flow {:procs {:p {:proc (flow/process step)}} :conns []}))
+(flow/start fl)
+(flow/stop fl)
+(def restart-ok (try (do (flow/start fl) true) (catch Exception e false)))
+(println "RESULT restart-ok" restart-ok)
+(flow/stop fl)

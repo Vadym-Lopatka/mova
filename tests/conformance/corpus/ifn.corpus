@@ -1,0 +1,24 @@
+;; ifn.corpus -- `ifn?`: "implements IFn", broader than `fn?`. Oracle-
+;; measured (1.13.0-alpha6, 2026-08-20): true for fns/natives, keywords,
+;; symbols, maps (plain AND sorted), vectors, sets (plain AND sorted), and
+;; vars; false for strings, numbers, nil, atoms, and booleans. See
+;; src/builtins/predicates.rs's `ifn?` registration for the exact Value
+;; variant list.
+(ifn? +)
+(ifn? (fn [x] x))
+(ifn? :a)
+(ifn? 'a)
+(ifn? {})
+(ifn? {:a 1})
+(ifn? [1 2])
+(ifn? #{1 2})
+(ifn? (sorted-map :a 1))
+(ifn? (sorted-set 1 2))
+(ifn? #'+)
+(ifn? "s")
+(ifn? 1)
+(ifn? 1.5)
+(ifn? nil)
+(ifn? (atom 1))
+(ifn? true)
+(map ifn? [+ :a 'a {} [] #{} 1 "s" nil])

@@ -1,0 +1,11 @@
+OK	foo123
+OK	#'foo123/bar
+OK	#'foo123/baz
+OK	(bar baz)
+OK	nil
+OK	(baz)
+OK	#'foo123/baz
+OK	:removed
+OK	true
+ERR	Exception
+OK	#'clojure.set/union

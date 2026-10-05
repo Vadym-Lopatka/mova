@@ -1,0 +1,50 @@
+;;RUNS 5
+;; scenario 05: same plugin-registry proc as 04, but the host waits for the
+;; ack message emitted on :ack after the ctl register before injecting any
+;; data -- the corpus-encoded answer to "how do you order across ports":
+;; ack-then-proceed makes the result fully deterministic (every data output
+;; sees the POST-register registry size, no ambiguity, unlike scenario 04's
+;; unsynchronized version).
+
+(def out-ch (chan 300))
+(def ack-ch (chan 10))
+
+(def registry-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {} :ctl {}} :outs {:out {} :ack {}}})
+    :init (fn [_] {:fns [:base]})
+    :transform (fn [s in-id m]
+                 (if (= in-id :ctl)
+                   (let [s2 (update s :fns conj m)]
+                     [s2 {:ack [:registered]}])
+                   [s {:out [(count (:fns s))]}]))}))
+
+(defn mk-sink [ch]
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:r {:proc (flow/process registry-step)}
+                  :out-sink {:proc (flow/process (mk-sink out-ch))}
+                  :ack-sink {:proc (flow/process (mk-sink ack-ch))}}
+          :conns [[[:r :out] [:out-sink :in]]
+                  [[:r :ack] [:ack-sink :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(def data-n 200)
+(def fut-ctl (flow/inject fl [:r :ctl] [:extra]))
+(deref fut-ctl 5000 :timed-out)
+(def ack (deref (future (<!! ack-ch)) 5000 :timed-out))
+(def fut-data (flow/inject fl [:r :in] (repeat data-n :ping)))
+(deref fut-data 5000 :timed-out)
+
+(def result (deref (future (vec (repeatedly data-n #(<!! out-ch)))) 10000 :timed-out))
+
+(println "RESULT ack" (pr-str ack))
+(println "RESULT all-post-register" (every? #(= % 2) result))
+(println (if (= (count result) data-n) "PASS total-exact" "FAIL total-exact"))
+
+(flow/stop fl)

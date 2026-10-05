@@ -1,0 +1,407 @@
+{
+"scenario": "b06_pos_params",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv2"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{:line 11, :column 1, :file \"foo/bar.clj\"}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{:line 3, :column 1, :file \"/abs/path/baz.clj\"}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (bar.clj:10).\nDivide by zero\n",
+"id": "4",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "4",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (bar.clj:21).\nDivide by zero\n",
+"id": "5",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "5",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling at (foo/bar.clj:30:2).\nUnable to resolve symbol: foo-unresolved in this context\n",
+"id": "6",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "6",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv4"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{:line 1, :column 1, :file \"x.clj\"}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv5"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{:line 7, :column 1, :file \"x.clj\"}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "\"q.clj\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "\"q.clj\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:6:1).\nEOF while reading, starting at line 5\n",
+"id": "13",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "13",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv6"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pv7"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(100 102)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"$timeout": "waiting done on id 16"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (REPL:0).\nDivide by zero\n",
+"id": "17",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "17",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

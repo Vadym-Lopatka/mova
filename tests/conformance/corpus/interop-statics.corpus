@@ -1,0 +1,68 @@
+;; interop-statics.corpus -- S3: java.lang-boxed-numeric-class static
+;; FIELDS (Long/MAX_VALUE, Double/POSITIVE_INFINITY, ...) and the static
+;; METHODS the vendored suite calls in head position (Double/isNaN,
+;; Double/compare, Long/valueOf, ...). See src/builtins/statics.rs's module
+;; doc for registration mechanics and scope derivation.
+;;
+;; Double/MIN_VALUE and Float/MAX_VALUE are deliberately NOT printed bare
+;; here: both are numerically exact but mova (no real f32, and Rust's
+;; shortest-round-trip float printer diverging from Java's on subnormals)
+;; prints them with different digits than the JVM -- see
+;; tests/conformance/pending/numerics.corpus for the pre-existing
+;; Double/MIN_VALUE print-divergence ledger entry (now joined by a
+;; Float/MAX_VALUE one). Both values are still exercised here through
+;; comparisons/predicates, which don't expose the divergent digit string.
+Long/MAX_VALUE
+Long/MIN_VALUE
+Integer/MAX_VALUE
+Integer/MIN_VALUE
+Double/MAX_VALUE
+Double/POSITIVE_INFINITY
+Double/NEGATIVE_INFINITY
+Double/NaN
+Double/MAX_EXPONENT
+Double/MIN_EXPONENT
+Float/POSITIVE_INFINITY
+Float/NEGATIVE_INFINITY
+Float/NaN
+Byte/MAX_VALUE
+Byte/MIN_VALUE
+Short/MAX_VALUE
+Short/MIN_VALUE
+Boolean/TRUE
+Boolean/FALSE
+(= Double/MIN_VALUE Double/MIN_VALUE)
+(> Double/MIN_VALUE 0.0)
+(< Double/MIN_VALUE Double/MAX_VALUE)
+(= Float/MAX_VALUE Float/MAX_VALUE)
+(> Float/MAX_VALUE 0.0)
+(< Double/MAX_VALUE Float/MAX_VALUE)
+(Double/isNaN 1.0)
+(Double/isNaN Double/NaN)
+(Float/isNaN Float/NaN)
+(Float/isNaN 1.0)
+(Double/compare 1.0 2.0)
+(Double/compare 2.0 1.0)
+(Double/compare 1.0 1.0)
+(Double/compare 0.0 -0.0)
+(Double/compare -0.0 0.0)
+(Double/compare Double/NaN 1.0)
+(Double/compare 1.0 Double/NaN)
+(Double/compare Double/NaN Double/NaN)
+(Double/parseDouble "NaN")
+(Double/parseDouble "3.14")
+(Float/parseFloat "NaN")
+;; Not (Float/parseFloat "3.14") bare -- mova widens the parsed f32 to f64
+;; (numerically exact) but prints it with full double precision
+;; (3.140000104904175) where Java's Float.toString prints "3.14"; same
+;; print-only divergence class as Float/MAX_VALUE above.
+(> (Float/parseFloat "3.14") 3.0)
+(< (Float/parseFloat "3.14") 3.2)
+(Long/parseLong "123")
+(Long/parseLong "-123")
+(Long/valueOf Long/MAX_VALUE)
+(Long/valueOf 1)
+(Long/valueOf "42")
+(Integer/valueOf 5)
+(Integer/valueOf "5")
+(+ (Long/valueOf Long/MAX_VALUE) 0)

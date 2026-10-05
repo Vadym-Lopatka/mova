@@ -1,0 +1,22 @@
+;; assert.corpus -- S6 (assert/namespace/uuid batch): the `assert` macro
+;; (core.mova, mirroring real Clojure's own `clojure.core/assert`) and the
+;; `java.lang.AssertionError` class it throws (hostclass.rs's `construct`/
+;; `register`). Uses standard `(catch Throwable e ...)` syntax throughout
+;; (real Clojure syntax; mova's `parse_catch_head` also accepts it, see
+;; that fn's own doc) rather than mova's untyped `(catch e ...)` shorthand,
+;; so every form here is valid on BOTH engines. Message text IS asserted
+;; here (via `.getMessage`) because `assert`'s exact message shape --
+;; "Assert failed: " + the *unevaluated form*, `pr-str`'d -- is the whole
+;; point of this macro and was oracle-measured line for line; ordinarily
+;; this suite treats message text as out of scope (CONFORMANCE-GUARANTEE.md
+;; rule 6), but here it's the very thing under test, not incidental
+;; diagnostic wording.
+(try (assert false) (catch Throwable e (.getMessage e)))
+(try (assert (= 1 2)) (catch Throwable e (.getMessage e)))
+(try (assert false "custom message") (catch Throwable e (.getMessage e)))
+(try (assert (> 1 2) "oops") (catch Throwable e (.getMessage e)))
+(assert true)
+(assert (= 1 1))
+(instance? Throwable (try (assert false) (catch Throwable e e)))
+(instance? Error (try (assert false) (catch Throwable e e)))
+(instance? Exception (try (assert false) (catch Throwable e e)))

@@ -1,0 +1,347 @@
+{
+"scenario": "d01_print",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{0 0, 7 7, 1 1, 4 4, 6 6, 3 3, 2 2, 11 11, 9 9, 5 5, 10 10, 8 8}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{0 0,\n 7 7,\n 1 1,\n 4 4,\n 6 6,\n 3 3,\n 2 2,\n 11 11,\n 9 9,\n 5 5,\n 10 10,\n 8 8}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Error printing return value (ArityException) at clojure.lang.AFn/throwArity (AFn.java:429).\nWrong number of args (3) passed to: clojure.pprint/pprint\n",
+"id": "18",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "18",
+"root-ex": "class clojure.lang.ArityException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"out": "{:a 1} #object[java.io.StringWriter 0xHASH \"\"] nil\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:1>",
+"value": ""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:1>",
+"value": ""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"nrepl.middleware.print/error": "Couldn't resolve var no.such/fn",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{:a 1}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "{:a 1}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "user",
+"session": "<uuid:1>",
+"value": ""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"out": "{:a x} #object[java.io.StringWriter 0xHASH ] nil",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"ns": "user",
+"session": "<uuid:1>",
+"value": ""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(0 1 2 3 4 ...)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (REPL:1).\nDivide by zero\n",
+"id": "11",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "11",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"out": "o\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(0 1 ...)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(0 1 ...)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

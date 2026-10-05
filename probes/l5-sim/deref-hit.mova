@@ -1,0 +1,37 @@
+;; L5 / P6a — coverage for `TimerAction::Wake` and the CANCELLED-ENTRY SKIP.
+;;
+;; `hammer` and `days30` arm only `TimerAction::Close` entries (`timeout`
+;; chans), so neither of them touches the advance rule's step 1. The one
+;; producer of `Wake` entries in the tree is `deref`-with-timeout on a
+;; promise/future/delay from inside a task (`conc.rs`'s
+;; `task_park_until_deadline`), so that is what this program does.
+;;
+;; Shape: the deliverer is spawned but has NOT run when the parent calls
+;; `deref` — so the parent really registers, really arms a Wake entry, and
+;; really parks; the sibling then delivers and the parent's resolve sets the
+;; entry's `cancelled` flag. Every one of the `n` entries is therefore a
+;; cancelled entry sitting in the heap at `now + far`.
+;;
+;; THE MEASURABLE: virtual time must stay at 0. If the advance rule ever
+;; jumped to a cancelled entry, virtual time would land at 10 minutes — and
+;; a "30 days in 40 ms" claim built on a scheduler that jumps to no-ops is
+;; a claim about no-ops.
+
+(def n 60)
+(def far 600000) ; 10 virtual minutes per deref
+
+(defn run []
+  (let [out (chan 4)]
+    (go (loop [i 0]
+          (if (< i n)
+            (let [p (promise)]
+              ;; Spawned, NOT yet run: the parent reaches `deref` first.
+              (go (deliver p (* 2 i)))
+              (let [v (deref p far :TIMED-OUT)]
+                (if (= v (* 2 i))
+                  (recur (inc i))
+                  (>! out [:BAD v]))))
+            (>! out :hit-ok))))
+    (<! out)))
+
+(run)

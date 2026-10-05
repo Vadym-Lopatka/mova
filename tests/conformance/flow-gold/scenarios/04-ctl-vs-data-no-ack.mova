@@ -1,0 +1,51 @@
+;;RUNS 5
+;; scenario 04: plugin-registry proc with 2 in-ports (:in data, :ctl
+;; control). State = vector of registered ids, starts with 1 entry.
+;; Inject a data flood AND a ctl register message WITHOUT any
+;; synchronization between the two inject calls. Invariant: every :in
+;; output equals EITHER the pre-register registry size (1) or the
+;; post-register size (2) -- never anything else ("no torn state", since
+;; each proc's transform runs strictly serially against one full copy of
+;; state at a time on both sides: gold impl.clj's `run` loop is a single
+;; `loop`/`recur`, mova's proc loop is likewise single-threaded per proc).
+;; Total count must be exact (no message lost). The actual split point
+;; between pre/post is deliberately UNASSERTED (no cross-call ordering
+;; guarantee, see FINDINGS.md item 1) -- so raw per-message counts are
+;; never printed, only the two invariant verdicts and the exact total.
+
+(def out-ch (chan 300))
+(def data-n 200)
+
+(def registry-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {} :ctl {}} :outs {}})
+    :init (fn [_] {:fns [:base]})
+    :transform (fn [s in-id m]
+                 (if (= in-id :ctl)
+                   [(update s :fns conj m) {}]
+                   (do (>!! out-ch (count (:fns s)))
+                       [s {}])))}))
+
+(def fl (flow/create-flow
+         {:procs {:r {:proc (flow/process registry-step)}}
+          :conns []}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(def fut-data (flow/inject fl [:r :in] (repeat data-n :ping)))
+(def fut-ctl (flow/inject fl [:r :ctl] [:extra]))
+(deref fut-data 5000 :timed-out)
+(deref fut-ctl 5000 :timed-out)
+
+(def result (deref (future (vec (repeatedly data-n #(<!! out-ch)))) 10000 :timed-out))
+
+(if (= result :timed-out)
+  (do (println "FAIL total-exact timed-out")
+      (println "FAIL no-torn-state timed-out"))
+  (do
+    (println "RESULT total" (count result))
+    (println (if (= (count result) data-n) "PASS total-exact" "FAIL total-exact"))
+    (println (if (every? #(contains? #{1 2} %) result) "PASS no-torn-state" "FAIL no-torn-state"))))
+
+(flow/stop fl)

@@ -1,0 +1,52 @@
+;; macros.mova -- defmacro + threading + quasiquote showcase.
+;;
+;;   ./target/debug/mova examples/macros.mova
+
+(println "-- a simple code-generating macro --")
+;; `unless` expands to an `if` with the branches swapped -- the classic
+;; first macro. Built with quasiquote/unquote so the expansion reads like
+;; the code it produces.
+(defmacro unless [test then else]
+  `(if ~test ~else ~then))
+
+(println (unless false "took the then-branch" "took the else-branch"))
+(println (unless true "took the then-branch" "took the else-branch"))
+
+(println)
+(println "-- macroexpand-1: seeing what a macro actually generates --")
+(println (macroexpand-1 '(unless false :a :b)))
+(println (macroexpand-1 '(-> 5 inc (* 2))))
+
+(println)
+(println "-- threading macros: -> and ->> --")
+;; `->` threads a value through as the FIRST argument of each form.
+(println (-> 5
+             inc
+             (* 2)
+             (- 1)))
+;; `->>` threads a value through as the LAST argument of each form -- the
+;; natural shape for the seq pipeline stdlib (map/filter/reduce all take
+;; their collection last).
+(println (->> (range 1 11)
+              (filter even?)
+              (map #(* % %))
+              (reduce +)))
+
+(println)
+(println "-- a macro that inspects its own call form: `spy` --")
+;; `spy` prints the *source form* it was called with (quasiquote's `'~form`
+;; idiom: quote the form, but unquote-splice the already-bound `form`
+;; value in first) alongside evaluating it, then returns that value --
+;; showing that a macro receives unevaluated *code* as data, not a value.
+(defmacro spy [form]
+  `(do (println "  " (pr-str '~form) "=>" ~form) ~form))
+
+(println (spy (+ 1 2)))
+(println (spy (str "hello " "macros")))
+(println (spy (->> [1 2 3 4 5] (filter odd?) (reduce +))))
+
+(println)
+(println "-- quasiquote building data, not just code --")
+(let [n 3]
+  (println (str "quasiquote with unquote-splicing: "
+                `(:count ~n :items ~@(range n)))))

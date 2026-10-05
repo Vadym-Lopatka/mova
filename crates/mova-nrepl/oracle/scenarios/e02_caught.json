@@ -1,0 +1,140 @@
+{
+ "name": "e02_caught",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/caught": "clojure.core/prn"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/caught": "clojure.core/prn",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/caught": "no.such/fn"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/caught": "clojure.core/identity"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": ""
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "0"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(foo-unresolved)",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(+ 1",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "(throw (ex-info \"b\" {:a 1}))",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "(throw (RuntimeException. \"o\" (Exception. \"i\")))",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/caught": "clojure.core/prn",
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.caught/print?": "1",
+    "nrepl.middleware.print/quota": 10
+   }
+  }
+ ]
+}

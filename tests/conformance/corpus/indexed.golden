@@ -1,0 +1,10 @@
+OK	user.RTIndexed
+OK	:defined
+OK	:root
+OK	:nf
+ERR	ExceptionInfo
+ERR	ExceptionInfo
+OK	:nf
+OK	true
+OK	nil
+ERR	IllegalArgumentException

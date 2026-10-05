@@ -1,0 +1,51 @@
+{
+ "name": "f05_interrupt_loop",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(loop [] (recur))",
+    "session": "$s1"
+   },
+   "await": false
+  },
+  {
+   "wait": 0.5
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "2",
+    "session": "$s1",
+    "interrupt-id": "1"
+   },
+   "timeout": 15
+  },
+  {
+   "await": {
+    "id": "1",
+    "status": "done"
+   },
+   "timeout": 15
+  },
+  {
+   "wait": 0.4
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(+ 1 2)",
+    "session": "$s1"
+   },
+   "timeout": 5
+  }
+ ],
+ "flaky": "race: eval-thread replies (err/ex/value/out) vs interrupt-thread replies (interrupted/done)",
+ "settle": 1.0
+}

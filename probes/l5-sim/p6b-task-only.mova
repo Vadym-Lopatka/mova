@@ -1,0 +1,29 @@
+;; P6b positive control — a program with NO OS-thread participants at all.
+;;
+;; The counterpart to `p6b-osthread-jump.mova`: same ingredients (channels,
+;; timeouts, a race between a producer and a deadline) but every producer is a
+;; task, so the advance rule's "no runnable task ⇒ the world is quiescent"
+;; inference is sound. Its answer must therefore be IDENTICAL in real mode and
+;; in sim — that identity is what G-SEMANTICS is actually claiming, stated
+;; small enough to assert in a unit test.
+;;
+;; The `(timeout 250)` arm is deliberately kept live rather than trivially
+;; lost: the pipeline below parks on a chain of `(timeout 10)` hops, so sim
+;; really does jump virtual time repeatedly while the deadline sits armed.
+;; Real mode: 60 ms of genuine sleeping. Sim: zero, and the same answer.
+(let [c    (chan 1)
+      done (chan 1)
+      ;; Six 10 ms hops, all inside tasks -- 60 ms of virtual time, which the
+      ;; advance rule must walk one deadline at a time.
+      _ (go-loop [i 0]
+          (if (= i 6)
+            (>! done :walked)
+            (do (<! (timeout 10)) (recur (inc i)))))
+      walked (first (alts!! [done (timeout 250)]))
+      ;; A producer that is a task, racing a deadline it must win.
+      _ (go (<! (timeout 20)) (>! c :produced))
+      raced (first (alts!! [c (timeout 250)]))
+      ;; A deadline that must win, because nothing is coming.
+      empty-ch (chan 1)
+      lost (first (alts!! [empty-ch (timeout 30)]))]
+  [walked raced lost])

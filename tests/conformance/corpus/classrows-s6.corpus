@@ -1,0 +1,36 @@
+;; classrows-s6.corpus -- S6: three `instance?`-usable class rows added
+;; this session, each measured on 1.13.0-alpha6.
+;;
+;; `clojure.lang.MultiFn` (src/builtins/types.rs `is_multifn`): a
+;; `defmulti`'s dispatch value is a plain `Value::Native` under the hood,
+;; same as any other native/builtin fn, so membership is checked against
+;; `interp.multimethods`'s registry rather than a pure predicate -- see
+;; that fn's doc for why a bare "is this a Native" pred would be
+;; dishonest (it would also say `true` for `+`/`map`/...). Motivating
+;; blocker: test.check's `clojure_test.cljc` `(instance? clojure.lang.
+;; MultiFn ct/report)`.
+;;
+;; `clojure.lang.IMapEntry` (`is_map_entry`): mova has no distinct
+;; map-entry representation -- `(first {:a 1})` is a plain `Value::Vector`,
+;; identical in shape to a hand-typed `[:a 1]` literal -- so the pred is
+;; UNCONDITIONALLY `false`, a documented, permanent deviation for the one
+;; case real Clojure answers `true` (`(instance? clojure.lang.IMapEntry
+;; (first {:a 1}))`). Never lies about a literal vector, which is the
+;; overwhelmingly more common case. Motivating blocker: clojure/walk.clj's
+;; `walk` (`(instance? clojure.lang.IMapEntry form)`).
+;;
+;; `clojure.lang.IRecord` (`is_irecord`): fully exact -- reuses the same
+;; `TypeDef::is_record` field `record?` already does. Motivating blocker:
+;; the SAME `walk` fn's next `cond` clause.
+(defmulti classrows-mm :type)
+(do (defmethod classrows-mm :a [x] :got-a) :ok)
+(instance? clojure.lang.MultiFn classrows-mm)
+(instance? clojure.lang.MultiFn (fn [x] x))
+(instance? clojure.lang.MultiFn +)
+(instance? clojure.lang.IMapEntry (first {:a 1}))
+(instance? clojure.lang.IMapEntry [:a 1])
+(instance? clojure.lang.IMapEntry {:a 1})
+(defrecord ClassRowsR [a b])
+(instance? clojure.lang.IRecord (->ClassRowsR 1 2))
+(instance? clojure.lang.IRecord {:a 1})
+(instance? clojure.lang.IRecord [1 2])

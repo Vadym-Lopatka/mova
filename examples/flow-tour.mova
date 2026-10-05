@@ -1,0 +1,120 @@
+;; flow-tour.mova -- core.async.flow showcase: a 3-proc pipeline
+;; (doubler -> fan-out to two sinks), the start-paused/resume lifecycle,
+;; `flow/ping` introspection, a deliberate transform error read straight
+;; off the error-chan with proc STATE KEPT across it (per FLOW-DESIGN.md's
+;; "transform error" contract), and a clean `flow/stop`. Every step blocks
+;; on a channel/ping/inject future before moving on (same discipline as
+;; async-tour.mova), so output is fully deterministic and this exits 0.
+;;
+;;   ./target/release/mova examples/flow-tour.mova
+
+(println "== core.async.flow tour ==")
+(println "   (entire runtime native Rust; the interpreter is entered only")
+(println "    to call the step-fns below -- see FLOW-DESIGN.md)")
+(println)
+
+;; ---------------------------------------------------------------------
+;; Build: :d doubles every message it sees; its single :out fans out
+;; (native mult thread) to TWO independent sinks, :a and :b -- both see
+;; every doubled value, in order. :d's transform also has a single
+;; deliberately-reachable failure mode (`:boom`), used further down.
+;; ---------------------------------------------------------------------
+(println "-- building: doubler -> fan-out to sink-a and sink-b --")
+
+(def a-ch (chan 20))
+(def b-ch (chan 20))
+
+(def doubler
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :init (fn [_] {:n 0})
+    :transform (fn [s _ m]
+                 (if (= m :boom)
+                   (throw "deliberate doubler error")
+                   (let [s2 (update s :n inc)]
+                     [s2 {:out [(* 2 m)]}])))}))
+
+(defn mk-sink [ch]
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:d {:proc (flow/process doubler)}
+                  :a {:proc (flow/process (mk-sink a-ch))}
+                  :b {:proc (flow/process (mk-sink b-ch))}}
+          :conns [[[:d :out] [:a :in]]
+                  [[:d :out] [:b :in]]]}))
+(println "  3 procs, 2 conns (1 fan-out from :d/:out to :a/:in and :b/:in)")
+
+;; ---------------------------------------------------------------------
+;; Lifecycle: every proc starts PAUSED. Injecting while paused still
+;; succeeds (the message sits buffered on :d's in-chan) but nothing
+;; reaches the sinks until `flow/resume`.
+;; ---------------------------------------------------------------------
+(println)
+(println "-- lifecycle: start (paused by default), inject while paused --")
+(def chans (flow/start fl))
+(flow/inject fl [:d :in] [1 2 3])
+(sleep-ms 100)
+(println "  injected [1 2 3] while paused; sink-a has anything yet?"
+         (poll! a-ch) "(nil = still buffered upstream, as expected)")
+
+(println "-- resume: the buffered messages flow through immediately --")
+(flow/resume fl)
+(def a-first-batch [(<!! a-ch) (<!! a-ch) (<!! a-ch)])
+(def b-first-batch [(<!! b-ch) (<!! b-ch) (<!! b-ch)])
+(println "  sink-a received:" a-first-batch)
+(println "  sink-b received:" b-first-batch "(both sinks see every message)")
+
+;; ---------------------------------------------------------------------
+;; Ping introspection: ask every proc for its live status/count.
+;; ---------------------------------------------------------------------
+(println)
+(println "-- ping: live status + count per proc --")
+(def reply (flow/ping fl 1000))
+(doseq [pid [:d :a :b]]
+  (println (str "  " pid ":")
+           "status=" (get-in reply [pid :clojure.core.async.flow/status])
+           "count=" (get-in reply [pid :clojure.core.async.flow/count])))
+
+;; ---------------------------------------------------------------------
+;; Deliberate error: :boom makes :d's transform throw. The error-chan
+;; carries a shaped map (pid/status/state/count/cid/msg/op/ex); :d's own
+;; :n state is KEPT at its pre-error value (3), never reset -- and the
+;; VERY NEXT successful message proves it by incrementing from there, not
+;; from 0.
+;; ---------------------------------------------------------------------
+(println)
+(println "-- deliberate error: inject :boom, read it off the error-chan --")
+(flow/inject fl [:d :in] [:boom])
+(def err (<!! (:error-chan chans)))
+(println "  error-chan entry: pid=" (:clojure.core.async.flow/pid err)
+         "cid=" (:clojure.core.async.flow/cid err)
+         "msg=" (:clojure.core.async.flow/msg err))
+(println "  ex message:" (:message (:clojure.core.async.flow/ex err)))
+
+(flow/inject fl [:d :in] [10])
+(def a-after-error (<!! a-ch))
+(def b-after-error (<!! b-ch))
+(println "  next message after the error still doubles correctly:"
+         a-after-error "/" b-after-error "(state was kept, not reset)")
+
+(def final-reply (flow/ping-proc fl :d 1000))
+(println "  :d's count after 4 successful + 1 errored message:"
+         (:clojure.core.async.flow/count final-reply)
+         "(the errored :boom message never incremented it)")
+
+;; ---------------------------------------------------------------------
+;; Clean stop.
+;; ---------------------------------------------------------------------
+(println)
+(println "-- stop --")
+(flow/stop fl)
+(println "  flow/stop returned;" (pr-str fl))
+
+(println)
+(println "== summary ==")
+(println "  paused-by-default -> resume, fan-out to two sinks, ping")
+(println "  introspection, a caught transform error with state kept, and")
+(println "  a clean stop -- all against the native mova flow engine.")

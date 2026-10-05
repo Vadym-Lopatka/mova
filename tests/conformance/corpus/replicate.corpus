@@ -1,0 +1,10 @@
+;; replicate.corpus -- S6: deprecated-but-present `replicate` (src/
+;; builtins/seq.rs), `(defn replicate [n x] (take n (repeat x)))`
+;; upstream. Every row measured on 1.13.0-alpha6.
+(replicate 3 :a)
+(replicate 1 :a)
+(replicate 0 :a)
+(replicate -2 :a)
+(class (replicate 3 :a))
+(seq (replicate 3 :a))
+(vec (replicate 4 :x))

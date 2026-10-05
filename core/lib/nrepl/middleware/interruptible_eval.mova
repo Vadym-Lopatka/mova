@@ -1,0 +1,19 @@
+;; Mova-level stand-in for the built-in nREPL middleware of the same name: the real
+;; work is native. It carries the descriptor so user middleware can order itself
+;; against it (`:requires` / `:expects`, var or op name) and `describe` lists it.
+(ns nrepl.middleware.interruptible-eval
+  (:require [nrepl.middleware :refer [set-descriptor!]]
+            [nrepl.middleware.caught :as caught]
+            [nrepl.middleware.print :as print]))
+
+(def ^:dynamic *msg* "The message currently being evaluated (not set by the native evaluator)." nil)
+
+(defn interruptible-eval
+  "Native; this wrapper passes every message on."
+  [h]
+  h)
+
+(set-descriptor! #'interruptible-eval
+                 {:requires #{"clone" "close" #'caught/wrap-caught #'print/wrap-print}
+                  :expects #{}
+                  :handles {"eval" {}}})

@@ -1,0 +1,25 @@
+;; tail-s7.corpus -- S7 (compat/c16-tail) promotions out of
+;; tests/conformance/pending/{namespaces,numerics,seq-fns}.corpus: these 7
+;; forms were pending divergences and now CONFORM after this wave's fixes
+;; (in-ns as a real function + ns-aliases, parse-boolean/parse-uuid,
+;; update-keys/update-vals). Each form is self-contained except the
+;; adjacent in-ns pair below, which is deliberately kept in relative order
+;; (see this promotion's own note in the two `in-ns` lines).
+
+;; -- from namespaces.corpus (in-ns as a real function, ns-aliases) --
+(keys (ns-aliases *ns*))
+;; kept adjacent/in-order: the second form switches back to 'user,
+;; verifying the fully-qualified clojure.core/in-ns spelling too -- neither
+;; actually depends on the other's session state (both name their target
+;; ns explicitly), but the pending file paired them this way and there is
+;; no reason to re-derive a different order.
+(ns-name (in-ns 'usetest123))
+(do (clojure.core/in-ns 'user) :back)
+
+;; -- from numerics.corpus (parse-boolean / parse-uuid, Clojure 1.11) --
+(parse-boolean "true")
+(parse-uuid "550e8400-e29b-41d4-a716-446655440000")
+
+;; -- from seq-fns.corpus (update-keys / update-vals, Clojure 1.11) --
+(update-keys {:a 1} name)
+(update-vals {:a 1} inc)

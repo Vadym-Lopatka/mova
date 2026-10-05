@@ -1,0 +1,37 @@
+Mova
+Copyright the mova authors.
+
+This project is licensed under the Eclipse Public License 1.0 (EPL-1.0).
+See the LICENSE file.
+
+Third-party material
+
+1. imbl (vendor/imbl)
+   Immutable collection library by Bodil Stokke and Joe Neeman.
+   License: MPL-2.0. See vendor/imbl/LICENCE.md.
+   Its Cargo.toml says "MPL-2.0+".
+
+2. Clojure library sources and ports
+   Files with a "Copyright (c) Rich Hickey" header (some name other
+   contributors, for example Reid Draper and Stuart Halloway), under:
+     core/lib/clojure/
+     tests/clojure-suite/vendor/
+     tests/clojure-suite/vendor-libs/
+   This covers ports of clojure.walk, clojure.zip, clojure.stacktrace,
+   clojure.pprint, clojure.data, clojure.test, test.check and spec.alpha.
+   License: EPL-1.0, the same as this project.
+
+3. Clojure core docstrings
+   core/core-docs.dat holds the :added, :arglists and :doc data of
+   clojure.core vars. tools/gen-core-docs.sh and tools/gen-core-docs.clj
+   generate it from a real Clojure classpath.
+   License: EPL-1.0.
+
+4. nREPL 1.8.0
+   Origin: https://github.com/nrepl/nrepl. License: EPL-1.0.
+   Used in:
+     crates/mova-nrepl/src/describe.rs (data copied from the nREPL
+       1.8.0 describe reply)
+     core/lib/nrepl/ (nrepl.* API namespaces)
+     crates/mova-nrepl/oracle/goldens*/ (replies recorded from a JVM
+       nREPL server)

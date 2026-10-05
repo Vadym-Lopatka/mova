@@ -1,0 +1,63 @@
+OK	7
+OK	5
+OK	6
+OK	"6"
+OK	6
+OK	(3 4 5)
+OK	2
+OK	3
+OK	3
+OK	10
+OK	15
+OK	21
+OK	[1 2 3]
+OK	(2 4 6)
+OK	7
+OK	[6 4]
+OK	[1 4]
+OK	[3 [1 2 3]]
+OK	([2 0] [3 1] [4 2])
+OK	[11 9 20]
+OK	5
+OK	8
+OK	[1]
+OK	"ab"
+OK	(2 1 4 1)
+OK	0
+OK	1
+OK	[:x :y :z]
+OK	[1 2 3]
+OK	[1]
+OK	5
+OK	1
+OK	[1 2 3]
+OK	nil
+OK	[:small :medium :large :unknown]
+OK	nil
+OK	[:small :medium :other]
+OK	2
+OK	:ex
+OK	:two
+OK	:two
+OK	:dflt
+OK	:medium
+OK	:ge3
+OK	nil
+OK	[:a :b :c :f]
+OK	5
+OK	[0 1 2 3 4]
+OK	0
+OK	45
+OK	true
+OK	true
+OK	720
+OK	55
+OK	5050
+OK	:large
+OK	[[1 2 3] [1]]
+OK	(:one :two :many :many)
+OK	9
+OK	10
+OK	true
+OK	false
+OK	42

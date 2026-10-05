@@ -1,0 +1,261 @@
+{
+"scenario": "a02_edge_messages",
+"doc": "unknown op, missing op, no id, no session, bad args",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"op": "nosuchop",
+"session": "<uuid:1>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"op": "nosuchop",
+"session": "<uuid:2>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"op": [],
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"op": [],
+"session": "<uuid:2>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"aux": {
+"current-ns": "user"
+},
+"middleware": [
+"#'nrepl.middleware/wrap-describe",
+"#'nrepl.middleware.completion/wrap-completion",
+"#'nrepl.middleware.interruptible-eval/interruptible-eval",
+"#'nrepl.middleware.io/wrap-out",
+"#'nrepl.middleware.load-file/wrap-load-file",
+"#'nrepl.middleware.caught/wrap-caught",
+"#'nrepl.middleware.lookup/wrap-lookup",
+"#'nrepl.middleware.print/wrap-print",
+"#'nrepl.middleware.session/add-stdin",
+"#'nrepl.middleware.session/session"
+],
+"ops": {
+"clone": {},
+"close": {},
+"completions": {},
+"describe": {},
+"eval": {},
+"forward-system-output": {},
+"interrupt": {},
+"load-file": {},
+"lookup": {},
+"ls-sessions": {},
+"stdin": {}
+},
+"session": "<uuid:4>",
+"status": [
+"done"
+],
+"versions": {
+"clojure": {
+"incremental": 2,
+"major": 1,
+"minor": 12,
+"version-string": "1.12.2"
+},
+"java": {
+"major": 25,
+"version-string": "25.0.4"
+},
+"nrepl": {
+"incremental": 0,
+"major": 1,
+"minor": 8,
+"version-string": "1.8.0"
+}
+}
+}
+},
+{
+"conn": "main",
+"msg": {
+"ns": "user",
+"session": "<uuid:5>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"session": "<uuid:5>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:6>",
+"status": [
+"done",
+"no-code",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:7>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "not-a-uuid",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"ns": "no.such.ns",
+"session": "<uuid:8>",
+"status": [
+"namespace-not-found",
+"done",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:9>",
+"status": [
+"done",
+"unknown-code-type",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"op": "",
+"session": "<uuid:10>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"ns": "user",
+"session": "<uuid:11>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:11>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"ns": "user",
+"session": "<uuid:12>",
+"value": "#'user/nosess"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:12>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"ns": "user",
+"session": "<uuid:13>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:13>",
+"status": [
+"done"
+]
+}
+}
+]
+}

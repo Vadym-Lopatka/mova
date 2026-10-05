@@ -1,0 +1,38 @@
+{
+ "name": "z02_forward_big",
+ "doc": "chunking of forwarded System.out output",
+ "sessions": [
+  "s1",
+  "s2"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "forward-system-output",
+    "id": "1",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(.println System/out (apply str (repeat 3000 \"z\")))",
+    "session": "$s2"
+   }
+  },
+  {
+   "wait": 0.5
+  },
+  {
+   "send": {
+    "op": "forward-system-output",
+    "id": "7"
+   }
+  },
+  {
+   "wait": 0.2
+  }
+ ],
+ "flaky": "race: forwarded chunks vs the eval's value/done"
+}

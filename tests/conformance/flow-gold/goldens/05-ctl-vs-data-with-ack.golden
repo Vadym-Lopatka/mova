@@ -1,0 +1,3 @@
+RESULT ack :registered
+RESULT all-post-register true
+PASS total-exact

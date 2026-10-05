@@ -1,0 +1,381 @@
+{
+"scenario": "d03_print_quota",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"nrepl.middleware.print/truncated-keys": [
+"value"
+],
+"ns": "user",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+],
+"value": "(0 1 2 3 4 5 6 7 8 9"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"value": "(0 1 2 3 4 5 6 7 8 9"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"value": "(0 1 "
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"value": "2 3 4"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"value": " 5 6 "
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"value": "7 8 9"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(0 1 2 3 4)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(0 1 2 3 4)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"nrepl.middleware.print/truncated-keys": [
+"value"
+],
+"ns": "user",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+],
+"value": "(0 1 2 3 4"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Error printing return value (IllegalArgumentException) at nrepl.out.QuotaBoundWriter/<init> (QuotaBoundWriter.java:19).\nInvalid quota: 0\n",
+"id": "7",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "7",
+"root-ex": "class java.lang.IllegalArgumentException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"nrepl.middleware.print/truncated-keys": [
+"value"
+],
+"ns": "user",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+],
+"value": "(0\n 1\n 2\n 3\n 4\n 5\n 6"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"nrepl.middleware.print/truncated-keys": [
+"value"
+],
+"ns": "user",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+],
+"value": "(0 1 2 3 4 5 6 7 8 9"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"nrepl.middleware.print/truncated-keys": [
+"value"
+],
+"ns": "user",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+],
+"value": "(0 1 2 3 4 5 6 7 8 9"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"nrepl.middleware.print/truncated-keys": [
+"value"
+],
+"ns": "user",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+],
+"value": "\"日本日本"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (REPL:1).\nDivide by zero\n",
+"id": "12",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "12",
+"nrepl.middleware.caught/throwable": "#erro",
+"nrepl.middleware.print/truncated-keys": [
+"nrepl.middleware.caught/throwable"
+],
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated",
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"value": "\"abababababababababa"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"nrepl.middleware.print/truncated"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"ns": "user",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

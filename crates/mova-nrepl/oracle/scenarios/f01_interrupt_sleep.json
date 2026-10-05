@@ -1,0 +1,85 @@
+{
+ "name": "f01_interrupt_sleep",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(Thread/sleep 100000)",
+    "session": "$s1"
+   },
+   "await": false
+  },
+  {
+   "wait": 0.5
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "2",
+    "session": "$s1",
+    "interrupt-id": "1"
+   }
+  },
+  {
+   "await": {
+    "id": "1",
+    "status": "done"
+   }
+  },
+  {
+   "wait": 0.4
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(+ 1 2)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "4",
+    "session": "$s1",
+    "interrupt-id": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "5",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "6",
+    "session": "$s1",
+    "interrupt-id": "zzz"
+   }
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "7",
+    "interrupt-id": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "8",
+    "session": "no-such-session",
+    "interrupt-id": "1"
+   }
+  }
+ ],
+ "flaky": "race: eval-thread replies (err/ex/value/out) vs interrupt-thread replies (interrupted/done)"
+}

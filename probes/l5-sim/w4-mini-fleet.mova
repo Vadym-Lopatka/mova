@@ -1,0 +1,84 @@
+;; L5 / W4 — the mini fleet: the Ep.1 demo SHAPE, end to end, in one process.
+;;
+;; NOT the flagship demo (that is W5's job, with the real narrative and the
+;; real numbers). This is the pre-W5 sanity check the W4 brief asks for: a
+;; 200-client fleet that retries with exponential backoff against a server
+;; that is DOWN for the first 5 virtual seconds, run through `simulate`, and
+;; returning recovery statistics rather than a wall-clock story.
+;;
+;; What it proves, and why each piece is here:
+;;
+;; - `simulate` can carry a program of a realistic SIZE (200 concurrent
+;;   clients, ~1500 timer arms) and not just a two-task toy;
+;; - the seed sweep idiom (`mapv` over `(range n)` of `simulate` calls in ONE
+;;   process) works at that size, with every call independently seeded and
+;;   the world left clean between them;
+;; - a five-second outage costs five virtual seconds and ~zero wall seconds —
+;;   the whole point of the moat;
+;; - `(time-ms)` inside a task reads the VIRTUAL epoch, so the program can
+;;   report "everyone recovered by T" in the units its operators think in,
+;;   with no wall clock anywhere in the answer.
+
+(def fleet-size 200)
+(def outage-ms 5000)
+(def request-deadline-ms 1000)
+(def backoff-cap-ms 4000)
+
+;; The server: nothing drains `req` until the outage is over. After that it
+;; answers every request, forever, until `req` closes.
+(defn serve [req]
+  (go (<! (timeout outage-ms))
+      (loop []
+        (let [m (<! req)]
+          (when m
+            (>! (:reply m) :ok)
+            (recur))))))
+
+;; One client: try, wait out the deadline, back off, try again. `offer!`
+;; rather than a blocking put so a full request buffer is a retry (what a
+;; real client with a connection pool does) instead of a park that outlives
+;; the outage.
+(defn client [i req results t0]
+  (go-loop [attempt 1 wait 250]
+    (let [reply (chan 1)]
+      (if (and (offer! req {:reply reply})
+               (first (alts!! [reply (timeout request-deadline-ms)])))
+        (>! results {:client i :attempts attempt :ms (- (time-ms) t0)})
+        (do (<! (timeout wait))
+            (recur (inc attempt) (min backoff-cap-ms (* 2 wait))))))))
+
+(defn fleet []
+  (let [req (chan 64)
+        results (chan fleet-size)
+        t0 (time-ms)]
+    (serve req)
+    (dotimes [i fleet-size]
+      (client i req results t0))
+    (loop [n 0 attempts 0 latest 0]
+      (if (= n fleet-size)
+        {:recovered n
+         :total-attempts attempts
+         :recovered-by-ms latest}
+        (let [r (<!! results)]
+          (recur (inc n)
+                 (+ attempts (:attempts r))
+                 (max latest (:ms r))))))))
+
+;; The sweep: eight independently seeded runs of the same fleet, in ONE
+;; process. Each entry is [seed recovered total-attempts recovered-by-ms
+;; virtual-ms leaked-tasks].
+(defn sweep [seeds]
+  (mapv (fn [s]
+          (let [r (simulate {:seed s} fleet)
+                res (:result r)]
+            [s (:recovered res) (:total-attempts res) (:recovered-by-ms res)
+             (:virtual-ms r) (:leaked-tasks r)]))
+        seeds))
+
+(def fleet-sweep (sweep (range 8)))
+
+;; Printed so the file is runnable as a script (`mova probes/l5-sim/
+;; w4-mini-fleet.mova`); `tests/l5_sim_api.rs` reads `fleet-sweep` instead.
+(println fleet-sweep)
+
+fleet-sweep

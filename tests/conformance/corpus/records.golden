@@ -1,0 +1,61 @@
+OK	user.Rec123
+OK	#user.Rec123{:a 1, :b 2}
+OK	#user.Rec123{:a 1, :b 2}
+OK	1
+OK	2
+OK	3
+OK	true
+OK	([:a 1] [:b 2])
+OK	([:a 1] [:b 2] [:c 3])
+OK	#user.Rec123{:a 99, :b 2}
+OK	false
+OK	clojure.lang.PersistentArrayMap
+OK	true
+OK	false
+OK	false
+OK	true
+OK	"#user.Rec123{:a 1, :b 2}"
+OK	true
+OK	user.T123
+OK	false
+OK	nil
+OK	Area123
+OK	#user.Rec123{:a 1, :b nil}
+OK	#user.Rec123{:a 1, :b 2, :c 3}
+OK	3
+OK	true
+OK	#user.Rec123{:a 1, :b 2, :c 3}
+OK	{:a 1, :b 2}
+OK	#user.Rec123{:a 1, :b 2, :c 9}
+OK	user.Rec123
+OK	true
+OK	false
+OK	(:a :b)
+OK	(1 2)
+OK	true
+OK	true
+OK	1
+OK	:dflt
+OK	1
+OK	1
+OK	:hit
+OK	[1 2]
+OK	[:a :b]
+OK	user.Rec124
+OK	false
+OK	user.WithImpl
+OK	[:got 7]
+OK	[:got 9]
+OK	true
+OK	true
+OK	5
+OK	false
+OK	true
+OK	[:a 1]
+OK	nil
+ERR	UnsupportedOperationException
+OK	true
+OK	"hi"
+OK	4
+OK	false
+OK	true

@@ -1,0 +1,5 @@
+error: #[derive(MovaStruct)] does not support enums (v1 restriction -- Value::HostStruct wraps map-shaped data only; an enum needs its own script representation design, see DESIGN-hoststruct-derive.md §7's deferred list)
+ --> tests/ui/fail_enum.rs:7:1
+  |
+7 | enum NotAStruct {
+  | ^^^^

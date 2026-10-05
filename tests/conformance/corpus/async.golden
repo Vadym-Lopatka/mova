@@ -1,0 +1,34 @@
+OK	[1 2 3]
+OK	[true true]
+OK	[2 3]
+OK	[:a :b nil]
+OK	[true nil false]
+OK	[nil nil]
+OK	false
+OK	[:first false nil]
+OK	[1 2 nil]
+OK	[3 4 nil]
+OK	[nil true :a true nil :b]
+OK	nil
+OK	nil
+OK	false
+OK	nil
+OK	:x
+OK	[:from-c2 true]
+OK	[:nothing :default]
+OK	[true true :val]
+OK	[:hit true]
+OK	nil
+OK	true
+OK	3
+OK	[3 nil]
+OK	nil
+OK	45
+OK	[0 1 2 3 4]
+OK	42
+OK	:hello
+OK	:from-thread
+OK	5
+OK	[1 2 3]
+OK	[0 2 4]
+OK	[true :hi]

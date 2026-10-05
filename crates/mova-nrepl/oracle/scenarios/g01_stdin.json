@@ -1,0 +1,243 @@
+{
+ "name": "g01_stdin",
+ "doc": "need-input / stdin op",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(read-line)",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "2",
+    "session": "$s1",
+    "stdin": "hello\n"
+   }
+  },
+  {
+   "await": {
+    "id": "1",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(read)",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "4",
+    "session": "$s1",
+    "stdin": "(1 2)\n"
+   }
+  },
+  {
+   "await": {
+    "id": "3",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "5",
+    "session": "$s1",
+    "stdin": "buffered\n"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(read-line)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "[(read-line) (read-line)]",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "8",
+    "session": "$s1",
+    "stdin": "l1\nl2\n"
+   }
+  },
+  {
+   "await": {
+    "id": "7",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(read-line)",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "10",
+    "session": "$s1",
+    "stdin": "partial"
+   }
+  },
+  {
+   "wait": 0.5
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "11",
+    "session": "$s1",
+    "stdin": " line\n"
+   }
+  },
+  {
+   "await": {
+    "id": "9",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(.read *in*)",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "15",
+    "session": "$s1",
+    "stdin": "A"
+   }
+  },
+  {
+   "await": {
+    "id": "14",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "16",
+    "code": "(read-line)",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "17",
+    "session": "$s1",
+    "stdin": "x\n"
+   }
+  },
+  {
+   "await": {
+    "id": "16",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "18",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "19",
+    "stdin": "x\n"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "20",
+    "code": "(println (read-line))",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "21",
+    "session": "$s1",
+    "stdin": "zz\n"
+   }
+  },
+  {
+   "await": {
+    "id": "20",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "22",
+    "code": "(read-line)",
+    "session": "$s1"
+   },
+   "await": "need-input"
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "23",
+    "session": "$s1",
+    "interrupt-id": "22"
+   }
+  },
+  {
+   "await": {
+    "id": "22",
+    "status": "done"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "24",
+    "code": "(+ 1 2)",
+    "session": "$s1"
+   }
+  }
+ ],
+ "settle": 0.5
+}

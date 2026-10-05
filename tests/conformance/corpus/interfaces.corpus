@@ -1,0 +1,67 @@
+;; interfaces.corpus -- definterface, deftype/defrecord implementing NAMED
+;; interfaces, `.method` interop dispatch to those impls, and instance?
+;; against an interface (S5). One session (later forms depend on earlier
+;; defs).
+;;
+;; Scope note: the host-interface side is deliberately just
+;; java.util.Map$Entry, the one host interface a vendored suite file
+;; (protocols.clj) actually names in a defrecord implements position.
+;; mova has no JVM class hierarchy, so an interface's ONLY membership rule
+;; is "a deftype/defrecord declared it" -- which is why there is no row
+;; here asserting a builtin value is an instance of one.
+;;
+;; Bare `(def x v)` is avoided below (wrapped in a `do` returning a
+;; keyword instead): mova's `def` evaluates to the VALUE where real
+;; Clojure's evaluates to the VAR -- a pre-existing, unrelated deviation
+;; that would otherwise show up as noise in this file's diff.
+;;
+;; The corpus runs in namespace `user` on both sides, so every
+;; definterface-minted class name below is spelled `user.<Name>`.
+(definterface IFoo (^long f [x]) (g [x y]))
+(definterface IBar (h [x]))
+IFoo
+(class IFoo)
+(class? IFoo)
+(= IFoo IFoo)
+(= IFoo IBar)
+(deftype T1 [a] IFoo (f [_ x] (+ a x)) (g [_ x y] [a x y]))
+(do (def t1 (T1. 10)) :defined)
+(.f t1 5)
+(.g t1 1 2)
+(instance? IFoo t1)
+(instance? IBar t1)
+(class t1)
+(deftype T2 [] IBar (h [_ x] [:bar x]))
+(instance? IFoo (T2.))
+(instance? IBar (T2.))
+(.h (T2.) :z)
+java.util.Map$Entry
+(class java.util.Map$Entry)
+(defrecord MapEntry1 [k v] java.util.Map$Entry (getKey [_] k) (getValue [_] v))
+(do (def me1 (MapEntry1. :a 1)) :defined)
+me1
+(.getKey me1)
+(.getValue me1)
+(instance? java.util.Map$Entry me1)
+(instance? java.util.Map$Entry (MapEntry1. :b 2))
+(.k me1)
+(.-v me1)
+(= me1 (MapEntry1. :a 1))
+(= me1 (MapEntry1. :a 2))
+(defrecord Plain1 [x])
+(instance? java.util.Map$Entry (Plain1. 1))
+(defprotocol IfaceProto1 (pm1 [this]))
+(defrecord Both1 [n] IfaceProto1 (pm1 [_] [:proto n]) java.util.Map$Entry (getKey [_] n) (getValue [_] [:val n]))
+(pm1 (Both1. 7))
+(.getKey (Both1. 7))
+(.getValue (Both1. 7))
+(instance? java.util.Map$Entry (Both1. 7))
+(satisfies? IfaceProto1 (Both1. 7))
+(defrecord TestRecord1 [a b])
+(TestRecord1. 1 2)
+(TestRecord1. 1 2 {:m 1} {:c 4})
+(= (TestRecord1. 1 2 {:m 1} {:c 4}) (assoc (TestRecord1. 1 2) :c 4))
+(keys (TestRecord1. 1 2 {:m 1} {:c 4}))
+(count (TestRecord1. 1 2 {:m 1} {:c 4}))
+(TestRecord1. 1 2 nil nil)
+(:c (TestRecord1. 1 2 nil {:c 9}))

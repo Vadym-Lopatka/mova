@@ -1,0 +1,37 @@
+;;RUNS 5
+;; scenario 03: two inject calls into the SAME in-port, but this time the
+;; caller derefs inject #1's future BEFORE calling inject #2. Invariant:
+;; full A-then-B order in the drained result -- establishes deref-as-the-
+;; portable-cross-call-ordering-recipe on both sides (deref blocks until
+;; the injecting thread has finished its `>!!`/`chan_put` loop, so the
+;; second inject's puts cannot land on the channel before the first
+;; inject's puts have all landed).
+
+(def out-ch (chan 300))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:s {:proc (flow/process sink-step)}}
+          :conns []}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(def batch-a (vec (range 0 100 2)))
+(def batch-b (vec (range 1 100 2)))
+(def fut-a (flow/inject fl [:s :in] batch-a))
+(deref fut-a 5000 :timed-out)
+(def fut-b (flow/inject fl [:s :in] batch-b))
+(deref fut-b 5000 :timed-out)
+
+(def result (deref (future (vec (repeatedly 100 #(<!! out-ch)))) 10000 :timed-out))
+(def expected (into batch-a batch-b))
+
+(println "RESULT drained" (pr-str result))
+(println (if (= result expected) "PASS a-then-b-order" "FAIL a-then-b-order"))
+
+(flow/stop fl)

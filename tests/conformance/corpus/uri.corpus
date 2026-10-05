@@ -1,0 +1,19 @@
+;; uri.corpus -- S6 (assert/namespace/uuid batch): `java.net.URI` -- ONLY
+;; the single-string-arg `(java.net.URI. s)` constructor (see
+;; `hostclass.rs`'s `construct` arm and `Value::Uri`'s own doc for the
+;; deliberately narrow scope: no parse into scheme/host/path, just the
+;; verbatim string). Deliberately never `pr-str`s/prints a bare URI value
+;; -- real Clojure's own print is `#object[java.net.URI 0x<hash> "..."]`,
+;; a JVM-identity-hash address no golden could pin (same exclusion
+;; nsfns.corpus's header documents for `*ns*`/`Var` prints); `str` is
+;; exact and is what every form below uses instead.
+(str (java.net.URI. "http://clojure.org"))
+(uri? (java.net.URI. "http://clojure.org"))
+(class (java.net.URI. "http://clojure.org"))
+(= (java.net.URI. "http://clojure.org") (java.net.URI. "http://clojure.org"))
+(= (java.net.URI. "http://clojure.org") (java.net.URI. "http://other.org"))
+(not= (java.net.URI. "a") (java.net.URI. "b"))
+(uri? "http://clojure.org")
+(uri? 5)
+(uri? nil)
+(instance? java.net.URI (java.net.URI. "x"))

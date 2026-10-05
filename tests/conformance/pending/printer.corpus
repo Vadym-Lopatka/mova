@@ -1,0 +1,2 @@
+;; printer.corpus -- printer-layer gap ledger. All forms promoted to corpus/printer.corpus
+;; (control chars, *print-namespace-maps* default, subnormal double all conform now).

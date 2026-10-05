@@ -1,0 +1,9 @@
+OK	{:tag String}
+OK	(clojure.core/quasiquote user/a)
+OK	{:foo/a 1}
+OK	{:user/a 1}
+OK	""
+OK	""
+OK	1
+OK	#<fn>
+ERR	{:type :error/reader, :message "Invalid token: ::"}

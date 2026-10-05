@@ -1,0 +1,137 @@
+{
+"scenario": "z01_forward_system_output",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"out": "fwd-out\n",
+"session": "<uuid:1>",
+"source": "system"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "fwd-err\n",
+"id": "1",
+"session": "<uuid:1>",
+"source": "system"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"out": "partial",
+"session": "<uuid:1>",
+"source": "system"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"out": "normal-out\n",
+"session": "<uuid:2>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:3>",
+"status": [
+"done"
+]
+}
+}
+]
+}

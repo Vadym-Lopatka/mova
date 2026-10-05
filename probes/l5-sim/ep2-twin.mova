@@ -1,0 +1,393 @@
+;; L5 / Ep.2 — "400 years of Februaries": THE CONTROL-PLANE TWIN.
+;;
+;; Our faithful reconstruction, from the PUBLIC Azure Feb 29 2012 postmortem
+;; (Bill Laing, Microsoft), of the machinery that turned a one-line date bug
+;; into a ~13-hour outage. Not Microsoft's code; scaled down honestly. Loads
+;; on top of `ep2-calendar.mova` (the demo's own date math).
+;;
+;; NOT runnable as a bare script: it needs `demo/system-fault`, a host native
+;; the harness registers (see "THE ONE DEVIATION" below). Run it through
+;;   cargo test --release --test l5_demo_ep2
+;; which loads `ep2-calendar.mova` and then this file into an `embed::Engine`
+;; carrying that native. `ep2-calendar.mova` on its own IS a standalone
+;; script (`mova probes/l5-sim/ep2-calendar.mova` prints the fixture table).
+;;
+;; THE SHAPE, mapped onto mova's L4 supervision tier:
+;;
+;;   Azure                        this twin
+;;   ---------------------------  --------------------------------------------
+;;   Guest Agent (one per VM)     a supervised Flow proc, one per VM slot
+;;   agent activation / cert      the proc's `::flow/resume` transition:
+;;                                compute a transfer certificate from
+;;                                `(time-ms)` -> {:y :m :d}, expiry = +1 year
+;;   agent init FAILS on Feb 29   `plus-one-year-naive` yields Feb 29 + 1y,
+;;                                an invalid date -> a SYSTEM FAULT
+;;   Host Agent: retry x3 on a    the proc's `:supervision` policy: restart
+;;   25-minute timeout, then      with exponential backoff, `:max-restarts 2`,
+;;   declare the machine faulty   then `:proc-give-up`
+;;   Healing service: mark the    a task consuming the flow's report-chan:
+;;   machine bad, migrate its     count give-ups per host, mark the host BAD,
+;;   VMs to a healthy machine     re-place its HEALTHY VMs on another host and
+;;                                activate them there -- on Feb 29
+;;   ...where the same bug fires  ...and the cascade spreads, host by host.
+;;
+;; THE ONE DEVIATION FORCED BY THE KERNEL (reported, not hidden). Azure's bug
+;; threw during Guest Agent *init*. In mova, an `init` throw is an INCIDENT
+;; (`emit_lifecycle_error` -> error-chan, state becomes nil, the proc lives),
+;; and a Mova `throw` inside `:transition` is swallowed outright by
+;; `call_transition`'s `unwrap_or(state)`. The only proc-killing SYSTEM FAULT
+;; reachable from Mova is a host-native panic on the `:transition` path -- so
+;; the twin's agent activation runs on `::flow/resume` and signals the fault
+;; through `(demo/system-fault)`, a native the harness registers. Everything
+;; else -- the date math, the cert, the retry ladder's consequences, the
+;; healing policy -- is ordinary Mova.
+;;
+;; TIMESCALE SCALING, DECLARED. Azure's Host Agent retried on a 25-minute
+;; timeout, three times (~75 minutes), before declaring the machine faulty.
+;; We keep the SHAPE -- three activation attempts, growing gaps, then give up
+;; -- and compress the rungs to 5 -> 10 -> 20 virtual minutes (35 virtual
+;; minutes per host generation) so a full ten-generation migration cascade
+;; fits inside a 3-virtual-day observation window with room to spare. The
+;; compression buys OBSERVATION WINDOW, not wall time: virtual minutes are
+;; free either way.
+
+(def retry-initial-ms 300000)     ; 5 virtual minutes
+(def retry-factor 2.0)
+(def retry-max-ms 1200000)        ; 20 virtual minutes
+(def max-restarts 2)              ; -> 3 activation attempts, like Azure's x3
+(def restart-window-ms 86400000)  ; one virtual day: the ladder never resets
+
+(def ms-per-hour 3600000)
+
+(defn slot-pid [h s] (keyword (str "h" h "-s" s)))
+
+;; ---------------------------------------------------------------------------
+;; The Guest Agent
+;; ---------------------------------------------------------------------------
+
+;; One VM slot on one host. Unassigned slots are live but inert -- they are
+;; the capacity the healing service migrates INTO, which is why the fleet is
+;; over-provisioned with slots rather than growing procs at runtime.
+(defn guest-agent [h s ctx]
+  (let [assign (:assign ctx)
+        events (:events ctx)
+        plus-years (:plus-years ctx)
+        t0 (:t0 ctx)]
+    (flow/map->step
+      {:describe (fn [] {:ins {:in {}} :outs {}})
+       :init (fn [args] {:host h :slot s})
+       :transition
+       (fn [st t]
+         (if (= t :clojure.core.async.flow/resume)
+           (let [a (get @assign [h s])]
+             (if (nil? a)
+               st
+               ;; ACTIVATION: build the transfer certificate for today.
+               (let [cert (transfer-certificate (time-ms) plus-years)]
+                 (if (:ok cert)
+                   st
+                   (do (>!! events {:kind :fault
+                                    :host h :slot s :vm (:vm a)
+                                    :fingerprint (:fingerprint cert)
+                                    :issued (:issued cert)
+                                    :attempted (:attempted cert)
+                                    :ms (- (time-ms) t0)})
+                       ;; A system fault, not a business error: the agent is
+                       ;; gone, and the Host Agent's ladder takes over.
+                       (demo/system-fault))))))
+           st))
+       :transform (fn [st _ m] [st {}])})))
+
+;; ---------------------------------------------------------------------------
+;; The cluster twin
+;; ---------------------------------------------------------------------------
+
+;; cfg:
+;;   :hosts :vms-per-host :slots-per-host
+;;   :plus-years              the date policy the agents carry (the BUG or the FIX)
+;;   :new-vm-hosts            how many hosts receive post-midnight VM creations
+;;   :new-vms-per-host        how many each
+;;   :new-vm-delay-ms         when (from t0) that creation wave lands
+;;   :give-up-threshold       give-ups on one host before the healing service acts
+;;   :migration-batch         VMs evacuated per healing action (blast radius)
+;;   :migration-cap           max healing actions in the whole run
+;;   :software-host-threshold ACT 3: distinct hosts showing the SAME fault
+;;                            fingerprint before it is classified as SOFTWARE.
+;;                            nil = the 2012 policy (hardware is always the
+;;                            diagnosis).
+;;   :through-virtual-days    the observation horizon the program bounds itself by
+(defn run-cluster-twin [cfg]
+  (let [hosts (:hosts cfg)
+        vms-per-host (:vms-per-host cfg)
+        slots-per-host (:slots-per-host cfg)
+        give-up-threshold (:give-up-threshold cfg)
+        migration-batch (:migration-batch cfg)
+        migration-cap (:migration-cap cfg)
+        sw-threshold (:software-host-threshold cfg)
+        events (chan 65536)
+        halted (chan 1)
+        assign (atom {})           ; [host slot] -> {:vm id :state :healthy|:down}
+        vm-counter (atom 0)
+        bad-order (atom [])        ; hosts marked BAD, in the order they were
+        bad-set (atom {})
+        give-ups (atom {})         ; host -> count
+        fp-hosts (atom {})         ; fingerprint -> {host true}
+        migrations (atom 0)
+        migrated-vms (atom 0)
+        migrations-blocked (atom 0)
+        software-calls (atom 0)
+        faults-seen (atom 0)
+        vms-down (atom {})
+        sup-events (atom 0)
+        t0 (time-ms)
+        ctx {:assign assign :events events :plus-years (:plus-years cfg) :t0 t0}
+        sup-cfg {:policy :restart
+                 :max-restarts max-restarts
+                 :window-ms restart-window-ms
+                 :backoff {:initial-ms retry-initial-ms
+                           :factor retry-factor
+                           :max-ms retry-max-ms}}
+        pid->hs (reduce (fn [m h]
+                          (reduce (fn [m s] (assoc m (slot-pid h s) {:host h :slot s}))
+                                  m (range slots-per-host)))
+                        {} (range hosts))
+        procs (reduce (fn [m h]
+                        (reduce (fn [m s]
+                                  (assoc m (slot-pid h s)
+                                         {:proc (flow/process (guest-agent h s ctx))
+                                          :supervision sup-cfg}))
+                                m (range slots-per-host)))
+                      {} (range hosts))
+        fl (flow/create-flow {:procs procs :conns []})
+        chans (flow/start fl)
+        report (:report-chan chans)
+
+        ;; --- fleet bookkeeping (pure reads of `assign`) --------------------
+        free-slot (fn [h]
+                    (first (remove (fn [s] (contains? @assign [h s]))
+                                   (range slots-per-host))))
+        assigned-slots (fn [h]
+                         (filter (fn [s] (contains? @assign [h s]))
+                                 (range slots-per-host)))
+        healthy-slots (fn [h]
+                        (filter (fn [s] (= :healthy (:state (get @assign [h s]))))
+                                (range slots-per-host)))
+        ;; Place a NEW vm on host h. Returns the slot, or nil if h is full.
+        place! (fn [h]
+                 (let [s (free-slot h)]
+                   (when s
+                     (swap! vm-counter inc)
+                     (swap! assign assoc [h s] {:vm @vm-counter :state :healthy})
+                     s)))
+        ;; Activate the agent in slot [h s]: the `::flow/resume` transition
+        ;; runs, and with it the certificate computation.
+        activate! (fn [h s] (flow/resume-proc fl (slot-pid h s)))
+
+        ;; --- the healing service's action ---------------------------------
+        ;; Target = a not-bad host with free capacity, fewest VMs first,
+        ;; lowest index breaking ties. Deterministic by construction.
+        pick-target (fn [from]
+                      (first (sort-by (fn [h] (+ (* 1000 (count (assigned-slots h))) h))
+                                      (filter (fn [h]
+                                                (and (not= h from)
+                                                     (not (get @bad-set h))
+                                                     (some? (free-slot h))))
+                                              (range hosts)))))
+        heal! (fn [h]
+                (if (>= @migrations migration-cap)
+                  (swap! migrations-blocked inc)
+                  (let [target (pick-target h)]
+                    (if (nil? target)
+                      (swap! migrations-blocked inc)
+                      (do
+                        (swap! migrations inc)
+                        ;; Evacuate the machine: the HEALTHY VMs are the ones
+                        ;; worth saving -- and, in 2012, the ones that got
+                        ;; broken by being saved.
+                        (doseq [s (take migration-batch (healthy-slots h))]
+                          (let [a (get @assign [h s])
+                                ns (free-slot target)]
+                            (when (some? ns)
+                              (swap! assign dissoc [h s])
+                              (swap! assign assoc [target ns] {:vm (:vm a) :state :healthy})
+                              (swap! migrated-vms inc)
+                              (activate! target ns)))))))))
+
+        ;; --- the healing service ------------------------------------------
+        note-fault! (fn [ev]
+                      (swap! faults-seen inc)
+                      (swap! fp-hosts
+                             (fn [m]
+                               (let [fp (:fingerprint ev)]
+                                 (assoc m fp (assoc (get m fp {}) (:host ev) true))))))
+        distinct-fault-hosts (fn [fp] (count (get @fp-hosts fp {})))
+        note-give-up! (fn [ev]
+                        (let [hs (get pid->hs (:pid ev))
+                              h (:host hs)
+                              s (:slot hs)
+                              a (get @assign [h s])]
+                          (when (some? a)
+                            (swap! assign assoc [h s] (assoc a :state :down))
+                            (swap! vms-down assoc (:vm a) true))
+                          (swap! give-ups (fn [m] (assoc m h (inc (get m h 0)))))
+                          (when (and (not (get @bad-set h))
+                                     (>= (get @give-ups h 0) give-up-threshold))
+                            ;; THE DIAGNOSIS. In 2012 there was only one:
+                            ;; the machine is broken. ACT 3 adds a second.
+                            (if (and (some? sw-threshold)
+                                     (>= (distinct-fault-hosts cert-fault-fingerprint)
+                                         sw-threshold))
+                              (swap! software-calls inc)
+                              (do (swap! bad-set assoc h true)
+                                  (swap! bad-order conj h)
+                                  (heal! h))))))]
+
+    ;; The report-chan pump: supervision's event stream, funnelled into the
+    ;; one chan the healing service consumes (so give-ups and fault reports
+    ;; are ordered by the same schedule). `flow/stop` does NOT close
+    ;; report-chan (a kernel note, not a complaint -- see the test's module
+    ;; doc), so this loop parks forever at the end of the run and is torn
+    ;; down as `simulate`'s one leaked task; the root sends the halt itself.
+    (go-loop []
+      (let [ev (<! report)]
+        (when (some? ev)
+          (swap! sup-events inc)
+          (when (= (:clojure.core.async.flow/op ev) :proc-give-up)
+            (>! events {:kind :give-up
+                        :pid (:clojure.core.async.flow/pid ev)}))
+          (recur))))
+
+    (go-loop []
+      (let [ev (<! events)]
+        (cond
+          (nil? ev) nil
+          (= (:kind ev) :halt) (>! halted :done)
+          (= (:kind ev) :fault) (do (note-fault! ev) (recur))
+          (= (:kind ev) :give-up) (do (note-give-up! ev) (recur))
+          :else (recur))))
+
+    ;; T0 (23:00 on Feb 28, in the sweep): the fleet exists and is healthy.
+    (dotimes [h hosts] (dotimes [v vms-per-host] (place! h)))
+    (flow/resume fl)
+
+    ;; Somewhere after midnight, a customer creates a few more VMs. In 2012
+    ;; that was the trigger: a NEW agent, activating on a date that does not
+    ;; survive `+1 year`.
+    (go (<! (timeout (:new-vm-delay-ms cfg)))
+        (dotimes [h (:new-vm-hosts cfg)]
+          (dotimes [v (:new-vms-per-host cfg)]
+            (let [s (place! h)]
+              (when (some? s) (activate! h s))))))
+
+    ;; The program bounds its own horizon (design deviation #4: quiescent
+    ;; return would otherwise be a deadlock report -- every proc, the
+    ;; supervisor and the healing service all park forever once the cascade
+    ;; settles).
+    (<!! (timeout (* (:through-virtual-days cfg) 86400000)))
+    (flow/stop fl)
+    ;; One virtual second of slack so the pump has certainly drained
+    ;; report-chan, then halt the healing service and wait for its ack --
+    ;; every number below is read only after the last event was folded in.
+    (<!! (timeout 1000))
+    (>!! events {:kind :halt})
+    (<!! halted)
+
+    {:hosts-marked-bad (count @bad-order)
+     :bad-hosts @bad-order
+     :migrations @migrations
+     :migrated-vms @migrated-vms
+     :migrations-blocked @migrations-blocked
+     :software-classifications @software-calls
+     :faults @faults-seen
+     :fault-hosts (distinct-fault-hosts cert-fault-fingerprint)
+     :give-ups (reduce + 0 (vals @give-ups))
+     :vms-down (count @vms-down)
+     :vms-total @vm-counter
+     :sup-events @sup-events
+     :elapsed-ms (- (time-ms) t0)
+     :cert-date-at-t0 (epoch-ms->date t0)
+     :cert-date-after-wave (epoch-ms->date (+ t0 (:new-vm-delay-ms cfg)))}))
+
+;; ---------------------------------------------------------------------------
+;; The three acts, as configurations
+;; ---------------------------------------------------------------------------
+
+(def fleet {:hosts 10 :vms-per-host 5 :slots-per-host 20
+            :new-vm-hosts 3 :new-vms-per-host 2
+            :new-vm-delay-ms ms-per-hour        ; 00:00 -> Feb 29
+            :give-up-threshold 2
+            :migration-batch 5
+            :through-virtual-days 3})
+
+;; ACT 1 — the 2012 machinery, verbatim: the buggy date math AND the 2012
+;; healing policy (every give-up storm is a hardware diagnosis; no cap).
+(def act1-cfg (assoc fleet
+                     :plus-years plus-one-year-naive
+                     :migration-cap 1000000
+                     :software-host-threshold nil))
+
+;; ACT 2 — THE DATE FIX. Same machinery, calendar-aware `plus-years`.
+(def act2-cfg (assoc fleet
+                     :plus-years plus-one-year-clamped
+                     :migration-cap 1000000
+                     :software-host-threshold nil))
+
+;; ACT 3 — THE POLICY FIX (what Microsoft actually changed). The date bug is
+;; deliberately BACK. What changed is the diagnosis: the same software fault
+;; fingerprint seen on >= 3 distinct hosts is never a hardware failure, and
+;; healing's blast radius is capped at 2 actions no matter what.
+(def act3-cfg (assoc fleet
+                     :plus-years plus-one-year-naive
+                     :migration-cap 2
+                     :software-host-threshold 3))
+
+(defn february [year] (utc-ms year 2 28 23 0))
+
+;; ---------------------------------------------------------------------------
+;; THE SWEEP — the headline idiom, verbatim from docs/L5-FLAGSHIP-DEMOS.md
+;; ---------------------------------------------------------------------------
+
+;; One `simulate` call per year, each with its OWN `:epoch-ms` (that year's
+;; February 28, 23:00 UTC) and the SAME seed, in ONE process. Each row is
+;;   [year leap? hosts-marked-bad migrations faults give-ups cert-month cert-day]
+;; where cert-month/day is the date the post-midnight activation wave saw --
+;; February 29 in a leap year, March 1 otherwise. That column is what proves
+;; the sweep actually VISITED the leap day rather than merely counting to 400.
+(defn february-sweep [from-year to-year cfg]
+  (mapv (fn [y]
+          (let [r (:result (simulate {:seed 7 :epoch-ms (february y)}
+                             (fn [] (run-cluster-twin cfg))))
+                dt (:cert-date-after-wave r)]
+            [y (if (leap-year? y) 1 0)
+             (:hosts-marked-bad r) (:migrations r) (:faults r) (:give-ups r)
+             (:m dt) (:d dt)]))
+        (range from-year to-year)))
+
+;; The smallest fleet that can still CASCADE (2 hosts, 1 VM each, 1 spare
+;; slot, give up on the first exhausted ladder, blast radius 1). Used for the
+;; exhaustion sweep -- 400 buggy worlds is 400 real cascades, and at this size
+;; each one costs six proc deaths instead of a hundred and fifty.
+(def tiny-fleet {:hosts 2 :vms-per-host 1 :slots-per-host 3
+                 :new-vm-hosts 1 :new-vms-per-host 1
+                 :new-vm-delay-ms ms-per-hour
+                 :give-up-threshold 1
+                 :migration-batch 1
+                 :through-virtual-days 3
+                 :plus-years plus-one-year-naive
+                 :migration-cap 1000000
+                 :software-host-threshold nil})
+
+;; The full-scale fleet from docs/L5-FLAGSHIP-DEMOS.md Episode 2's snippet:
+;; 50 hosts x 20 VMs. 2,250 supervised procs per simulated world.
+(def full-scale-fleet (assoc fleet :hosts 50 :vms-per-host 20
+                                   :slots-per-host 45
+                                   :migration-batch 20))
+(def full-scale-act1 (assoc full-scale-fleet
+                            :plus-years plus-one-year-naive
+                            :migration-cap 1000000
+                            :software-host-threshold nil))
+(def full-scale-act2 (assoc full-scale-act1 :plus-years plus-one-year-clamped))
+(def full-scale-act3 (assoc full-scale-fleet
+                            :plus-years plus-one-year-naive
+                            :migration-cap 2
+                            :software-host-threshold 3))

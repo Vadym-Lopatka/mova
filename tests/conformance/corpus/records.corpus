@@ -1,0 +1,98 @@
+;; records.corpus -- defrecord/deftype value semantics (S3). One session.
+;; Promoted from pending/records.corpus when the S3 type system landed.
+;; Measured rules pinned here: assoc keeps the record (new keys ride in
+;; the ext map), dissoc of a BASIS field degrades to a plain map while an
+;; ext-key dissoc stays a record, records are never = to plain maps in
+;; either direction, seq/keys order is basis-declaration-then-ext, deftype
+;; has no map nature but answers keyword lookup with nil (not a throw).
+(defrecord Rec123 [a b])
+(->Rec123 1 2)
+(map->Rec123 {:a 1 :b 2})
+(:a (->Rec123 1 2))
+(count (->Rec123 1 2))
+(count (assoc (->Rec123 1 2) :c 3))
+(record? (assoc (->Rec123 1 2) :c 3))
+(seq (->Rec123 1 2))
+(seq (assoc (->Rec123 1 2) :c 3))
+(assoc (->Rec123 1 2) :a 99)
+(record? (dissoc (->Rec123 1 2) :a))
+(class (dissoc (->Rec123 1 2) :a))
+(record? (-> (->Rec123 1 2) (assoc :c 3) (dissoc :c)))
+(= (->Rec123 1 2) {:a 1 :b 2})
+(= {:a 1 :b 2} (->Rec123 1 2))
+(= (->Rec123 1 2) (->Rec123 1 2))
+(pr-str (->Rec123 1 2))
+(record? (->Rec123 1 2))
+(deftype T123 [a b])
+(record? (->T123 1 2))
+(:a (->T123 1 2))
+(defprotocol Area123 (area123 [x]))
+;; further measured S3 coverage (verified on 1.13.0-alpha6 in the S3
+;; probe transcripts): map factories, ext-key riding, map-key usage,
+;; destructuring, dispatch through inline defrecord impls with bare
+;; field access.
+(map->Rec123 {:a 1})
+(map->Rec123 {:a 1 :b 2 :c 3})
+(:c (map->Rec123 {:a 1 :b 2 :c 3}))
+(= (->Rec123 1 2) (map->Rec123 {:a 1 :b 2}))
+(conj (->Rec123 1 2) [:c 3])
+(into {} (->Rec123 1 2))
+(merge (->Rec123 1 2) {:c 9})
+(class (merge (->Rec123 1 2) {:c 9}))
+(= (assoc (->Rec123 1 2) :c 3) (assoc (->Rec123 1 2) :c 3))
+(= (assoc (->Rec123 1 2) :c 3) (->Rec123 1 2))
+(keys (->Rec123 1 2))
+(vals (->Rec123 1 2))
+(contains? (->Rec123 1 2) :a)
+(map? (->Rec123 1 2))
+(get (->Rec123 1 2) :a)
+(get (->Rec123 1 2) :nope :dflt)
+(.a (->Rec123 1 2))
+(.-a (->Rec123 1 2))
+(get {(->Rec123 1 2) :hit} (->Rec123 1 2))
+(let [{:keys [a b]} (->Rec123 1 2)] [a b])
+(reduce-kv (fn [acc k v] (conj acc k)) [] (->Rec123 1 2))
+(defrecord Rec124 [a b])
+(= (->Rec123 1 2) (->Rec124 1 2))
+(defrecord WithImpl [v] Area123 (area123 [x] [:got v]))
+(area123 (->WithImpl 7))
+(area123 (WithImpl. 9))
+(satisfies? Area123 (->WithImpl 1))
+(record? (WithImpl. 1))
+(.a (->T123 5 6))
+(= (->T123 1 2) (->T123 1 2))
+(instance? T123 (->T123 1 2))
+
+;; -- S4 (everyday3): `find`/`empty` on a record -- `find` reads like `get`
+;; ([k v] on a hit, nil on a miss); `empty` is the ONE place a record does
+;; NOT behave like a plain map (throws, matching real Clojure's
+;; `UnsupportedOperationException` -- there's no way to rebuild a record's
+;; required basis fields from nothing).
+(find (->Rec123 1 2) :a)
+(find (->Rec123 1 2) :nope)
+(empty (->Rec123 1 2))
+
+;; -- S6: `clojure.lang.IRecord` (src/types.rs `is_irecord`) -- promoted
+;; from tests/conformance/pending/records.corpus, which had carried this
+;; exact form as a divergence since `clojure.lang.IRecord` was an
+;; unresolved symbol; it now conforms.
+(do (defrecord RecI [a b]) (instance? clojure.lang.IRecord (->RecI 1 2)))
+
+;; -- D1 (`reify`): promoted from tests/conformance/pending/records.corpus,
+;; which carried these three as "reify is not built" divergences. All
+;; three exercise the anonymous type's OWN method table (src/types.rs
+;; `TypeDef::methods`): `.method` interop on a `reify Object` head,
+;; protocol-fn dispatch into a `reify`d protocol impl, and the fact that a
+;; `reify` instance is NOT a record.
+(.toString (reify Object (toString [this] "hi")))
+(do (defprotocol AreaR (arear [x])) (arear (reify AreaR (arear [_] 4))))
+(do (defprotocol AreaT (areat [x])) (record? (reify AreaT (areat [_] 4))))
+
+;; -- W3d2: `satisfies?` of a protocol a `reify` implements -- the last
+;; row promoted out of tests/conformance/pending/records.corpus, which
+;; now has none. A `reify` implements the protocol DIRECTLY rather than
+;; registering an `extend`-style impl, so this needed the anonymous type
+;; to record the protocol keys it names (src/types.rs `TypeDef::protocols`)
+;; -- exactly what real Clojure answers with `(instance? (:on-interface
+;; P) x)`.
+(do (defprotocol AreaS (areas [x])) (satisfies? AreaS (reify AreaS (areas [_] 4))))

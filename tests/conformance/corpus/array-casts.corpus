@@ -1,0 +1,25 @@
+;; array-casts.corpus -- S6: typed-array hint-cast fns (src/builtins/
+;; arrays.rs `register_typed_cast`): `booleans bytes chars shorts floats
+;; ints longs doubles`. On the JVM these are pure type ASSERTIONS
+;; (`Reflector.prepRet`-style), never coercions -- identity on an array
+;; whose kind already matches, `ClassCastException` on anything else
+;; (wrong-kind array, non-array, ...), `nil` passes through as `nil`.
+;; numbers.clj's `test-array-types` (~line 586) is the consumer:
+;; `(= (Class/forName "[Z") (class y) (class (booleans (boolean-array 1
+;; true))))`. Every row measured on 1.13.0-alpha6.
+(class (booleans (boolean-array 1)))
+(booleans (int-array 1))
+(booleans nil)
+(booleans [1 2 3])
+(booleans (object-array [true false]))
+(class (ints (int-array 1)))
+(ints (short-array 1))
+(class (longs (long-array 1)))
+(longs (int-array 1))
+(class (doubles (double-array 1)))
+(doubles (float-array 1))
+(class (floats (float-array 1)))
+(class (chars (char-array 1)))
+(class (shorts (short-array 1)))
+(class (bytes (byte-array 1)))
+(vec (booleans (boolean-array 1 true)))

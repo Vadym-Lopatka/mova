@@ -1,0 +1,34 @@
+;; seq-fns.corpus -- promoted from tests/conformance/pending/seq-fns.corpus,
+;; C13 (sequences/transducers wave, session 7b, branch compat/c13-sequences):
+;; `take-nth`/`dedupe`/`random-sample`/`split-with`/`nthrest`/
+;; `partitionv-all` (all entirely new this wave), `reductions`' 2-arity,
+;; `partition`'s 3/4-arity (step/pad), and `take`/`drop`'s negative-count
+;; clamp (measured: clamps to zero rather than erroring, matching the
+;; oracle). All forms self-contained (no cross-form session state).
+(take-nth 2 [1 2 3 4 5 6])
+(dedupe [1 1 2 2 1 1 3])
+(random-sample 1.0 [1 2 3])
+(random-sample 0.0 [1 2 3])
+(reductions + [1 2 3 4])
+(split-with even? [2 4 5 6])
+(nthrest [1 2 3 4 5] 2)
+(partitionv-all 2 [1 2 3 4 5])
+(partition 2 1 [1 2 3 4])
+(partition 3 3 [:pad] [1 2 3 4 5])
+(take -1 [1 2 3])
+(drop -1 [1 2 3])
+;; promoted at c16 merge: conform under the combined C2-wave code
+(update-keys {:a 1} name)
+(update-vals {:a 1} inc)
+(split-with even? [2 4 5 6])
+(nthrest [1 2 3 4 5] 2)
+(partitionv-all 2 [1 2 3 4 5])
+;; promoted at C3e (improper-list marker): both were left behind by C13
+;; solely because `cons`ing onto an unforced lazy tail PRINTED the tail as
+;; one nested element (`(100 (101 103 106))`). Giving the continuation
+;; marker its own discriminant (`Value::LazyTail`) let `realize_deep` tell
+;; a cons cell from a list whose last element is a lazy seq, so both now
+;; print flat, exactly as the oracle does.
+(partition-by even? [1 1 2 2 3])
+(reductions + 100 [1 2 3])
+(trampoline (fn tramp [n] (if (zero? n) :done (fn [] (tramp (dec n))))) 5)

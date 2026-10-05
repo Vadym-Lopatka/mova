@@ -1,0 +1,33 @@
+;; nrepl.util.print: printing functions for nrepl.middleware.print, with the
+;; JVM signatures `[value writer options]`.
+(ns nrepl.util.print
+  (:refer-clojure :exclude [pr])
+  (:require [clojure.pprint :as pp]))
+
+(def ^:private pr-options
+  [:print-dup :print-readably :print-length :print-level :print-meta :print-namespace-maps])
+
+(defn- option->var [option]
+  (resolve (symbol "clojure.core" (str "*" (name option) "*"))))
+
+(defn- pr-bindings [options]
+  (->> (select-keys options pr-options)
+       (into {} (keep (fn [[option value]]
+                        (when-let [var (option->var option)]
+                          [var value]))))))
+
+(defn pr
+  "Equivalent to `clojure.core/pr`. Options matching the dynamic printing
+  vars (`:print-length`, ...) are bound while printing."
+  ([value writer] (pr value writer nil))
+  ([value writer options]
+   (push-thread-bindings (pr-bindings options))
+   (let [s (try (pr-str value) (finally (pop-thread-bindings)))]
+     (binding [*out* writer] (print s) (flush))
+     nil)))
+
+(defn pprint
+  "A simple wrapper around `clojure.pprint/write`."
+  ([value writer] (pprint value writer {}))
+  ([value writer options]
+   (apply pp/write value (mapcat identity (assoc options :stream writer)))))

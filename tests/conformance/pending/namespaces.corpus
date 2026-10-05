@@ -1,0 +1,45 @@
+;; namespaces.corpus -- namespace-machinery gap corpus (pending). Every
+;; form on this list currently DIVERGES between real Clojure 1.13.0-alpha6
+;; and mova; it is a ledger of failures, not aspirational syntax. One
+;; session -- a `def`/`intern`/`create-ns` on an earlier line is visible
+;; to later lines exactly like a real REPL session.
+;;
+;; S4 update: `*ns*`/`ns-name`/`the-ns`/`find-ns`/`ns-resolve`/`resolve`/
+;; `require` (callable)/`import`/`all-ns` landed and every conforming form
+;; that exercised ONLY those was promoted to `tests/conformance/corpus/
+;; nsfns.corpus` (see that file's own tail section for exactly which).
+;; Still unresolved in mova, exercised below: `create-ns`/`remove-ns`/
+;; `intern`/`ns-publics`/`ns-unmap`/`ns-map`/`ns-aliases`/`alias`/
+;; `requiring-resolve`/`in-ns`/`use`, plus `resolve`/
+;; `ns-resolve` var-PRINTING (mova's core builtins intern BARE --
+;; `#'inc` vs real Clojure's `#'clojure.core/inc` -- a separate,
+;; unrelated-to-S4 printing-convention gap, not namespace mechanics).
+;; `load-string` (W-ADX, wishlist #11) landed and its row was promoted to
+;; `tests/conformance/corpus/namespaces.corpus`.
+;;
+;; NOTE on a genuine curiosity, not a pending case: `(clojure.string/join
+;; "," [1 2 3])`-style CALLS (as opposed to the `require`/`alias` step
+;; that would normally set them up) sometimes accidentally print the SAME
+;; value on both sides. mova resolves any `prefix/name` symbol by
+;; stripping everything through the last `/` and looking up the bare
+;; `name` in its single global registry, regardless of whether `prefix`
+;; was ever `require`d or `alias`ed -- so `str/join`, `set/union`, and an
+;; arbitrarily-chosen alias like `cs/intersection` all happen to resolve
+;; to mova's global `join`/`union`/`intersection` and return the
+;; identical value Clojure's real namespace resolution would. That
+;; coincidence was verified and excluded here (it does NOT diverge), but
+;; it does not rescue real code: the `require`/`alias` line that real
+;; code depends on to set the alias up still fails loudly in mova (see
+;; below), and in a real (non-error-tolerant) script that abort happens
+;; before the downstream call is ever reached.
+(ns-name (create-ns 'foo123))
+(intern 'foo123 'bar 42)
+(intern 'foo123 'baz 43)
+(sort (keys (ns-publics 'foo123)))
+(ns-unmap 'foo123 'bar)
+(sort (keys (ns-publics 'foo123)))
+(ns-resolve 'foo123 'baz)
+(do (remove-ns 'foo123) :removed)
+(contains? (ns-map 'user) 'inc)
+(alias 'cs 'clojure.set)
+(requiring-resolve 'clojure.set/union)

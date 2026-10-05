@@ -1,0 +1,120 @@
+{
+ "name": "a03_sessions",
+ "doc": "clone/close/ls-sessions, use of closed or unknown session",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "clone",
+    "id": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "clone",
+    "id": "2"
+   },
+   "save_as": "c1"
+  },
+  {
+   "send": {
+    "op": "clone",
+    "id": "3",
+    "session": "$s1"
+   },
+   "save_as": "c2"
+  },
+  {
+   "send": {
+    "op": "ls-sessions",
+    "id": "4"
+   }
+  },
+  {
+   "send": {
+    "op": "ls-sessions",
+    "id": "5",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "close",
+    "id": "6",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "ls-sessions",
+    "id": "7"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(+ 1 2)",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "close",
+    "id": "9",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "close",
+    "id": "10"
+   }
+  },
+  {
+   "send": {
+    "op": "close",
+    "id": "11",
+    "session": "no-such-session"
+   }
+  },
+  {
+   "send": {
+    "op": "describe",
+    "id": "12",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "clone",
+    "id": "13",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "ls-sessions",
+    "id": "14",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "interrupt",
+    "id": "15",
+    "session": "$c1"
+   }
+  },
+  {
+   "send": {
+    "op": "stdin",
+    "id": "16",
+    "session": "$c1",
+    "stdin": "x"
+   }
+  }
+ ]
+}

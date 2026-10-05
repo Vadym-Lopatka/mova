@@ -1,0 +1,43 @@
+{
+ "name": "a01_describe",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "describe",
+    "id": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "describe",
+    "id": "2",
+    "verbose?": "true"
+   }
+  },
+  {
+   "send": {
+    "op": "describe",
+    "id": "3",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "describe",
+    "id": "4",
+    "verbose?": "false"
+   }
+  },
+  {
+   "send": {
+    "op": "describe",
+    "id": "5",
+    "verbose?": "1"
+   }
+  }
+ ]
+}

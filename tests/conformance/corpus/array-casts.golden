@@ -1,0 +1,16 @@
+OK	boolean/1
+ERR	ClassCastException
+OK	nil
+ERR	ClassCastException
+ERR	ClassCastException
+OK	int/1
+ERR	ClassCastException
+OK	long/1
+ERR	ClassCastException
+OK	double/1
+ERR	ClassCastException
+OK	float/1
+OK	char/1
+OK	short/1
+OK	byte/1
+OK	[true]

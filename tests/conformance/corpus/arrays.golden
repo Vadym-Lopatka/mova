@@ -1,0 +1,109 @@
+OK	java.lang.Object/1
+OK	java.lang.Long/1
+OK	java.lang.String/1
+OK	java.lang.Double/1
+OK	java.lang.Object/1
+OK	java.lang.Long/1
+OK	java.lang.Character/1
+OK	java.lang.Boolean/1
+OK	clojure.lang.Keyword/1
+OK	clojure.lang.PersistentList/1
+OK	clojure.lang.PersistentVector/1
+OK	java.lang.Long/1
+OK	java.lang.Long/1
+OK	java.lang.String/1
+OK	java.lang.Object/1
+OK	[1 2 3]
+OK	0
+OK	3
+OK	:threw
+OK	:threw
+OK	int/1
+OK	[0 0 0]
+OK	[1 2 3]
+OK	[7 7 7]
+OK	long/1
+OK	[1 2 3]
+OK	double/1
+OK	[1.0 2.0]
+OK	float/1
+OK	[1.0 2.0]
+OK	boolean/1
+OK	[true false]
+OK	byte/1
+OK	[1 2 3]
+OK	char/1
+OK	[\a \b]
+OK	[\a \b \c]
+OK	short/1
+OK	[1 2 3]
+OK	java.lang.Object/1
+OK	[1 2 3]
+OK	[0 1 2 3]
+OK	[-56]
+OK	[-25536]
+OK	[1]
+OK	[-1]
+OK	java.lang.String/2
+OK	(3 3)
+OK	3
+OK	[nil nil nil]
+OK	java.lang.Object/1
+OK	[1 2 3]
+OK	[1 2]
+OK	[3 4]
+OK	2
+OK	1
+OK	3
+OK	:threw
+OK	:threw
+OK	[99 2 3]
+OK	:threw
+OK	[42 2 3]
+OK	[42 2 3]
+OK	[4.2 2.0]
+OK	[false false]
+OK	[10 2 3]
+OK	[10 2 3]
+OK	[\z \b]
+OK	["x" 2 3]
+OK	:threw
+OK	:threw
+OK	3
+OK	[[1 2 3] [99 2 3]]
+OK	false
+OK	false
+OK	true
+OK	[2 4 6]
+OK	6
+OK	6
+OK	nil
+OK	(1 2 3)
+OK	1
+OK	(2 3)
+OK	3
+OK	0
+OK	2
+OK	:threw
+OK	[1 2 3]
+OK	false
+OK	false
+OK	(1 2 3)
+OK	6
+OK	(2 3 4)
+OK	(3 2 1)
+OK	true
+OK	false
+OK	false
+OK	true
+OK	false
+OK	false
+OK	true
+OK	false
+OK	:threw
+OK	(1 2)
+OK	true
+OK	true
+OK	true
+OK	true
+OK	false

@@ -1,0 +1,24 @@
+;; reuse-assoc-temp-big.mova -- reuse-assoc-temp.mova's Big-tier twin.
+;;
+;; The receiver is a 200-entry map (`PMap::Big`, i.e. imbl's HAMT), so the
+;; chained assocs after the first exercise the case E4b priced highest:
+;; mutating an imbl root the callee exclusively owns, instead of cloning
+;; the root handle first and forcing copy-on-write down the whole insert
+;; path. Same temporary-receiver structure as reuse-assoc-temp.mova.
+;;
+;;   ./target/release/mova bench/reuse-assoc-temp-big.mova
+
+(def R 100000)
+(def base (reduce (fn [m i] (assoc m i i)) {} (range 200)))
+(def t0 (time-ms))
+(def checksum
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r)
+             (+ acc
+                (count (assoc base :a 1 :b 2 :c 3 :d 4))
+                (count (assoc (assoc (assoc (assoc base :a 1) :b 2) :c 3) :d 4))))
+      acc)))
+(def elapsed (max 1 (- (time-ms) t0)))
+(def ops (* 8 R))
+(println "reuse-assoc-temp-big" ops elapsed (quot (* ops 1000) elapsed))
