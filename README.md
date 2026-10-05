@@ -48,11 +48,13 @@ new terminal and run `mova --version`.
 To remove Mova:
 
 ```sh
-cargo uninstall mova && rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/mova" "$HOME/.mova_history"
+cargo uninstall mova && rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/mova" "$HOME/.mova_history" "$HOME"/.cargo/git/checkouts/mova-* "$HOME"/.cargo/git/db/mova-*
 ```
 
 This removes the binary, the core image cache (`mova/` under your cache
-directory) and the REPL history file. Nothing else is touched. Mova also
+directory), the REPL history file, and the source that `cargo install --git`
+downloaded (`checkouts/mova-*` and `db/mova-*` under `~/.cargo/git`; these
+are cargo's download caches). Nothing else is touched. Mova also
 reads nREPL config files (`.nrepl.edn`, `~/.nrepl/nrepl.edn`,
 `~/.config/nrepl/nrepl.edn`) but never writes them, and `mova nrepl`
 writes `.nrepl-port` in the directory where you start it and deletes it on
@@ -95,7 +97,14 @@ The server prints a banner and writes the port to `.nrepl-port` in the
 current directory. It removes the file when it exits. Connect from CIDER,
 Calva, Conjure or any other nREPL client. Options follow the JVM nREPL
 command line (`-b`/`--bind`, `-p`/`--port`, `-s`/`--socket`, and others).
-Use `-p 0` to pick a free port.
+If you give no port, the server picks a free one (`-p 0` says the same).
+
+To start the server for a project, pass the same `--module-path` that a
+script gets (before or after `nrepl`). `(require ...)` then finds your files:
+
+```sh
+./target/release/mova nrepl --module-path src:lib
+```
 
 Supported ops: `clone`, `close`, `completions`, `describe`, `eval`,
 `forward-system-output`, `interrupt`, `load-file`, `lookup`, `ls-sessions`,

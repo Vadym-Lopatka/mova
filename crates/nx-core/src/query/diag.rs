@@ -207,12 +207,23 @@ fn ignore_ranges(text: &str) -> Vec<(crate::cst::Pos, Option<Vec<String>>)> {
     out
 }
 
+/// Mova loads namespaces at run time (`require` in another file, `load-file`), and a qualified call needs no `:require`
+/// in the calling file once the namespace is loaded: in a `.mova` file an `unresolved-namespace` finding is dropped
+/// when some file of the project defines that namespace. A namespace defined nowhere is still reported.
+fn mova_loaded_ns(s: &Snapshot, uri: &str, f: &Finding) -> bool {
+    if f.ty != "unresolved-namespace" || !uri.ends_with(".mova") {
+        return false;
+    }
+    let Some(ns) = f.message.strip_prefix("Unresolved namespace ").and_then(|m| m.strip_suffix(". Are you missing a require?")) else { return false };
+    s.ns_files_of(crate::intern::intern(ns)).iter().any(|&id| s.file(id).map_or(false, |e| e.internal))
+}
+
 /// All diagnostics of `uri` (kondo findings, then built-in), LSP shape.
 pub fn diagnostics(s: &Snapshot, uri: &str) -> Vec<Diagnostic> {
     let q = Q::new(s);
     let Some(f) = s.id(uri) else { return Vec::new() };
     let e = q.entry(f);
-    let mut out: Vec<Diagnostic> = e.findings.iter().map(to_diagnostic).collect();
+    let mut out: Vec<Diagnostic> = e.findings.iter().filter(|x| !mova_loaded_ns(s, uri, x)).map(to_diagnostic).collect();
     let builtin = q.unused_public_vars(f);
     if !builtin.is_empty() {
         let ignores = e.text().as_deref().map(ignore_ranges).unwrap_or_default();

@@ -89,9 +89,20 @@ fn mova_bin() -> Option<PathBuf> {
     if let Some(b) = std::env::var_os("MOVA_BIN").filter(|b| !b.is_empty()) {
         return Some(PathBuf::from(b));
     }
-    let exe = std::env::current_exe().ok()?;
-    exe.file_name()?.to_str()?.starts_with("mova").then_some(exe)
+    if let Some(exe) = std::env::current_exe().ok().filter(|e| e.file_name().and_then(|n| n.to_str()).map_or(false, |n| n.starts_with("mova"))) {
+        return Some(exe);
+    }
+    on_path("mova")
 }
+
+/// First executable file called `name` on `PATH`.
+fn on_path(name: &str) -> Option<PathBuf> {
+    std::env::split_paths(&std::env::var_os("PATH")?).map(|d| d.join(name)).find(|p| p.is_file())
+}
+
+/// Public vars of `clojure.core` in a fresh `mova` process: the fallback for names no index lists
+/// (no `mova` binary found, or an index of another revision). Regenerate with `tools/gen_mova_core.sh`.
+const CORE_VARS: &str = include_str!("core_vars.txt");
 
 /// Index text: `MOVA_SOURCE_INDEX=<json file>`, else `<mova> --source-index` cached by binary size + mtime.
 fn index_text() -> Option<String> {
@@ -347,9 +358,6 @@ pub fn module_root(path: &Path, text: &str) -> Option<PathBuf> {
 pub fn build_layer(project: &Path, skip: &[PathBuf], cfg: &Config) -> Option<Layer> {
     let ix = load_index().unwrap_or_default();
     let host = host_natives(project);
-    if ix.natives.is_empty() && ix.namespaces.is_empty() && host.is_empty() {
-        return None;
-    }
     let root = mova_root(project, &ix.root);
     let relocated = root != ix.root;
     let mut layer = Layer { root: root.clone(), ..Default::default() };
@@ -432,7 +440,31 @@ pub fn build_layer(project: &Path, skip: &[PathBuf], cfg: &Config) -> Option<Lay
             layer.files.push(LayerFile { uri: path_to_uri(&p), lang: Lang::Clj, fa, rank: RANK_NATIVE });
         }
     }
+    // core vars no layer file defines (index missing or of another revision): names only, no location
+    let core = intern("clojure.core");
+    let defined: std::collections::HashSet<SymId> = layer.files.iter().flat_map(|f| f.fa.var_definitions.iter()).filter(|d| d.ns == core).map(|d| d.name).collect();
+    let extra = missing_core_names(&defined);
+    if !extra.is_empty() {
+        let natives: Vec<Native> = extra.into_iter().map(|name| Native { ns: "clojure.core".into(), name, file: String::new(), line: 1 }).collect();
+        if let Some(fa) = native_stub(&natives.iter().collect::<Vec<_>>(), cfg) {
+            layer.files.push(LayerFile { uri: BUILTIN_URI.to_string(), lang: Lang::Clj, fa, rank: RANK_NATIVE });
+        }
+    }
     Some(layer)
+}
+
+/// Is `name` a public var of `clojure.core` in a fresh `mova` process?
+pub fn is_core_var(name: &str) -> bool {
+    static SET: std::sync::OnceLock<std::collections::HashSet<&'static str>> = std::sync::OnceLock::new();
+    SET.get_or_init(|| CORE_VARS.lines().collect()).contains(name)
+}
+
+/// Home of core vars known only by name.
+pub const BUILTIN_URI: &str = "file:///nx-mova-builtin/core.mova";
+
+/// Names of [`CORE_VARS`] that neither `defined` nor the Clojure core table has (class names and `a.b.C` skipped).
+pub fn missing_core_names(defined: &std::collections::HashSet<SymId>) -> Vec<String> {
+    CORE_VARS.lines().filter(|n| !n.contains('.') || n.len() == 1).filter(|n| !n.starts_with(|c: char| c.is_uppercase())).filter(|n| !defined.contains(&intern(n)) && !crate::analyzer::defs::core_sym(false, intern(n))).map(str::to_string).collect()
 }
 
 #[cfg(test)]

@@ -35,6 +35,12 @@ fn parse(args: Vec<String>) -> Result<(String, Opts), String> {
 }
 
 fn run(args: Vec<String>) -> Result<Reply, String> {
+    if args.iter().any(|a| a == "--version" || a == "-V") {
+        return Ok(Reply::out(format!("nx {}\n", env!("CARGO_PKG_VERSION")), 0));
+    }
+    if args.iter().any(|a| a == "--help" || a == "-h") || args.iter().find(|a| !a.starts_with("--")).map_or(false, |a| a == "help") {
+        return Ok(Reply::out(format!("{USAGE}\n  help, -h, --help                   this text\n  --version                          the version\n"), 0));
+    }
     let (cmd, o) = parse(args).map_err(|e| format!("{e}\n{USAGE}"))?;
     let r = match cmd.as_str() {
         "check" => check::run(&o),

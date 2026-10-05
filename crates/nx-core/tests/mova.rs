@@ -71,6 +71,9 @@ fn fixture() -> (PathBuf, PathBuf) {
         &proj.join("src/app/main.mova"),
         "(ns app.main\n  (:require [app.util :as u]\n            [clojure.core.async :as a]))\n\n(defn run [m]\n  (let [t (time-ms)\n        c (a/chan)\n        d (async/chan 1)]\n    (go-loop [i 0] (when (< i 2) (recur (inc i))))\n    (try (pg-now) (catch e (helper e)))\n    [t c d (mova.fs/read \"x\") (update-vals m u/double) (missing 1)]))\n\n(defn helper [e] (throw (str e)))\n",
     );
+    // loaded at run time: qualified calls without a `:require`; `sleep-ms` is a core var the index above does not list
+    write(&proj.join("src/app/dyn.mova"), "(ns app.dyn)\n\n(defn f [] [(app.util/double 2) (nowhere.ns/x 1) (sleep-ms 5)])\n");
+    write(&proj.join("src/app/dynclj.clj"), "(ns app.dynclj)\n\n(defn f [] (app.util/double 2))\n");
     write(&proj.join("lib-mova/app/extra.mova"), "(ns app.extra\n  (:require [app.main :as main]))\n\n(defn go! [] (main/run {}))\n");
     let ix = format!(
         r#"{{"v":2,"root":"{}","namespaces":[{{"ns":"clojure.core","file":"core/core.mova"}},{{"ns":"clojure.core","file":"core/async.mova"}}],
@@ -120,7 +123,7 @@ fn layer_end_to_end() {
     assert_eq!(sps, ["src", "test", "lib-mova"], "{:?}", info.source_paths);
     let files = std::mem::take(&mut info.files);
     let n = files.len();
-    assert_eq!(n, 3);
+    assert_eq!(n, 5);
     e.store.ctx().cfg.store(std::sync::Arc::new(Config::load(&proj)));
     e.store.ctx().source_paths.store(std::sync::Arc::new(info.source_paths.iter().map(PathBuf::from).collect()));
     e.store.set_project(std::sync::Arc::new(info));
@@ -133,6 +136,10 @@ fn layer_end_to_end() {
     let uri = nx_core::engine::scan::path_to_uri(&main);
     let msgs: Vec<String> = nx_core::query::diag::diagnostics(&s, &uri).into_iter().map(|d| d.message).collect();
     assert_eq!(msgs, ["Unresolved symbol: missing"], "{msgs:?}");
+    // `.mova`: a namespace defined by a project file needs no `:require`, one defined nowhere is reported; `.clj` is unchanged
+    let diag = |p: &str| -> Vec<String> { nx_core::query::diag::diagnostics(&s, &nx_core::engine::scan::path_to_uri(&proj.join(p))).into_iter().map(|d| d.message).filter(|m| !m.starts_with("Unused public var")).collect() };
+    assert_eq!(diag("src/app/dyn.mova"), ["Unresolved namespace nowhere.ns. Are you missing a require?"]);
+    assert_eq!(diag("src/app/dynclj.clj"), ["Unresolved namespace app.util. Are you missing a require?"]);
     // definitions: native, native through a required alias, through the default alias, a native namespace with no
     // require, host native, stdlib source, forward reference, a file of another module dir
     let def = |line, ch| loc(&q(&s, "definition", &main, line, ch), &mova);
@@ -175,4 +182,17 @@ fn layer_end_to_end() {
     let r = q(&s, "references", &main, 4, 7); // run
     assert!(r.contains("lib-mova/app/extra.mova"), "{r}");
     let _ = std::fs::remove_dir_all(proj.parent().unwrap());
+}
+
+#[test]
+fn core_vars_table_is_a_fallback() {
+    // the generated table lists vars the Clojure tables lack, and skips the ones a layer file defines
+    let none = std::collections::HashSet::new();
+    let all = nx_core::mova::missing_core_names(&none);
+    for n in ["time-ms", "sleep-ms", "chan?", "sliding-buffer", "sqrt", "codepoint-str"] {
+        assert!(all.iter().any(|x| x == n), "{n}");
+    }
+    assert!(!all.iter().any(|x| x == "map" || x == "clojure.lang.Var" || x == "Exception"));
+    let defined: std::collections::HashSet<_> = [nx_core::intern::intern("sleep-ms")].into_iter().collect();
+    assert!(!nx_core::mova::missing_core_names(&defined).iter().any(|x| x == "sleep-ms"));
 }

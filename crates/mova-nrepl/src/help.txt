@@ -17,3 +17,4 @@ Usage:
   --help                      Show this help message.
   -v/--version                Display the nREPL version.
   --verbose                   Show verbose output.
+  --module-path PATHS         Mova only. Colon-separated directories searched, in order, for a required namespace's file. Defaults to the working directory. May also come before `nrepl`: `mova --module-path A:B nrepl`.

@@ -18,7 +18,8 @@
 //!   line. Keys are the long option names as keywords (`:port`, `:bind`, ...).
 //!
 //! Beyond the JVM: `--flag=value` works, and three Mova switches
-//! (`--errors=rich|jvm`, `--no-core-image`, `--boot-first`).
+//! (`--errors=rich|jvm`, `--no-core-image`, `--boot-first`). `--module-path`
+//! is not parsed here: `main` takes it out of argv first, like the runner.
 //!
 //! Parsing allocates a few small strings and reads at most four small files
 //! (ENOENT is the usual answer); it does not touch the interpreter.
@@ -26,7 +27,8 @@
 use crate::edn::{self, Edn};
 use std::path::PathBuf;
 
-/// `--help` output, byte for byte what 1.8.0 prints (with its newline).
+/// `--help` output: what 1.8.0 prints (with its newline), plus the Mova-only
+/// `--module-path` line at the end.
 pub const HELP: &str = include_str!("help.txt");
 
 /// The parsed command line merged over the config files. Strings are raw;
@@ -401,6 +403,9 @@ mod tests {
     #[test]
     fn help_text_is_the_jvm_text() {
         assert!(HELP.starts_with("Usage:\n\n  -i/--interactive"));
-        assert!(HELP.ends_with("--verbose                   Show verbose output.\n"));
+        // the JVM text, then the one Mova-only line
+        let (jvm, mova) = HELP.split_at(HELP.find("  --module-path").unwrap());
+        assert!(jvm.ends_with("--verbose                   Show verbose output.\n"));
+        assert!(mova.starts_with("  --module-path PATHS") && mova.matches('\n').count() == 1);
     }
 }

@@ -39,7 +39,7 @@ const EVAL_STACK_SIZE: usize = 512 * 1024 * 1024;
 const EVAL_MAX_CALL_DEPTH: usize = 10_000;
 
 const HELP: &str = concat!(
-    "mova 0.3.0 — a system-level Clojure on Rust\n",
+    "mova ", env!("CARGO_PKG_VERSION"), " — a system-level Clojure on Rust\n",
     "\n",
     "USAGE:\n",
     "    mova                  start the REPL\n",
@@ -47,6 +47,8 @@ const HELP: &str = concat!(
     "    mova -e \"<expr>\"      evaluate an expression and print its result\n",
     "    mova -h, --help       print this help\n",
     "    mova --version        print the version\n",
+    "    mova nrepl [options]  start an nREPL server; `mova nrepl --help` lists\n",
+    "                          the options\n",
     "\n",
     "OPTIONS:\n",
     "    --module-path a:b:c    colon-separated directories searched, in order,\n",
@@ -61,13 +63,25 @@ fn main() {
     // P0a: `mova nrepl` is dispatched before ANY interpreter work.
     // P0a probe: version without the 512 MB-stack worker thread
     if std::env::args_os().nth(1).is_some_and(|a| a == "--early-version") {
-        println!("mova 0.3.0");
+        println!("mova {}", env!("CARGO_PKG_VERSION"));
         std::process::exit(0);
     }
-    if std::env::args_os().nth(1).is_some_and(|a| a == "nrepl") {
-        #[cfg(feature = "heap-prof")]
-        heapprof::init();
-        std::process::exit(nrepl_main(t0));
+    // `--module-path` may come before or after `nrepl`; take it out first,
+    // with the same parser the runner uses.
+    let argv: Vec<String> = std::env::args().skip(1).collect();
+    if argv.iter().any(|a| a == "nrepl") {
+        match split_module_path(&argv) {
+            Ok((module_paths, rest)) if rest.first().is_some_and(|a| a == "nrepl") => {
+                #[cfg(feature = "heap-prof")]
+                heapprof::init();
+                std::process::exit(nrepl_main(t0, module_paths, &rest[1..]));
+            }
+            Ok(_) => {}
+            Err(msg) => {
+                eprintln!("mova: {msg}\n\n{HELP}");
+                std::process::exit(2);
+            }
+        }
     }
     #[cfg(feature = "heap-prof")]
     heapprof::init();
@@ -135,7 +149,7 @@ fn run(args: &[String]) -> i32 {
             0
         }
         "--version" => {
-            println!("mova 0.3.0");
+            println!("mova {}", env!("CARGO_PKG_VERSION"));
             0
         }
         "-e" => match args.get(1) {
@@ -343,7 +357,7 @@ fn run_eval(expr: &str, module_paths: Option<Vec<PathBuf>>) -> i32 {
 /// form), with persistent `*1`/`*2`/`*3` history vars and `~/.mova_history`
 /// persistence. Runs until Ctrl-D (exit 0) or a fatal line-editor error.
 fn repl(module_paths: Option<Vec<PathBuf>>) -> i32 {
-    println!("mova 0.3.0 — a system-level Clojure on Rust");
+    println!("mova {} — a system-level Clojure on Rust", env!("CARGO_PKG_VERSION"));
     println!("  precise Arc, no tracing GC, no L30-class bugs by construction");
 
     let mut engine = new_engine(module_paths.unwrap_or_else(default_module_paths));
@@ -647,10 +661,9 @@ fn nrepl_repl(t: &NreplTarget, o: &mova_nrepl::cmdline::Options, tls: Option<&Nr
     }
 }
 
-fn nrepl_main(t0: std::time::Instant) -> i32 {
+fn nrepl_main(t0: std::time::Instant, module_paths: Option<Vec<PathBuf>>, argv: &[String]) -> i32 {
     use std::io::Write;
-    let argv: Vec<String> = std::env::args().skip(2).collect();
-    let o = match mova_nrepl::cmdline::parse(&argv) {
+    let o = match mova_nrepl::cmdline::parse(argv) {
         Ok(o) => o,
         Err(e) => {
             eprintln!("nREPL: {e}");
@@ -732,7 +745,7 @@ fn nrepl_main(t0: std::time::Instant) -> i32 {
     let backend = mova::nrepl::MovaBackend::new(mova::nrepl::Config {
         stack_size: std::env::var("MOVA_NREPL_STACK_MB").ok().and_then(|v| v.parse::<usize>().ok()).map(|m| m << 20).unwrap_or(EVAL_STACK_SIZE),
         max_depth: EVAL_MAX_CALL_DEPTH,
-        module_paths: default_module_paths(),
+        module_paths: module_paths.unwrap_or_else(default_module_paths),
         errors,
         middleware: o.middleware.clone(),
         handler: o.handler.clone(),

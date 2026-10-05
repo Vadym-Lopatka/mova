@@ -8,6 +8,10 @@ pub fn run(o: &Opts) -> Result<Reply, String> {
     let [sym] = o.args.as_slice() else { return Err("usage: nx doc <sym> [--in file]".to_string()) };
     let p = Project::load(find_root(o.root.as_deref())?);
     let in_file = o.in_file.as_deref().map(|f| p.file_arg(f)).transpose()?;
+    // no project at all: a bare name is a Mova core var (when a `mova` is around), as in a Mova project
+    if !p.snap().project.as_ref().map_or(false, |i| i.mova) && nearest_root(&p.root).is_none() {
+        p.e.enable_mova(None);
+    }
     let s = p.snap();
     let q = Q::new(&s);
     let found = resolve(&s, sym, in_file.as_deref());
@@ -39,14 +43,22 @@ fn jar_name(uri: &str) -> &str {
     jar.rsplit('/').next().unwrap_or(jar)
 }
 
+/// A `clojure.core` var that Mova has too.
+fn is_core(q: &Q, e: El) -> bool {
+    let d = &q.fa(e.f).var_definitions[e.i as usize];
+    d.ns.as_str() == "clojure.core" && crate::mova::is_core_var(d.name.as_str())
+}
+
 /// The origin line text of a definition.
 fn origin(p: &Project, q: &Q, e: El) -> String {
     let rank = q.s.mova.as_ref().and_then(|m| m.rank.get(&e.f).copied());
     let (at, uri) = (loc(p, q, e), q.uri(e.f));
     match rank {
+        _ if uri == crate::mova::BUILTIN_URI => "Mova core var (Rust native; no Mova index here: put `mova` on PATH or set MOVA_BIN for its source)".to_string(),
         Some(RANK_NATIVE) => format!("Mova native (Rust) {at}"),
         Some(RANK_STDLIB) => format!("Mova stdlib {at}"),
         _ if q.internal(e.f) => format!("project {at}"),
+        _ if uri.starts_with("jar:") && q.s.mova.is_some() && is_core(q, e) => format!("Mova core var, no Mova index here (put `mova` on PATH or set MOVA_BIN); the doc below is Clojure's ({})", jar_name(uri)),
         _ if uri.starts_with("jar:") && q.s.mova.is_some() => format!("Clojure only ({}): not in the Mova index", jar_name(uri)),
         _ if uri.starts_with("jar:") => jar_name(uri).to_string(),
         _ => at,

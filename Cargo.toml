@@ -270,3 +270,15 @@ codegen-units = 1
 inherits = "release"
 debug = 2
 strip = "none"
+
+# These two tests run helper binaries from src/bin, so they need
+# `--features dev-bins` like the binaries themselves.
+[[test]]
+name = "embed_drop_test"
+path = "tests/embed_drop_test.rs"
+required-features = ["dev-bins"]
+
+[[test]]
+name = "l5_sim_semantics"
+path = "tests/l5_sim_semantics.rs"
+required-features = ["dev-bins"]

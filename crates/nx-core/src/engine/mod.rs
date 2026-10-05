@@ -86,7 +86,8 @@ impl Engine {
         std::thread::spawn(move || e.enable_mova(new_root));
     }
 
-    fn enable_mova(&self, new_root: Option<std::path::PathBuf>) {
+    /// Turn the Mova layer on for the project (blocks); see [`Engine::mova_open`].
+    pub fn enable_mova(&self, new_root: Option<std::path::PathBuf>) {
         static ONE: std::sync::Mutex<()> = std::sync::Mutex::new(());
         let _g = ONE.lock().unwrap_or_else(|p| p.into_inner());
         let Some(proj) = self.store.snapshot().project.clone() else { return };

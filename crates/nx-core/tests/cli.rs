@@ -401,3 +401,55 @@ fn check_reports_unresolved_var_broken_elsewhere() {
     assert_eq!(code, 1);
     assert!(out.starts_with("broken elsewhere:\nsrc/app/a.clj:4:13 warning unresolved-var "), "{out}");
 }
+
+#[test]
+fn help_and_version_exit_0() {
+    let p = Proj::new(&[]);
+    for a in [&["--help"][..], &["-h"], &["help"], &["check", "--help"]] {
+        let (out, err, code) = p.nx(a);
+        assert!(out.starts_with("usage: nx ") && out.contains("check [file...]"), "{a:?}: {out}");
+        assert_eq!((err.as_str(), code), ("", 0), "{a:?}");
+    }
+    assert_eq!(p.nx(&["--version"]), (format!("nx {}\n", env!("CARGO_PKG_VERSION")), String::new(), 0));
+}
+
+/// `nx doc` with a fake Mova index: (stdout of `doc map`, of `doc time-ms`, of `doc clojure.core/map`) in `dir`.
+fn mova_doc(dir: &Path, base: &Path) -> (String, String, String) {
+    let mova = base.join("mova");
+    std::fs::create_dir_all(mova.join("core")).unwrap();
+    std::fs::create_dir_all(mova.join("src")).unwrap();
+    std::fs::write(mova.join("core/core.mova"), "(defn map\n  \"Maps f over coll.\"\n  [f coll]\n  coll)\n").unwrap();
+    std::fs::write(mova.join("src/sys.rs"), "reg(i, \"time-ms\", ArityHint::Exact(0), time_ms);\n").unwrap();
+    let ix = format!(r#"{{"v":2,"root":"{}","namespaces":[{{"ns":"clojure.core","file":"core/core.mova"}}],"natives":[{{"ns":"clojure.core","name":"time-ms","file":"src/sys.rs","line":1}}],"aliases":[],"default_aliases":[]}}"#, mova.display());
+    std::fs::write(base.join("index.json"), ix).unwrap();
+    let run = |sym: &str| {
+        let o = Command::new(env!("CARGO_BIN_EXE_nx")).current_dir(dir).args(["doc", sym]).env("XDG_CACHE_HOME", base.join("cache")).env("MOVA_SOURCE_INDEX", base.join("index.json")).env_remove("MOVA_BIN").output().unwrap();
+        String::from_utf8_lossy(&o.stdout).into_owned()
+    };
+    (run("map"), run("time-ms"), run("clojure.core/map"))
+}
+
+#[test]
+fn doc_of_mova_core_in_a_mova_project_and_without_a_project() {
+    let p = Proj::new(&[("src/app/m.mova", "(ns app.m)\n\n(defn f [] (time-ms))\n")]);
+    let base = p.cache.parent().unwrap().to_path_buf();
+    let (map, native, qualified) = mova_doc(&p.dir, &base);
+    assert!(map.starts_with("clojure.core/map  Mova stdlib ") && map.contains("[f coll]") && map.contains("Maps f over coll."), "{map}");
+    assert!(native.starts_with("clojure.core/time-ms  Mova native (Rust) "), "{native}");
+    assert_eq!(map, qualified);
+    // no project marker at all: the same answers
+    let empty = base.join("empty");
+    std::fs::create_dir_all(&empty).unwrap();
+    let (map, native, _) = mova_doc(&empty, &base);
+    assert!(map.starts_with("clojure.core/map  Mova stdlib ") && map.contains("Maps f over coll."), "{map}");
+    assert!(native.starts_with("clojure.core/time-ms  Mova native (Rust) "), "{native}");
+}
+
+#[test]
+fn mova_core_natives_resolve_without_an_index() {
+    // no `mova` binary and no index: the generated core table still knows the natives
+    let p = Proj::new(&[("src/app/m.mova", "(ns app.m)\n\n(defn f [] (sleep-ms (time-ms)) (sliding-buffer 1) (nowhere))\n")]);
+    let (out, _, code) = p.nx(&["check"]);
+    assert_eq!(code, 1);
+    assert!(out.contains("Unresolved symbol: nowhere") && out.matches("Unresolved symbol").count() == 1, "{out}");
+}
