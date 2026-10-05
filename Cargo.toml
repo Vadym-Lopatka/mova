@@ -82,7 +82,7 @@ globset = "0.4"
 # -- Clojure's normalization (gcd-reduce-then-collapse-to-int for Ratio,
 # scale-insensitive equality for BigDecimal) doesn't match either crate's
 # semantics, so bignum.rs hand-rolls both on top of plain `BigInt`.
-num-bigint = "0.4"
+num-bigint = "0.5"
 num-integer = "0.1"
 num-traits = "0.2"
 # edn/fast: byte-level `"`/`\` scanning for the direct-to-Value EDN reader
