@@ -1,0 +1,28 @@
+;; reuse-assoc-10000.mova -- Perceus-lite phase 1 (v0.5) A/B shape.
+;;
+;; `(reduce (fn [m i] (assoc m i i)) {} (range N))`: the accumulator-map
+;; shape E4b measured a 3.65x (n=7) to ~10.9x (n=10000) unique-vs-shared
+;; gap on. N=10000; the outer loop repeats it R=200 times so the timed
+;; region is seconds rather than microseconds. N=8/100/10000 straddles
+;; PMAP_SMALL_MAX (8), so this trio also covers the Small->Big promotion.
+;;
+;; NOTE what this shape does and does not exercise: the receiver `m` is a
+;; LIVE closure binding at the instant `assoc` runs, so the consuming
+;; convention takes ownership of a handle that is NOT unique (the frame
+;; slot still holds one). It is therefore the CONTROL for phase 1, and the
+;; motivating case for phase 2 (last-use analysis) -- see
+;; reuse-assoc-temp.mova for the shape phase 1 actually wins.
+;;
+;;   ./target/release/mova bench/reuse-assoc-10000.mova
+
+(def N 10000)
+(def R 200)
+(def t0 (time-ms))
+(def checksum
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r) (+ acc (count (reduce (fn [m i] (assoc m i i)) {} (range N)))))
+      acc)))
+(def elapsed (max 1 (- (time-ms) t0)))
+(def ops (* N R))
+(println "reuse-assoc-10000" ops elapsed (quot (* ops 1000) elapsed))

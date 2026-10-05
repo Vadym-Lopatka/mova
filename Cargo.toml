@@ -1,0 +1,272 @@
+[package]
+name = "mova"
+version = "0.4.0"
+edition = "2021"
+description = "mova — a system-level Clojure dialect hosted on Rust: persistent data structures, precise RC memory, miette-grade diagnostics, errno-aware system errors"
+license = "EPL-1.0"
+repository = "https://github.com/Vadym-Lopatka/mova"
+
+[dependencies]
+# lsp/varcell: lock-free `VarCell::get` -- atomic pointer load + Arc clone,
+# no RwLock read/unlock pair on the hottest path in the interpreter.
+arc-swap = "1"
+# M3 shaped maps: header (shape) + values in one allocation behind an 8-byte pointer.
+triomphe = { version = "0.1", default-features = false, features = ["std"] }
+imbl = { path = "vendor/imbl" }
+champ = { path = "vendor/champ" }
+miette = { version = "7", features = ["fancy"] }
+rustyline = "15"
+libc = "0.2"
+regex = "1"
+# lsp/io (reuse of Rust crates):
+# `cheshire.core`'s shim (`mova/shims/cheshire/core.mova`) needs a real JSON
+# codec for the JSON-RPC transport -- `serde_json` is the ecosystem-standard
+# choice, used directly (not through the optional `serde` feature/
+# `serde_bridge.rs`, which is a different, opt-in embedding-API bridge) by
+# `src/builtins/io.rs`'s hand-written `Value <-> serde_json::Value` walk.
+serde_json = "1"
+# nx (clojure-lsp on Flow): native core, bound in src/builtins/nx.rs.
+nx-core = { path = "crates/nx-core" }
+# P0a spike: listen-first nREPL skeleton.
+mova-nrepl = { path = "crates/mova-nrepl" }
+# e2: java.net.URL/HttpsURLConnection + (slurp "https://...") -- clojure-lsp clojuredocs/clojars/JDK-source fetches.
+ureq = { version = "3", default-features = false, features = ["rustls"] }
+# lsp/io: `MessageDigest`/md5 call sites clojure-lsp's `shared.clj`/
+# `classpath.clj`/`config.clj` use (native `mova.md5/hex-digest` in
+# `src/builtins/io.rs`, not yet wired into any overlay -- see that native's
+# doc comment).
+md-5 = "0.10"
+# mova campaign (clojure-lsp): `java.security.MessageDigest/getInstance
+# "SHA-256"` (`hostclass::mk_message_digest`) -- same RustCrypto family
+# and `digest::Digest` trait as `md-5` above, so no new trait import.
+sha2 = "0.10"
+# lsp/io: `clojure-lsp.diff`'s `DiffUtils/
+# diff`+`generateUnifiedDiff` (java-diff-utils) -- `similar`'s `TextDiff::
+# unified_diff` is the direct equivalent, git-style unified-diff format
+# (`mova.diff` native, `src/builtins/difftext.rs`).
+similar = "2"
+# lsp/kondo: `java.util.jar.JarFile`/`java.util.zip.ZipFile` veneer for
+# external-classpath jar reading (clj-kondo's `core.clj`/`analysis/java.clj`,
+# clojure-lsp's `config.clj`/`java_interop.clj`) -- `zip` crate reads the
+# central directory and inflates entries on demand (src/hostclass.rs).
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+# D5: `Value::Regex` (`#"..."` and `re-pattern`) is a `java.util.regex.
+# Pattern` stand-in, and Java's Pattern has LOOKAROUND and BACKREFERENCES;
+# the `regex` crate deliberately has neither (they are incompatible with
+# its linear-time guarantee), so before D5 mova rejected such a pattern
+# outright at read time -- a real, permanent conformance ceiling, not a
+# gap that more work on `regex` could close. `fancy-regex` is the
+# ecosystem's standard answer: it PARSES the fuller syntax and, for any
+# pattern with no fancy construct in it, hands the whole job to
+# `regex::Regex` unchanged -- so the common case keeps `regex`'s engine
+# and its performance exactly, and only a genuinely-fancy pattern pays
+# for backtracking. `regex` itself stays a direct dependency: everything
+# that compiles a pattern INTERNALLY (`clojure.string`'s split/replace,
+# `.replaceFirst`, `str_dot_method`) is mova's own syntax, never a user
+# pattern, and has no reason to leave the linear-time engine.
+#
+# Motivating measured case: vendored `clojure/pprint/cl_format.clj:1621`
+# is `#"^([vV]|#|('.)|([+-]?\d+)|(?=,))"` -- one lookahead, load-bearing
+# (it parses every format directive's parameter list), in a file that must
+# be vendored byte-identically.
+fancy-regex = { version = "0.19", default-features = false, features = ["std", "unicode", "perf"] }
+# lsp/kondo: `mova.fs` (src/builtins/fs.rs)
+# replaces the interpreted `babashka.fs` glob/walk shim -- `walkdir` for
+# directory traversal (depth/hidden/follow-links) and `globset` for
+# glob->matcher compilation (`**`, `*`, `?`, `{a,b}`), the same crate family
+# ripgrep itself uses for this.
+walkdir = "2"
+globset = "0.4"
+# Bignum: exact-precision Ratio/BigInt/BigDecimal need arbitrary-
+# precision integers; `num-rational`/`bigdecimal` are deliberately NOT used
+# -- Clojure's normalization (gcd-reduce-then-collapse-to-int for Ratio,
+# scale-insensitive equality for BigDecimal) doesn't match either crate's
+# semantics, so bignum.rs hand-rolls both on top of plain `BigInt`.
+num-bigint = "0.4"
+num-integer = "0.1"
+num-traits = "0.2"
+# edn/fast: byte-level `"`/`\` scanning for the direct-to-Value EDN reader
+# (`src/edn_fast.rs`) -- SIMD-accelerated `memchr2` for the string-literal
+# fast path (no escapes -> single-allocation slice copy).
+memchr = "2"
+#
+# lsp/kondo: `mova.transit/read-json`'s streaming decode
+# (`src/builtins/transit.rs`) needs `serde::de::{Visitor,
+# DeserializeSeed, SeqAccess, MapAccess}` directly (not re-exported by
+# `serde_json`), so this is now unconditional -- already pulled in
+# transitively via `serde_json`, so this adds no new crate to the
+# build, just direct access to it. The `serde` FEATURE below (embed's
+# `#[derive(Serialize/Deserialize)]` opt-in) stays a separate toggle.
+serde = { version = "1", features = ["derive"] }
+# `#[derive(MovaStruct)]` (the `derive` feature): sibling proc-macro crate,
+# path dep exactly like `imbl`/`champ` above (no `[workspace]` table
+# needed) -- see mova-derive/src/lib.rs.
+mova-derive = { path = "mova-derive", optional = true }
+# Allocator front-end experiment only: never part of a default build.
+mimalloc = { version = "0.1", optional = true, default-features = false }
+# M8: mi_collect / mi_heap_* / mi_process_info for mova.mem/collect! and phase heaps.
+libmimalloc-sys = { version = "0.1", optional = true, default-features = false, features = ["extended"] }
+# `src/runtime/` -- the task runtime stackful
+# coroutines, each on an mmap-reserved, guard-paged, lazily-committed stack,
+# switched by hand-written assembly; no_std, aarch64 + x86_64.
+#
+# Rationale, in the shape the `fancy-regex`/`num-bigint` precedents above
+# set. The evaluator is a TREE-WALKER, so its Rust stack IS the Mova stack:
+# "park a `go` block at arbitrary interpreter depth" therefore means
+# "suspend a real machine stack". Nothing in std suspends a stack, and no
+# CPS/state-machine rewrite of `eval` expresses it either -- that is exactly
+# the compromise (`go` bodies that cannot park inside a called function)
+# JVM core.async has had to live with since 2013, and the one this
+# dependency deletes. Every alternative on the table was strictly worse:
+# hand-rolled setjmp/makecontext (unsound under Rust's unwinder, no guard
+# pages, no aarch64-darwin story), `generator`/`may` (heavier, less
+# maintained), or keeping 64 MiB OS threads (the status quo this replaces).
+#
+# Numbers measured by the authors in a spike (aarch64-darwin, Apple M4 Pro): context switch **1.53 ns** (B1, vs a 50 ns gate and a 4.4 µs
+# futex hop); pooled spawn **7.5 ns/task** at 8 MiB stacks (B2b, vs a 2 µs
+# gate); idle RSS **16.05 KiB/task**, flat from 100k to 1M live tasks (B3,
+# vs a 32 KiB gate); panics propagate to the resume site with their payload
+# intact and destructors run (B5), so a failing task cannot take its shard
+# down. That last one is why this is a NORMAL dependency and not a feature:
+# `go` blocks route through it unconditionally, so it is load-bearing for
+# the default build's correctness, not an opt-in experiment.
+#
+# `default-features` are kept: `unwind` is one of them, and `src/runtime/`'s
+# panic containment (and its stack recycling after a panic) is built on it.
+corosensei = "0.3"
+cranelift-codegen = { version = "0.136.1", optional = true }
+cranelift-frontend = { version = "0.136.1", optional = true }
+cranelift-jit = { version = "0.136.1", optional = true }
+cranelift-module = { version = "0.136.1", optional = true }
+cranelift-native = { version = "0.136.1", optional = true }
+
+[features]
+default = ["jit", "mimalloc-alloc"]
+serde = []
+# nREPL over TLS (`mova nrepl --tls-keys-file`). Off by default: no extra code, same startup.
+tls = ["mova-nrepl/tls"]
+derive = ["dep:mova-derive"]
+# Bench-only configuration: links mimalloc as the global allocator in the
+# mova BINARY (src/main.rs) to price how much of the flow hot path is
+# allocator front-end vs allocation COUNT. Not a shipping configuration.
+bench-mimalloc = ["dep:mimalloc"]
+# M4: shipping default -- mimalloc in the mova binary (RSS 852 -> 722 MB on clojure-lsp lib/, no time loss).
+mimalloc-alloc = ["dep:mimalloc", "dep:libmimalloc-sys"]
+# M9 diagnostic only: sampling heap profiler (src/heapprof.rs) around mimalloc.
+heap-prof = ["mimalloc-alloc"]
+# W-GEO kill-probe C (tests/geo_census_probe.rs): diagnostic-only atomic
+# counters on PVec/PMap's Small-arm churn/promotion/access/scan sites, so
+# the boxing-tax netting in Probe B is weighted by a MEASURED op mix.
+# NOT in `default` -- an ordinary `cargo build --release` compiles none of
+# `src/geo_census.rs` or its call sites in. See that module's doc.
+geo-census = []
+# K2 spike: IR-node/call counters Diagnostic only.
+k2-count = []
+# fix/closure-env-cycles Step 1 (tests/leak_cycle_probe.rs): diagnostic-only
+# create/drop counters on `Closure` and `EnvInner`, so a scenario test can
+# measure whether a self-referential closure (letfn mutual recursion,
+# named-fn self-recursion) leaks -- created-dropped > 0 across a warm loop
+# means the Closure.env <-> Frame.vars Arc cycle is holding memory past its
+# last use. NOT in `default` -- adds a `Drop` impl to two hot allocation
+# paths, so it must never be in a shipping build.
+leak-probe = []
+# W-GEO kill-probe G (tests/geo_splitbox_probe.rs): priced the split-box
+# BEFORE it landed in f5, so the probe's shadow types no longer compile
+# against the post-landing `Value`. Gated off so a plain
+# `cargo test --release` doesn't abort on it; enable it only to
+# re-run the probe.
+geo-splitbox-probe = []
+# Cranelift JIT: native-codegen a
+# small scalar subset of compiled-tier fns (src/jit/). Runtime opt-in via
+# MOVA_JIT=1 -- with it unset, behaviour is byte-identical to a build
+# without this feature at all. In `default` so the shipping binary carries
+# the capability, gated at runtime rather than at compile time.
+# Build the helper binaries under src/bin.
+dev-bins = []
+jit = ["dep:cranelift-codegen", "dep:cranelift-frontend", "dep:cranelift-jit", "dep:cranelift-module", "dep:cranelift-native"]
+
+[dev-dependencies]
+# Only exercised by tests/benches gated behind `--features serde`, but
+# declared unconditionally (dev-dependencies never affect a plain
+# `cargo build`/`cargo build --release`) so `cargo test`/`cargo bench`
+# without the feature still compile cleanly -- the gated code just never
+# references them.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+
+# Developer helper binaries. They are not installed by `cargo install`;
+# build them with `--features dev-bins`.
+[[bin]]
+name = "mova"
+path = "src/main.rs"
+
+[[bin]]
+name = "alloc_attrib"
+path = "src/bin/alloc_attrib.rs"
+required-features = ["dev-bins"]
+
+[[bin]]
+name = "drop_probe"
+path = "src/bin/drop_probe.rs"
+required-features = ["dev-bins"]
+
+[[bin]]
+name = "sim_probe"
+path = "src/bin/sim_probe.rs"
+required-features = ["dev-bins"]
+
+[[bin]]
+name = "snapshot_bench"
+path = "src/bin/snapshot_bench.rs"
+required-features = ["dev-bins"]
+
+[[test]]
+name = "geo_census_probe"
+path = "tests/geo_census_probe.rs"
+required-features = ["geo-census"]
+
+[[test]]
+name = "geo_splitbox_probe"
+path = "tests/geo_splitbox_probe.rs"
+required-features = ["geo-splitbox-probe"]
+
+[[bench]]
+name = "edn_split_probe"
+path = "benches/edn_split_probe.rs"
+harness = false
+
+[[bench]]
+name = "serde_bridge_bench"
+path = "benches/serde_bridge_bench.rs"
+harness = false
+required-features = ["serde"]
+
+[[bench]]
+name = "serde_alloc_profile"
+path = "benches/serde_alloc_profile.rs"
+harness = false
+required-features = ["serde"]
+
+[[bench]]
+name = "ab_tovalue_bench"
+path = "benches/ab_tovalue_bench.rs"
+harness = false
+required-features = ["serde"]
+
+[[bench]]
+name = "hoststruct_bench"
+path = "benches/hoststruct_bench.rs"
+harness = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+# W4 attribution census only (src/bin/alloc_attrib.rs): release codegen plus
+# debug info so sampled allocation backtraces symbolize. Never used for the
+# shipped binary or for A/B throughput numbers.
+[profile.bench-attrib]
+inherits = "release"
+debug = 2
+strip = "none"

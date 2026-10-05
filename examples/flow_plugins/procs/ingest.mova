@@ -1,0 +1,16 @@
+;; procs/ingest.mova -- the pipeline's entry point.
+;;
+;; Business logic ONLY: turn a raw value the host injects into a shaped
+;; event `{:seq n :value v}`, where `n` is a strictly-increasing counter
+;; kept in this proc's own state. This file knows nothing about where its
+;; input comes from or where its output goes -- that wiring lives entirely
+;; in topology.mova, which references the `ingest-step` var defined below.
+
+(def ingest-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :init (fn [_] {:seq 0})
+    :transform
+    (fn [state _cid raw-value]
+      (let [n (+ (:seq state) 1)]
+        [(assoc state :seq n) {:out [{:seq n :value raw-value}]}]))}))

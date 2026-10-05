@@ -1,0 +1,139 @@
+;; mova-stacktrace-companion.mova -- a minimal `clojure.stacktrace`
+;; workalike, written in mova itself, so vendored Clojure test files that
+;; `(:require [clojure.stacktrace :as stack])` (or similar) can load and
+;; run under mova.
+;;
+;; THIS IS TEST INFRASTRUCTURE, NOT PART OF THE SHIPPED LANGUAGE -- same
+;; status as mova-test-shim.mova/mova-test-helper-shim.mova (see those
+;; files' own headers), and wired in by tools/clojure-suite-run.bb the
+;; same way: `materialize-companion-clojure-stacktrace` (see that fn's own
+;; comment) writes this source, verbatim, as `(ns clojure.stacktrace)`
+;; plus this body, to `<scratch>/clojure/stacktrace.mova` -- a real,
+;; `require`-able module on mova's module path -- so `test.clj`'s
+;; `(:require [clojure.stacktrace :as stack])` resolves instead of
+;; failing with "could not locate namespace clojure.stacktrace".
+;;
+;; Why this can't be real `clojure.stacktrace` transliterated: that
+;; namespace is built entirely on `java.lang.Throwable`'s object model --
+;; `.getStackTrace`, `.getCause`, `.getClassName`/`.getMethodName` on each
+;; `StackTraceElement`, `class`/`.getSimpleName` on the exception itself.
+;; mova has none of that (confirmed by hand and by mova-test-shim.mova's
+;; own `.getCause`/`thrown-with-msg?` comments): a caught exception in
+;; mova's `(catch e ...)` is always a plain `Value` -- for an error mova
+;; itself raised, a map shaped like `eval::special_forms::
+;; error_to_info_map` (`{:type :error/<kind-kebab>, :message "..."}` --
+;; see that fn); for `(throw (ex-info msg data))`, a map shaped like
+;; `core/core.mova`'s `ex-info` (`{:ex/message msg, :ex/data data}`, no
+;; `:ex/cause` key -- `ex-info` here takes no cause argument at all,
+;; confirmed by reading its `core.mova` definition); for a bare
+;; `(throw <anything-else>)`, whatever that value literally was (e.g. a
+;; plain string) -- confirmed by hand-probing all three shapes against a
+;; live mova release build before writing this file. There is no
+;; `StackTraceElement` list anywhere in any of the three shapes, so
+;; there is no real per-frame trace to print; the functions below are
+;; the closest honest per-shape substitute for real Clojure's Throwable-
+;; walking originals, not a faithful reimplementation of what they
+;; inspect on the JVM. Documented here rather than silently passed off
+;; as the real thing.
+;;
+;; Coverage against the one vendored consumer at the time this was
+;; written (`vendor/test.clj`'s `clj-1102-empty-stack-trace-should-not-
+;; throw-exceptions`, the only call of any `clojure.stacktrace` name in
+;; the whole vendored corpus -- confirmed by `grep -rn 'stack/' vendor/`):
+;; that deftest builds its `t` via real JVM interop (`Class/forName
+;; "java.lang.StackTraceElement"`, `.setStackTrace`) that mova does not
+;; support at all, so it stays blocked on THAT gap regardless of this
+;; companion -- this companion's job is only to get `test.clj` PAST the
+;; "could not locate namespace clojure.stacktrace" require failure so
+;; every OTHER deftest in the file (which touches none of this) can run
+;; and be counted.
+
+(defn ex-cause
+  "Best-effort cause lookup for whatever `tr` actually is under mova
+  (see module doc above for the three shapes) -- real `clojure.stacktrace`
+  walks `.getCause`; mova values carry a cause only if a caller
+  explicitly nested one under `:cause` or `:ex/cause` (mova's own
+  `ex-info` never populates either key today, so this is forward-
+  compatible with a future `ex-info` that grows a cause arg, not
+  currently reachable from it)."
+  [tr]
+  (when (map? tr)
+    (or (:ex/cause tr) (:cause tr))))
+
+(defn root-cause
+  "Returns the last 'cause' in a chain reachable via `ex-cause` above.
+  Real `clojure.stacktrace/root-cause` recurses on `.getCause`; with no
+  cause chain available from mova's own error shapes today, this
+  returns `tr` itself unless a caller-attached `:cause`/`:ex/cause` chain
+  says otherwise."
+  [tr]
+  (let [c (ex-cause tr)]
+    (if (nil? c) tr (recur c))))
+
+(defn- throwable-message
+  "The closest thing to `.getMessage` for the three caught-value shapes
+  this file's own doc describes: mova's own error-info map, an
+  `ex-info` map, or an arbitrary thrown value (stringified, matching
+  `pr-str`-free `str` on anything that isn't already a string)."
+  [tr]
+  (cond
+    (map? tr) (or (:ex/message tr) (:message tr))
+    (string? tr) tr
+    :else (str tr)))
+
+(defn- throwable-class-name
+  "The closest thing to `(-> tr class .getSimpleName)`: mova's own
+  error-info map already carries a `:type` keyword naming its kind
+  (`error_to_info_map`, e.g. `:error/divide-by-zero`); an `ex-info` map
+  is labeled `ex-info` (matching real Clojure's `clojure.lang.ExceptionInfo`
+  in spirit); anything else falls back to mova's own `(type ...)`."
+  [tr]
+  (cond
+    (and (map? tr) (contains? tr :type)) (name (:type tr))
+    (and (map? tr) (contains? tr :ex/message)) "ex-info"
+    :else (str (type tr))))
+
+(defn print-throwable
+  "Prints the class and message of a caught value, real-`clojure.
+  stacktrace`-style (`ClassName: message`, message omitted when absent)."
+  [tr]
+  (print (throwable-class-name tr))
+  (let [msg (throwable-message tr)]
+    (when-not (nil? msg)
+      (print (str ": " msg)))))
+
+(defn print-trace-element
+  "Real `clojure.stacktrace/print-trace-element` prints one
+  `StackTraceElement`'s class/method/file/line; mova has no such list
+  (module doc above), so this only exists for API-shape parity and
+  prints whatever was handed to it."
+  [el]
+  (print (str el)))
+
+(defn print-stack-trace
+  "Prints `tr`'s class/message (`print-throwable`) plus one honest
+  placeholder line owning up to the fact that mova has no real
+  per-frame stack trace to print (module doc above) -- never silently
+  omitted, so a caller relying on `with-out-str` around this still gets
+  non-empty, informative output. `n` (frame-count limit in real
+  `clojure.stacktrace`) is accepted for signature parity and ignored --
+  there are no frames to limit."
+  ([tr] (print-stack-trace tr nil))
+  ([tr n]
+   (print-throwable tr)
+   (print "\n at ")
+   (print "[mova: no per-frame stack trace available -- see clojure/stacktrace.mova]")
+   (print "\n")))
+
+(defn print-cause-trace
+  "Like `print-stack-trace`, additionally walking `ex-cause` (module doc
+  above) and printing each `Caused by:` link, same shape as real
+  `clojure.stacktrace/print-cause-trace` minus the per-frame detail
+  `print-stack-trace` already documents as unavailable."
+  ([tr] (print-cause-trace tr nil))
+  ([tr n]
+   (print-stack-trace tr n)
+   (let [cause (ex-cause tr)]
+     (when-not (nil? cause)
+       (print "Caused by: ")
+       (recur cause n)))))

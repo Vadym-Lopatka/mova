@@ -1,0 +1,89 @@
+{
+ "name": "b08_read_cond",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "#?(:clj 1 :cljs 2)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "#?(:clj 1 :cljs 2)",
+    "session": "$s1",
+    "read-cond": "allow"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "#?(:clj 1 :cljs 2)",
+    "session": "$s1",
+    "read-cond": "preserve"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "#?(:cljs 2)",
+    "session": "$s1",
+    "read-cond": "allow"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "#?(:cljs 2)",
+    "session": "$s1",
+    "read-cond": "preserve"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "[#?@(:clj [1 2])]",
+    "session": "$s1",
+    "read-cond": "allow"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "#?(:clj 1)",
+    "session": "$s1",
+    "read-cond": "bogus"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(+ 1 #?(:clj 2 :default 3))",
+    "session": "$s1",
+    "read-cond": "allow"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "#?(:clj 1 :cljs 2)",
+    "session": "$s1",
+    "read-cond": ""
+   }
+  }
+ ]
+}

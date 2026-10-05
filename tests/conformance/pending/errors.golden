@@ -1,0 +1,13 @@
+OK	true
+ERR	ArithmeticException
+ERR	IndexOutOfBoundsException
+ERR	NullPointerException
+ERR	AssertionError
+ERR	AssertionError
+OK	#'user/pre-check
+ERR	AssertionError
+OK	#'user/post-check
+ERR	AssertionError
+ERR	CompilerException
+ERR	CompilerException
+ERR	CompilerException

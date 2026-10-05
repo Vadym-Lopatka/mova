@@ -1,0 +1,74 @@
+;; reader.corpus -- reader-layer gap ledger (metadata, syntax-quote
+;; qualification, auto-resolved keywords/namespaced maps, number
+;; literals, char/string escapes, tagged literals, validation).
+;; Every form here currently DIVERGES between real Clojure 1.13.0-alpha6
+;; (reader.golden) and mova (reader.mova, target/release/mova).
+;; Forms that turned out to already conform were moved to
+;; tests/conformance/corpus/reader.corpus instead -- see that file.
+
+
+;; metadata: S5/M3 built the subsystem (src/value.rs's `Value::Meta`,
+;; src/reader.rs's `read_meta`, src/builtins/meta.rs), so all but one of
+;; the rows that used to live here now conform and were promoted to
+;; corpus/metadata.corpus. What is LEFT is the `:tag` resolution
+;; question: real Clojure's compiler resolves a bare `^Tag` symbol to a
+;; java.lang.Class (`(meta ^String [])` is `{:tag java.lang.String}`),
+;; while mova deliberately leaves it the unresolved symbol `String` --
+;; there is no JVM class world here to resolve into, and resolving would
+;; turn every type hint in existing source into an unresolved-symbol
+;; error. See `Interp::eval_meta_form`'s doc for the full trade.
+(meta ^String [])
+
+;; syntax-quote: substitution (~/~@) and, as of W3e-1, namespace
+;; qualification of free symbols both conform now -- those rows moved to
+;; the main corpus. What is left is NESTED syntax-quote: mova's
+;; `quasiquote` has no depth tracking at all (see src/eval/quasiquote.rs's
+;; module doc), so an inner backtick is not re-quoted and an inner
+;; `~`/`~@` fires at the wrong level. The inner `quasiquote` head is
+;; itself a symbol in the template, so W3e-1 now qualifies it too and the
+;; mova column reads `(clojure.core/quasiquote user/a)` where it used to
+;; read `(quasiquote a)` -- still the same one gap (no depth tracking),
+;; just spelled with the qualification the rest of the reader now does.
+``a
+
+;; namespaced map literals (`#:ns{...}`/`#::{...}`/`#::alias{...}`) now
+;; READ correctly: SPEC-W6b taught the reader
+;; `LispReader.readNamespacedMap`, reusing `::`'s own `NsContext` for the
+;; two auto-resolved spellings, and the fourteen forms that prove it live
+;; in tests/conformance/corpus/ns-map-literal.corpus (two of them promoted
+;; straight out of this file).
+;;
+;; What is left below is the PRINTER, and it is not really about
+;; namespaced maps at all: `*print-namespace-maps*` defaults to TRUE under
+;; `clojure.main` and to FALSE in mova, so the oracle prints
+;; `#:foo{:a 1}` where mova prints `{:foo/a 1}` -- each the correct
+;; rendering of the SAME map under its host's own default. mova does print
+;; `#:foo{:a 1}` once the var is set (verified). Promoting these two means
+;; changing that default, which is a decision about every printed map in
+;; the language, not a reader fix.
+#:foo{:a 1}
+#::{:a 1}
+
+;; number literals mova's reader cannot parse at all (falls through to
+;; "invalid number literal"): ratios, BigInt/BigDecimal suffixes, radix
+;; notation, and the ##Inf/##-Inf/##NaN symbolic literals.
+
+;; char/string escapes mova's reader doesn't implement: \oNNN octal char
+;; literals, and \NNN (octal)/\b/\f string escapes (src/reader.rs
+;; read_string only handles \n \t \r \\ \").
+"\b"
+"\f"
+
+;; tagged literals: ANY unregistered tag (`#foo/bar`) is accepted and its
+;; payload passed through unchanged, where real Clojure throws (no
+;; data-reader registered for that tag). `#uuid` left this bucket in S6
+;; (assert/namespace/uuid batch) and `#inst` left it in SPEC-W1 task 4 --
+;; both now read as real values and conform; see
+;; tests/conformance/corpus/reader.corpus's own `#uuid`/`#inst` lines.
+(read-string "#foo/bar 1")
+
+;; validation Clojure's reader performs that mova's doesn't: nested #(...)
+;; forms and malformed `::`/`:::` keywords are both silently accepted by
+;; mova instead of being rejected.
+#(#(%))
+::

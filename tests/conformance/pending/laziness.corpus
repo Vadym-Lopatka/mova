@@ -1,0 +1,24 @@
+;; laziness.corpus -- realization semantics. Clojure's chunked seqs (`map`
+;; over a bounded, chunkable source like `range`/a vector) realize 32
+;; elements at a time even when only the first is consumed; mova realizes
+;; strictly per-element (observed via an atom counter incremented inside
+;; the mapping fn -- deterministic, no printed #object/hash-order noise).
+;; Also: mova's `take` forces its source eagerly at CONSTRUCTION time
+;; (before the result is ever consumed), where Clojure's `take` stays fully
+;; lazy until something forces it. Metadata: mova has no metadata support
+;; at all yet (with-meta/meta both unresolved), so every
+;; preserve-vs-drop-metadata rule the task asks to pin comes out as a
+;; uniform "unresolved symbol" -- included for completeness/to make that
+;; absence explicit and machine-checkable. All forms self-contained.
+
+;; -- chunking: Clojure realizes a full 32-chunk; mova realizes per-element --
+(let [n (atom 0) s (map (fn [x] (swap! n inc) (* x 2)) (range 10))] (nth s 2) @n)
+(let [n (atom 0) s (map (fn [x] (swap! n inc) x) (range 40))] (first s) @n)
+(let [n (atom 0) s (map (fn [x] (swap! n inc) x) (vec (range 40)))] (first s) @n)
+(let [n (atom 0) s (map (fn [x] (swap! n inc) x) (range 40))] (dorun (take 1 s)) @n)
+
+;; -- `take` construction forces the source eagerly in mova, not in Clojure --
+(let [n (atom 0) s (map (fn [x] (swap! n inc) x) (range))] (take 3 s) @n)
+
+;; -- metadata: implemented by S5/M3; these rows all conform now and
+;; were promoted to corpus/metadata.corpus --

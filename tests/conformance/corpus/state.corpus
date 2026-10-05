@@ -1,0 +1,50 @@
+;; state.corpus -- atoms/volatiles state surface (M4b). One form per line;
+;; forms are self-contained (the pending originals leaned on session-
+;; earlier defs whose own return values still diverge -- var printing).
+(let [a (atom 1)] (swap-vals! a inc))
+(let [a (atom 2)] (reset-vals! a 10))
+(let [v (volatile! 1)] (vswap! v inc))
+(let [v (volatile! 1)] (vswap! v inc) @v)
+(let [v (volatile! 1)] (vreset! v 100))
+(let [v (volatile! 1)] (vreset! v 100) @v)
+(volatile? (volatile! 1))
+(volatile? (atom 1))
+(let [v (volatile! 1)] (vswap! v + 10 100))
+(with-out-str (print "hello"))
+(with-out-str)
+(with-out-str (println "a"))
+(deref (promise) 50 :none)
+(let [p (promise)] (deliver p 7) (deref p 50 :none))
+;; D5 (`clojure.pprint`): the ref veneer landed (`ref`/`dosync`/`alter`/
+;; `commute`/`ref-set`/`ensure` -- see core.mova for its one honest
+;; limitation, no isolation and no retry) -- promoted from
+;; pending/state.corpus's ref forms, self-contained in `let` form for the
+;; same reason the rest of this file is (the pending originals leaned on a
+;; session-earlier `(def r (ref 0))` whose own return value still diverges
+;; -- var printing).
+(let [r (ref 0)] (dosync (alter r inc)))
+(let [r (ref 0)] (dosync (alter r inc)) @r)
+(let [r (ref 1)] (dosync (commute r + 10)))
+(let [r (ref 1)] (dosync (commute r + 10)) @r)
+(let [r (ref 11)] (dosync (ref-set r 0)))
+(let [r (ref 11)] (dosync (ref-set r 0)) @r)
+(let [r (ref 5)] (dosync (ensure r)))
+
+;; SPEC-W3 (defect ledger D5): `clojure.core/locking` landed -- promoted
+;; from pending/state.corpus, whose `(locking lockobj 42)` had been ERR
+;; "Unable to resolve symbol: locking". Self-contained `let` forms for the
+;; same reason the ref rows above are: the pending original leaned on a
+;; session-earlier `(def lockobj (atom :m))` whose own return value still
+;; diverges (var printing). The monitor is process-wide and reentrant
+;; rather than per-object (see builtins/conc.rs's MONITOR_STATE), which
+;; none of these forms can observe -- what they DO pin is the contract:
+;; the body's value comes back, the lockee expression is evaluated, a
+;; nested lock does not self-deadlock, and a throw inside the body still
+;; releases (the row after it would hang forever otherwise).
+(let [lockobj (atom :m)] (locking lockobj 42))
+(let [a (atom 0)] (locking a (swap! a inc)) @a)
+(locking :kw :ok)
+(let [a (atom 0)] (locking :outer (locking :inner (swap! a inc))) @a)
+(try (locking (Object.) (throw (ex-info "x" {}))) (catch Throwable t :caught))
+(locking (Object.) :released)
+(let [a (atom 0)] (locking (swap! a inc) @a))

@@ -1,0 +1,33 @@
+;; L5 / P6a — the OTHER half of the `Wake` story: an entry that must FIRE.
+;;
+;; Nobody ever delivers `p`, so each `deref` must ride its Wake entry all the
+;; way to the deadline: the sim quiesces, virtual time jumps 1000 ms, the
+;; entry fires, the task wakes and returns `:timed-out`. Expected virtual
+;; total: n * 1000 ms.
+;;
+;; THIS PROGRAM IS THE PROBE'S REFUTATION EXHIBIT. It hangs on the P6a
+;; kernel, and the reason is a file P6a is not allowed to touch:
+;; `src/builtins/conc.rs:320` tests `Instant::now() >= deadline` against a
+;; deadline that `timer_arm_waker` now derives from `clock_now()`. In sim
+;; those are two DIFFERENT clocks — a virtual deadline compared to the wall —
+;; so the wake the timer service just delivered reads as a stale wake, the
+;; task re-parks, and nothing is left to wake it. Design §2 states the
+;; requirement ("arm-side and test-side MUST be the same clock or a task
+;; re-parks past a spent deadline — task parks have no safety net"); this is
+;; that sentence, executed. Run it under `timeout 20`.
+
+(def n 5)
+
+(defn run []
+  (let [out (chan 4)]
+    (go (loop [i 0]
+          (if (< i n)
+            (let [p (promise)
+                  v (deref p 1000 :timed-out)]
+              (if (= v :timed-out)
+                (recur (inc i))
+                (>! out [:BAD v])))
+            (>! out :miss-ok))))
+    (<! out)))
+
+(run)

@@ -1,0 +1,4 @@
+RESULT while-filtered [:a :hello]
+RESULT b-still-blocked true
+RESULT lift-ack :lifted
+RESULT b-after-lift [:b :secret]

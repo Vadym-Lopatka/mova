@@ -1,0 +1,86 @@
+;; metadata.corpus -- meta/with-meta/vary-meta/alter-meta!/reset-meta!,
+;; reader `^` attachment, and the per-operation preservation table.
+;; PROMOTED from tests/conformance/pending/metadata.corpus by S5/M3 (the
+;; forms below now agree with real Clojure 1.13.0-alpha6 byte-for-byte);
+;; the handful that still diverge stayed behind in the pending file.
+;;
+;; Which types carry metadata (IObj): symbols, collections (vector, map,
+;; set...), fns, lazy seqs -- but NOT numbers/strings/keywords/booleans/
+;; nil. Atoms and vars are IReference (alter-meta!/reset-meta! work) but
+;; NOT IObj (with-meta throws). See src/builtins/meta.rs.
+(meta (with-meta [1 2] {:a 1}))
+(meta (with-meta {:x 1} {:a 1}))
+(meta (with-meta 'sym {:a 1}))
+;; the atom trap: IReference (alter-meta!/reset-meta! work) but not IObj,
+;; even though atoms are ordinary mutable-metadata holders otherwise.
+(let [a (atom 1)] (alter-meta! a assoc :doc "x") (meta a))
+(let [a (atom 1)] (reset-meta! a {:doc "y"}) (meta a))
+;; vary-meta
+(meta (vary-meta (with-meta [1] {:a 1}) assoc :b 2))
+;; metadata is excluded from = and hash
+(= (with-meta [1 2] {:a 1}) (with-meta [1 2] {:b 2}))
+(= {:x 1} (with-meta {:x 1} {:a 1}))
+;; per-operation preservation: conj/assoc/dissoc/sort/into preserve
+(meta (conj (with-meta [1] {:a 1}) 2))
+(meta (assoc (with-meta {:x 1} {:a 1}) :y 2))
+(meta (dissoc (with-meta {:x 1 :y 2} {:a 1}) :x))
+(meta (sort (with-meta [3 1 2] {:a 1})))
+(meta (into (with-meta [] {:a 1}) [1 2]))
+;; merge is conj-based, so it preserves the FIRST map's meta, not the
+;; second's -- order matters (contrary to a naive "merge drops" guess).
+(meta (merge (with-meta {:a 1} {:m 1}) {:b 2}))
+(meta (merge {:b 2} (with-meta {:a 1} {:m 1})))
+;; map/filter/seq/reverse/vec/concat drop metadata: each returns a
+;; freshly-built value with no meta carried over.
+(meta (map inc (with-meta [1 2] {:a 1})))
+(meta (seq (with-meta [1 2] {:a 1})))
+(meta (concat (with-meta [1 2] {:a 1}) [3]))
+;; def/defn metadata flows onto the VAR (not the value), and alter-meta!
+;; mutates it in place. The setup line is wrapped in `(do ... nil)`
+;; deliberately: bare `(defn f [] 1)` returns the VAR in Clojure and the
+;; fn value in mova, a `def`-return-value divergence unrelated to
+;; metadata that is still pending -- `nil` keeps this row about metadata.
+(do (defn ^:foo metatag-fn [] 1) nil)
+(:foo (meta (var metatag-fn)))
+(do (alter-meta! (var metatag-fn) assoc :doc "hi") (:doc (meta (var metatag-fn))))
+;; *print-meta*
+(binding [*print-meta* true] (pr-str (with-meta [1 2] {:a 1})))
+;; ---------------------------------------------------------------------
+;; Also promoted by S5/M3, from FOUR OTHER pending areas that had each
+;; grown their own metadata rows before the subsystem existed
+;; (laziness/printer/reader/records/vars-binding). They were written by
+;; other sessions against real Clojure and are kept verbatim here, so
+;; they are an independent check on this implementation rather than a
+;; restatement of the rows above.
+;; ---------------------------------------------------------------------
+;; from pending/laziness.corpus -- the per-op preservation table again,
+;; with a different metadata map, plus the two DROPPING ops.
+(meta (with-meta [1 2 3] {:tag :x}))
+(meta (conj (with-meta [1 2] {:tag :x}) 3))
+(meta (assoc (with-meta {:a 1} {:tag :x}) :b 2))
+(meta (into (with-meta [] {:tag :x}) [1 2]))
+(meta (sort (with-meta [3 1 2] {:tag :x})))
+(meta (map inc (with-meta [1 2 3] {:tag :x})))
+(meta (filter even? (with-meta [1 2 3 4] {:tag :x})))
+(meta (vec (with-meta '(1 2 3) {:tag :x})))
+;; from pending/printer.corpus -- *print-meta* over reader-attached meta.
+(binding [*print-meta* true] (pr-str ^:foo [1 2]))
+;; from pending/reader.corpus -- `^` attachment in every spelling.
+(meta ^:foo [1 2 3])
+(meta ^{:a 1 :b 2} {:x 1})
+(:doc (meta (with-meta [1 2] {:doc "hi"})))
+(meta (with-meta [1 2] {:a 1}))
+(meta (vary-meta (with-meta [] {:a 1}) assoc :b 2))
+(meta ^:foo ^:bar [1])
+(meta (quote ^:foo [1 2]))
+(meta (read-string "^:foo [1 2 3]"))
+(identical? (meta ^:foo []) (meta ^:foo []))
+(contains? (meta ^{:a 1} []) :a)
+;; from pending/records.corpus -- records are IObj too.
+(do (defrecord RecM [a b]) (meta (with-meta (->RecM 1 2) {:foo :bar})))
+;; from pending/vars-binding.corpus -- var (IReference) metadata. Both
+;; are rewritten as self-contained `(do ...)` forms because the pending
+;; originals leaned on a `defn`/`def` earlier in that file which has to
+;; STAY there (its `:doc`/`:arglists` rows still diverge).
+(do (defn ^:private pfoo "doc string" [n] n) (:private (meta (var pfoo))))
+(do (def ^:dynamic *dx* 1) (:dynamic (meta (var *dx*))))

@@ -1,0 +1,108 @@
+{
+ "name": "a02_edge_messages",
+ "doc": "unknown op, missing op, no id, no session, bad args",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "nosuchop",
+    "id": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "nosuchop",
+    "id": "2",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "id": "3"
+   }
+  },
+  {
+   "send": {
+    "id": "4",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "describe"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "code": "(+ 1 2)"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(+ 1 2)",
+    "session": "00000000-0000-0000-0000-000000000000"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(+ 1 2)",
+    "session": "not-a-uuid"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(+ 1 2)",
+    "ns": "no.such.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": 5
+   }
+  },
+  {
+   "send": {
+    "op": "",
+    "id": "12"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(+ 1 2)"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(def nosess 1)"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "nosess"
+   }
+  }
+ ]
+}

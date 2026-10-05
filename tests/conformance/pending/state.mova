@@ -1,0 +1,25 @@
+ERR	{:message "atom: expected exactly 1 argument, got 3", :type :error/arity}
+ERR	{:message "atom: expected exactly 1 argument, got 3", :type :error/arity}
+OK	#<atom []>
+OK	#<atom 0>
+ERR	{:message "Unable to resolve symbol: add-watch", :type :error/unresolved}
+OK	[]
+ERR	{:message "Unable to resolve symbol: remove-watch", :type :error/unresolved}
+OK	[]
+OK	#<atom 1>
+ERR	{:message "Unable to resolve symbol: compare-and-set!", :type :error/unresolved}
+OK	1
+ERR	{:message "Unable to resolve symbol: compare-and-set!", :type :error/unresolved}
+OK	1
+OK	#<atom 1>
+OK	#<volatile 1>
+ERR	{:message "Unable to resolve symbol: agent", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: send", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: await", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: ag", :type :error/unresolved}
+OK	#<future pending>
+ERR	{:message "Unable to resolve symbol: future-done?", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: future-cancel", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: future-cancelled?", :type :error/unresolved}
+OK	#<atom :m>
+OK	"#<atom \"hi\">"

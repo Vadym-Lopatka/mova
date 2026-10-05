@@ -1,0 +1,38 @@
+;; lastuse-assoc-100.mova -- Perceus-lite phase 2 (v0.5) A/B shape.
+;;
+;; The SAME work as reuse-assoc-8.mova -- build an N-entry map one `assoc` at
+;; a time, R times -- with one difference: the accumulator is threaded
+;; through a Clojure `loop`/`recur` instead of through `reduce`.
+;;
+;; That difference is the whole point. In the `reduce` shape the receiver is
+;; also held by `reduce`'s own Rust locals (`interp.call(&f, &[acc, h])`
+;; moves `acc` into a temporary array that outlives the call), so no analysis
+;; of the CALLEE's frame can make the handle unique -- reuse-assoc-8 measures
+;; 0.00% unique before and after phase 2. Here the only other handle is the
+;; loop's binding slot, and last-use analysis moves out of it
+;; (`Ir::LoadSlotTake`), so `assoc` really does receive the only handle and
+;; mutates in place.
+;;
+;; N=100 (see lastuse-assoc-8.mova for the full rationale); the trio straddles PMAP_SMALL_MAX (8), so the trio covers the
+;; Small->Big promotion exactly as the reuse-* trio does.
+;;
+;;   ./target/release/mova bench/lastuse-assoc-100.mova
+
+(def N 100)
+(def R 20000)
+
+(defn build [n]
+  (loop [m {} i 0]
+    (if (< i n)
+      (recur (assoc m i i) (inc i))
+      m)))
+
+(def t0 (time-ms))
+(def checksum
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r) (+ acc (count (build N))))
+      acc)))
+(def elapsed (max 1 (- (time-ms) t0)))
+(def ops (* N R))
+(println "lastuse-assoc-100" ops elapsed (quot (* ops 1000) elapsed))

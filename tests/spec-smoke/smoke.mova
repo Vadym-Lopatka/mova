@@ -1,0 +1,330 @@
+;; clojure.spec.alpha port -- Wave-2 smoke corpus.
+;;
+;; Every form below is ORACLE-DIFFED: the same file is run through mova
+;; and through real Clojure 1.13.0-alpha6 (which ships spec.alpha), and
+;; the two stdout streams must be BYTE-IDENTICAL. See RUNNING.md next to
+;; this file for the two commands.
+;;
+;; Generative forms deliberately print PROPERTIES (booleans / counts /
+;; distinct sets), never raw generated values, so both sides are
+;; deterministic.
+
+(require '[clojure.spec.alpha :as s])
+(require '[clojure.spec.gen.alpha :as gen])
+(set! *print-namespace-maps* false)
+
+;;;; ---------------------------------------------------------------- 1
+;;;; s/def + registry, valid?, conform, explain-data, explain-str,
+;;;; describe, form
+(s/def ::x int?)
+(prn (s/form ::x))
+(prn (s/conform ::x 5))
+(prn (s/explain-data ::x "a"))
+(prn (s/explain-str ::x "a"))
+(prn (s/describe ::x))
+(prn (s/valid? int? 5) (s/form int?) (s/explain-str int? "a"))
+(prn (contains? (s/registry) ::x))
+(prn (boolean (s/get-spec ::x)) (s/get-spec ::definitely-not-there))
+(prn (s/form (s/get-spec ::x)))
+(s/def ::alias-spec ::x)
+(prn (s/form ::alias-spec) (s/conform ::alias-spec 3))
+(s/def ::gone int?)
+(s/def ::gone nil)
+(prn (contains? (s/registry) ::gone))
+;; a user-defined predicate resolves to its own namespace
+(defn my-pred [v] (int? v))
+(s/def ::mine my-pred)
+(prn (s/form ::mine) (s/explain-str ::mine "a"))
+
+;;;; ---------------------------------------------------------------- 2
+;;;; s/and, s/or (tagged conform), invalid? / ::invalid propagation
+(s/def ::big (s/and int? #(> % 10)))
+(prn (s/form ::big) (s/describe ::big))
+(prn (s/conform ::big 20) (s/conform ::big 5))
+(prn (s/explain-str ::big 5))
+(s/def ::e (s/or :i int? :st string?))
+(prn (s/conform ::e 5) (s/conform ::e "a") (s/conform ::e :k))
+(prn (s/explain-str ::e :k))
+(prn (s/unform ::e (s/conform ::e "a")))
+(prn (s/form ::e) (s/describe ::e))
+(s/def ::even-int (s/and int? even?))
+(s/def ::long-str (s/and string? #(> (count %) 2)))
+(s/def ::nested (s/or :n ::even-int :s ::long-str))
+(prn (s/conform ::nested 4) (s/conform ::nested 3) (s/conform ::nested "abcd") (s/conform ::nested "a"))
+(prn (s/explain-str ::nested "a"))
+(prn (s/unform ::nested (s/conform ::nested 4)))
+(prn (s/form ::nested) (s/describe ::nested))
+(prn (s/invalid? (s/conform int? "a")) (s/invalid? (s/conform int? 1)))
+(prn (s/invalid? :clojure.spec.alpha/invalid))
+(s/def ::wrap (s/and (s/conformer (fn [v] (if true :clojure.spec.alpha/invalid v))) int?))
+(prn (s/conform ::wrap 1) (s/valid? ::wrap 1))
+
+;;;; ---------------------------------------------------------------- 3
+;;;; s/keys (:req/:opt/:req-un/:opt-un, and/or key groups), s/merge
+(s/def ::fname string?)
+(s/def ::lname string?)
+(s/def ::email string?)
+(s/def ::age int?)
+(s/def ::person (s/keys :req [::fname ::lname] :opt [::email]))
+(prn (s/conform ::person {::fname "a" ::lname "b"}))
+(prn (s/valid? ::person {::fname "a"}))
+(prn (s/explain-str ::person {::fname "a"}))
+(prn (s/explain-data ::person {::fname "a" ::lname 3}))
+(prn (s/form ::person) (s/describe ::person))
+(prn (s/unform ::person (s/conform ::person {::fname "a" ::lname "b"})))
+(s/def ::un-person (s/keys :req-un [::fname ::lname] :opt-un [::email]))
+(prn (s/conform ::un-person {:fname "a" :lname "b" :email "e"}))
+(prn (s/valid? ::un-person {:fname "a" :lname 1}))
+(prn (s/explain-str ::un-person {:fname "a"}))
+(prn (s/describe ::un-person))
+(s/def ::grouped (s/keys :req [(or ::fname (and ::lname ::email))]))
+(prn (s/valid? ::grouped {::fname "a"}) (s/valid? ::grouped {::lname "a"})
+     (s/valid? ::grouped {::lname "a" ::email "b"}))
+(prn (s/explain-str ::grouped {}))
+(prn (s/form ::grouped))
+(s/def ::m1 (s/keys :req-un [::fname]))
+(s/def ::m2 (s/keys :req-un [::age]))
+(s/def ::both (s/merge ::m1 ::m2))
+(prn (s/conform ::both {:fname "a" :age 3}))
+(prn (s/valid? ::both {:fname "a"}))
+(prn (s/explain-str ::both {:fname "a"}))
+(prn (s/form ::both) (s/describe ::both))
+
+;;;; ---------------------------------------------------------------- 4
+;;;; s/coll-of (:kind :count :min-count :max-count :distinct :into),
+;;;; s/every, s/every-kv, s/map-of, s/tuple, s/nilable
+(s/def ::ints (s/coll-of int?))
+(prn (s/conform ::ints [1 2 3]) (s/conform ::ints '(1 2)) (s/conform ::ints #{1 2}))
+(prn (s/valid? ::ints [1 "a"]) (s/explain-str ::ints [1 "a"]))
+(prn (s/form ::ints) (s/describe ::ints))
+(s/def ::iv (s/coll-of int? :kind vector?))
+(prn (s/valid? ::iv [1 2]) (s/valid? ::iv '(1 2)) (s/explain-str ::iv '(1 2)))
+(prn (s/describe ::iv))
+(s/def ::i3 (s/coll-of int? :count 3))
+(prn (s/valid? ::i3 [1 2 3]) (s/valid? ::i3 [1 2]) (s/explain-str ::i3 [1 2]))
+(s/def ::i25 (s/coll-of int? :min-count 2 :max-count 5))
+(prn (s/valid? ::i25 [1]) (s/valid? ::i25 [1 2]) (s/valid? ::i25 [1 2 3 4 5 6]))
+(prn (s/explain-str ::i25 [1]))
+(s/def ::idist (s/coll-of int? :distinct true))
+(prn (s/valid? ::idist [1 2]) (s/valid? ::idist [1 1]) (s/explain-str ::idist [1 1]))
+(s/def ::iset (s/coll-of int? :into #{}))
+(prn (s/conform ::iset [1 2 2]) (s/describe ::iset))
+(prn (s/unform ::ints (s/conform ::ints [1 2])))
+(s/def ::ev (s/every int?))
+(prn (s/conform ::ev [1 2]) (s/valid? ::ev [1 :a]) (s/describe ::ev))
+(s/def ::ekv (s/every-kv keyword? int?))
+(prn (s/conform ::ekv {:a 1}) (s/valid? ::ekv {:a :b}) (s/describe ::ekv))
+(s/def ::mo (s/map-of keyword? int?))
+(prn (s/conform ::mo {:a 1 :b 2}) (s/valid? ::mo {:a "x"}))
+(prn (s/explain-str ::mo {:a "x"}))
+(prn (s/form ::mo) (s/describe ::mo))
+(prn (s/unform ::mo (s/conform ::mo {:a 1})))
+(s/def ::pt (s/tuple int? int? keyword?))
+(prn (s/conform ::pt [1 2 :a]) (s/conform ::pt [1 2]) (s/conform ::pt [1 2 3]))
+(prn (s/explain-str ::pt [1 2 3]))
+(prn (s/form ::pt) (s/describe ::pt))
+(prn (s/unform ::pt (s/conform ::pt [1 2 :a])))
+(s/def ::ni (s/nilable int?))
+(prn (s/conform ::ni nil) (s/conform ::ni 1) (s/conform ::ni "a"))
+(prn (s/explain-str ::ni "a"))
+(prn (s/form ::ni) (s/describe ::ni) (s/unform ::ni nil))
+
+;;;; ---------------------------------------------------------------- 5
+;;;; regex ops: s/cat, s/alt, s/*, s/+, s/?, s/&, s/keys*, and the
+;;;; nested-regex boundary (s/spec on a regex)
+(s/def ::ingredient (s/cat :quantity number? :unit keyword?))
+(prn (s/conform ::ingredient [2 :teaspoon]))
+(prn (s/conform ::ingredient [2 "teaspoon"]))
+(prn (s/explain-str ::ingredient [2 "teaspoon"]))
+(prn (s/explain-str ::ingredient [2]))
+(prn (s/explain-str ::ingredient [2 :t :extra]))
+(prn (s/unform ::ingredient (s/conform ::ingredient [2 :teaspoon])))
+(prn (s/form ::ingredient) (s/describe ::ingredient))
+(s/def ::alt1 (s/alt :i int? :s string?))
+(prn (s/conform ::alt1 [1]) (s/conform ::alt1 ["a"]) (s/conform ::alt1 [:k]))
+(prn (s/explain-str ::alt1 [:k]))
+(prn (s/unform ::alt1 (s/conform ::alt1 ["a"])) (s/describe ::alt1))
+(s/def ::star (s/* int?))
+(prn (s/conform ::star []) (s/conform ::star [1 2]) (s/conform ::star [1 :a]))
+(prn (s/describe ::star))
+(s/def ::plus (s/+ int?))
+(prn (s/conform ::plus []) (s/conform ::plus [1 2]))
+(prn (s/explain-str ::plus []) (s/describe ::plus))
+(s/def ::opt (s/? int?))
+(prn (s/conform ::opt []) (s/conform ::opt [1]) (s/conform ::opt [1 2]))
+(prn (s/describe ::opt))
+(s/def ::seq2 (s/cat :prefix (s/+ keyword?) :nums (s/* int?)))
+(prn (s/conform ::seq2 [:a :b 1 2]) (s/conform ::seq2 [:a]))
+(prn (s/explain-str ::seq2 [1]))
+(prn (s/unform ::seq2 (s/conform ::seq2 [:a :b 1 2])))
+(prn (s/describe ::seq2))
+(s/def ::inner (s/spec (s/cat :a int? :b int?)))
+(s/def ::outer (s/cat :first ::inner :rest (s/* keyword?)))
+(prn (s/conform ::outer [[1 2] :x :y]))
+(prn (s/valid? ::outer [1 2 :x]))
+(prn (s/explain-str ::outer [1 2 :x]))
+(prn (s/describe ::outer))
+(s/def ::amp (s/& (s/* int?) #(even? (count %))))
+(prn (s/conform ::amp [1 2]) (s/conform ::amp [1]))
+(prn (s/explain-str ::amp [1]) (s/describe ::amp))
+(s/def ::name string?)
+(s/def ::kwargs (s/keys* :req-un [::name] :opt-un [::age]))
+(prn (s/conform ::kwargs [:name "bob" :age 3]))
+(prn (s/valid? ::kwargs [:age 3]))
+(prn (s/unform ::kwargs (s/conform ::kwargs [:name "bob"])))
+;; NOTE: only the first 3 elements -- upstream's `keys*` describe ends in
+;; a raw auto-gensym whose counter is host-specific.
+(prn (take 3 (s/describe ::kwargs)))
+
+;;;; ---------------------------------------------------------------- 6
+;;;; s/conformer, s/nonconforming, s/int-in, s/double-in, s/int-in-range?
+(s/def ::trimmed (s/conformer (fn [v] (if (string? v) (clojure.string/trim v) :clojure.spec.alpha/invalid))))
+(prn (s/conform ::trimmed "  a  ") (s/conform ::trimmed 1))
+(s/def ::nc (s/nonconforming (s/or :i int? :s string?)))
+(prn (s/conform ::nc 5) (s/conform ::nc "a") (s/conform ::nc :k))
+(prn (s/describe ::nc))
+(s/def ::pct (s/int-in 0 100))
+(prn (s/valid? ::pct 0) (s/valid? ::pct 99) (s/valid? ::pct 100) (s/valid? ::pct -1) (s/valid? ::pct "x"))
+(prn (s/conform ::pct 42))
+(prn (s/explain-str ::pct 100))
+(prn (s/int-in-range? 0 100 42) (s/int-in-range? 0 100 100) (s/int-in-range? 0 100 "a"))
+(s/def ::unit (s/double-in :min 0.0 :max 1.0 :NaN? false :infinite? false))
+(prn (s/valid? ::unit 0.5) (s/valid? ::unit 2.0) (s/valid? ::unit (/ 0.0 0.0)))
+
+;;;; ---------------------------------------------------------------- 7
+;;;; s/assert + check-asserts
+(prn (s/check-asserts?))
+(prn (s/assert int? 5))
+(s/check-asserts true)
+(prn (s/check-asserts?))
+(prn (s/assert int? 5))
+(prn (try (s/assert int? "x") (catch Throwable e (:clojure.spec.alpha/failure (ex-data e)))))
+(prn (try (s/assert int? "x") (catch Throwable e (boolean (re-find #"Spec assertion failed" (ex-message e))))))
+(s/check-asserts false)
+(prn (s/check-asserts?) (s/assert int? "x"))
+
+;;;; ---------------------------------------------------------------- 8
+;;;; s/gen, s/exercise, :gen override via s/with-gen.
+;;;; Properties only -- no raw generated values.
+(prn (every? int? (gen/sample (s/gen int?) 20)))
+(prn (every? keyword? (gen/sample (s/gen keyword?) 20)))
+(prn (every? string? (gen/sample (s/gen string?) 20)))
+(prn (every? boolean? (gen/sample (s/gen boolean?) 20)))
+(prn (every? symbol? (gen/sample (s/gen symbol?) 20)))
+(prn (every? double? (gen/sample (s/gen double?) 20)))
+(prn (every? nat-int? (gen/sample (s/gen nat-int?) 20)))
+(prn (count (s/exercise int? 10)))
+(prn (every? (fn [pair] (and (int? (first pair)) (= (first pair) (second pair)))) (s/exercise int? 10)))
+(prn (every? (fn [v] (s/valid? ::pct v)) (gen/sample (s/gen ::pct) 30)))
+(prn (every? (fn [v] (s/valid? ::ints v)) (gen/sample (s/gen ::ints) 20)))
+(prn (every? (fn [v] (s/valid? ::mo v)) (gen/sample (s/gen ::mo) 20)))
+(prn (every? (fn [v] (s/valid? ::pt v)) (gen/sample (s/gen ::pt) 20)))
+(prn (every? (fn [v] (s/valid? ::ni v)) (gen/sample (s/gen ::ni) 20)))
+(prn (every? (fn [v] (s/valid? ::e v)) (gen/sample (s/gen ::e) 20)))
+(prn (every? (fn [v] (s/valid? ::ingredient v)) (gen/sample (s/gen ::ingredient) 20)))
+(prn (every? (fn [v] (s/valid? ::seq2 v)) (gen/sample (s/gen ::seq2) 20)))
+;; s/keys generation
+(prn (every? (fn [v] (s/valid? ::person v)) (gen/sample (s/gen ::person) 20)))
+(prn (every? (fn [v] (s/valid? ::un-person v)) (gen/sample (s/gen ::un-person) 20)))
+(prn (count (s/exercise ::person 5)))
+(prn (every? (fn [pair] (s/valid? ::person (first pair))) (s/exercise ::person 5)))
+;; :gen override via s/with-gen, and via the overrides map
+(s/def ::always5 (s/with-gen int? (fn [] (gen/return 5))))
+(prn (s/valid? ::always5 7) (s/form ::always5))
+(prn (distinct (gen/sample (s/gen ::always5) 10)))
+(prn (distinct (gen/sample (s/gen ::pct {::pct (fn [] (gen/return 7))}) 5)))
+(prn (distinct (gen/sample (s/gen ::pct {[] (fn [] (gen/return 8))}) 5)))
+
+;;;; ---------------------------------------------------------------- 9
+;;;; s/fspec -- conform/valid?/explain/describe/form, plus the two paths
+;;;; that were UNTESTED at W2 because they need engine features W1 added:
+;;;; `fspec-impl`'s `reify clojure.lang.ILookup` (the `(:args spec)`
+;;;; lookup) and `validate-fn`, which GENERATES arguments and reads
+;;;; `(instance? Throwable ret)` on the result.
+;;;; `*fspec-iterations*` is bound down from its default of 21 so the
+;;;; generative check stays quick on both hosts; the var is upstream's.
+(s/def ::inc-like (s/fspec :args (s/cat :x int?) :ret int?))
+(prn (s/describe ::inc-like))
+(prn (s/form ::inc-like))
+(binding [s/*fspec-iterations* 5]
+  (prn (s/valid? ::inc-like inc))
+  (prn (s/valid? ::inc-like str))
+  (prn (identical? inc (s/conform ::inc-like inc)))
+  (prn (s/conform ::inc-like str))
+  (prn (s/valid? ::inc-like 42))
+  (prn (s/explain-str ::inc-like 42)))
+;; the ILookup reify: upstream's `fspec-impl` answers `:args`/`:ret`/`:fn`
+;; through `valAt`, and `s/form` on the retrieved sub-spec must work.
+(let [fs (s/get-spec ::inc-like)]
+  (prn (s/form (:args fs)) (s/form (:ret fs)) (:fn fs))
+  (prn (s/form (get fs :args)) (get fs :nope) (get fs :nope :default)))
+;; an fspec with a :fn predicate relating args to ret
+(s/def ::grow (s/fspec :args (s/cat :x nat-int?)
+                       :ret nat-int?
+                       :fn #(> (:ret %) (-> % :args :x))))
+(binding [s/*fspec-iterations* 5]
+  (prn (s/valid? ::grow inc))
+  (prn (s/valid? ::grow identity)))
+;; fspec GENERATION: the generated value is a function honouring :ret
+(prn (every? ifn? (gen/sample (s/gen ::inc-like) 5)))
+(prn (every? int? (map (fn [f] (f 1)) (gen/sample (s/gen ::inc-like) 5))))
+;; s/fdef registers under the var's own symbol
+(defn my-inc [x] (inc x))
+(s/fdef my-inc :args (s/cat :x int?) :ret int?)
+(prn (s/describe (s/get-spec `my-inc)))
+(prn (contains? (s/registry) `my-inc))
+
+;;;; ---------------------------------------------------------------- 10
+;;;; s/multi-spec -- the full conform/explain/gen path over a defmulti.
+;;;; UNTESTED at W2: upstream spells the dispatch lookup `(.getMethod mm
+;;;; ((.dispatchFn mm) x))`, which W1 made resolvable as interop, so the
+;;;; port carries no patch here at all.
+(s/def :event/type keyword?)
+(s/def :event/ts int?)
+(s/def :search/q string?)
+(s/def :error/code int?)
+(defmulti event-type :event/type)
+(defmethod event-type :event/search [_]
+  (s/keys :req [:event/type :event/ts :search/q]))
+(defmethod event-type :event/error [_]
+  (s/keys :req [:event/type :event/ts :error/code]))
+(s/def ::event (s/multi-spec event-type :event/type))
+(prn (s/describe ::event) (s/form ::event))
+(def a-search {:event/type :event/search :event/ts 1 :search/q "hi"})
+(def an-error {:event/type :event/error :event/ts 2 :error/code 500})
+(prn (s/valid? ::event a-search) (s/valid? ::event an-error))
+(prn (s/conform ::event a-search))
+(prn (= a-search (s/unform ::event (s/conform ::event a-search))))
+(prn (s/valid? ::event {:event/type :event/search :event/ts 1}))
+(prn (s/explain-str ::event {:event/type :event/search :event/ts 1}))
+;; a dispatch value with no method at all
+(prn (s/valid? ::event {:event/type :event/nope :event/ts 1}))
+(prn (s/explain-str ::event {:event/type :event/nope :event/ts 1}))
+(prn (s/explain-str ::event 42))
+;; multi-spec GENERATION: samples are valid, and both branches are reachable
+(prn (every? (fn [v] (s/valid? ::event v)) (gen/sample (s/gen ::event) 20)))
+(prn (sort (distinct (map :event/type (gen/sample (s/gen ::event) 50)))))
+(prn (count (s/exercise ::event 5)))
+
+;;;; ---------------------------------------------------------------- 11
+;;;; s/inst-in + s/inst-in-range? -- UNTESTED at W2 for want of
+;;;; `clojure.core/inst-ms`, which W1 added along with reading `#inst`
+;;;; into a real java.util.Date. Every printed instant below round-trips
+;;;; through `print-method`, so this section also pins that.
+(s/def ::the90s (s/inst-in #inst "1990" #inst "2000"))
+(prn (s/describe ::the90s))
+(prn (s/valid? ::the90s #inst "1990"))
+(prn (s/valid? ::the90s #inst "1995-06-01T12:00:00.000-00:00"))
+(prn (s/valid? ::the90s #inst "2000"))
+(prn (s/valid? ::the90s #inst "1989-12-31T23:59:59.999-00:00"))
+(prn (s/valid? ::the90s "1995"))
+(prn (s/conform ::the90s #inst "1995-06-01"))
+(prn (s/conform ::the90s #inst "2005"))
+(prn (s/explain-str ::the90s #inst "2005"))
+(prn (s/inst-in-range? #inst "1990" #inst "2000" #inst "1995"))
+(prn (s/inst-in-range? #inst "1990" #inst "2000" #inst "2000"))
+(prn (s/inst-in-range? #inst "1990" #inst "2000" 1995))
+(prn (inst-ms #inst "1970-01-01T00:00:00.500-00:00"))
+;; inst-in GENERATION: every sample is in range, and they are instants
+(prn (every? inst? (gen/sample (s/gen ::the90s) 20)))
+(prn (every? (fn [v] (s/valid? ::the90s v)) (gen/sample (s/gen ::the90s) 20)))

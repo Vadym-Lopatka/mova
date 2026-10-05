@@ -1,0 +1,5 @@
+ERR	{:message "with-meta: int does not support metadata (Clojure: ClassCastException, not an IObj)", :type :error/type}
+ERR	{:message "with-meta: keyword does not support metadata (Clojure: ClassCastException, not an IObj)", :type :error/type}
+ERR	{:message "with-meta: cannot attach metadata to nil (Clojure: NullPointerException)", :type :error/type}
+ERR	{:message "with-meta: atom does not support metadata (Clojure: ClassCastException, not an IObj)", :type :error/type}
+OK	#<fn metatag-fn>

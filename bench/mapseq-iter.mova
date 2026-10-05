@@ -1,0 +1,79 @@
+;; mapseq-iter.mova -- the map-ENTRY-materialization hot path.
+;;
+;; Written for the S7 MapEntry branch (wave-C item 8) as its gate-(b)
+;; instrument: `Interp::seq_items`'s `Value::Map`/`SortedMap`/`HostStruct`
+;; arms build one entry value PER ENTRY, so any change to what an entry IS
+;; shows up here as a per-entry allocation delta and nowhere else in
+;; bench/. Four phases, each timed separately so a regression can be
+;; localized:
+;;
+;;   seq-reduce   `(reduce f 0 (seq m))`  -- seq_items then a fold
+;;   map-reduce   `(reduce f 0 m)`        -- reduce straight over the map
+;;   doseq        `(doseq [e m] ...)`     -- the imperative walk
+;;   destructure  `(reduce (fn [a [k v]] ..) 0 m)` -- entry destructuring
+;;
+;; Every phase touches BOTH slots of every entry (`key`+`val` / `nth`),
+;; so an implementation that made entries cheap to build but expensive to
+;; read could not hide here.
+;;
+;;   ./target/release/mova bench/mapseq-iter.mova
+
+(def N 10000)
+(def R 20)
+
+(def m
+  (loop [acc {} i 0]
+    (if (< i N)
+      (recur (assoc acc i i) (inc i))
+      acc)))
+
+;; ---- phase 1: reduce over (seq m) --------------------------------------
+(def t0 (time-ms))
+(def c1
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r)
+             (+ acc (reduce (fn [a e] (+ a (first e) (second e))) 0 (seq m))))
+      acc)))
+(def e1 (max 1 (- (time-ms) t0)))
+
+;; ---- phase 2: reduce straight over the map -----------------------------
+(def t1 (time-ms))
+(def c2
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r)
+             (+ acc (reduce (fn [a e] (+ a (key e) (val e))) 0 m)))
+      acc)))
+(def e2 (max 1 (- (time-ms) t1)))
+
+;; ---- phase 3: doseq over entries ---------------------------------------
+;; `volatile!`, not `atom`: `swap!`'s CAS-retry loop costs ~10x the entry
+;; walk itself and would bury exactly the signal this phase exists to
+;; measure (measured on the baseline binary: 123k ops/ms with an atom vs
+;; the ~800k the other three phases report).
+(def sink (volatile! 0))
+(def t2 (time-ms))
+(loop [r 0]
+  (if (< r R)
+    (do (doseq [e m] (vswap! sink + (nth e 0) (nth e 1)))
+        (recur (inc r)))
+    nil))
+(def e3 (max 1 (- (time-ms) t2)))
+
+;; ---- phase 4: entry destructuring --------------------------------------
+(def t3 (time-ms))
+(def c4
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r)
+             (+ acc (reduce (fn [a [k v]] (+ a k v)) 0 m)))
+      acc)))
+(def e4 (max 1 (- (time-ms) t3)))
+
+(def ops (* N R))
+(println "mapseq-seq-reduce" ops e1 (quot (* ops 1000) e1))
+(println "mapseq-map-reduce" ops e2 (quot (* ops 1000) e2))
+(println "mapseq-doseq" ops e3 (quot (* ops 1000) e3))
+(println "mapseq-destructure" ops e4 (quot (* ops 1000) e4))
+(println "checksums" c1 c2 @sink c4)

@@ -1,0 +1,103 @@
+;; hostclasses.corpus -- S5: host-class shims. `java.util.Random` (bit-
+;; exact JVM 48-bit LCG -- see `crate::hostclass`'s module doc for the
+;; algorithm and `src/hostclass.rs`'s own `#[cfg(test)]` block for the same
+;; transcripts as plain Rust unit tests), `java.util.Date` (ctor +
+;; `.getTime` only -- `.toString` is locale/timezone-dependent, unfit for
+;; a golden), `Thread/currentThread` (a single-threaded stand-in "main"
+;; thread), and a narrow `proxy [ThreadLocal] [] (initialValue [] ...)`
+;; (the ONE shape `test.check`'s `random.clj` needs).
+;;
+;; Forms are SELF-CONTAINED (one `let` per line, matching state.corpus's
+;; own established convention/comment) rather than session-`def`s: a bare
+;; top-level `(def x ...)` prints `#'user/x` on the real JVM but mova's own
+;; documented `def` divergence prints the assigned VALUE instead (see
+;; state.corpus's header comment for the same call) -- every mutating
+;; `.nextInt`/etc sequence below is therefore one `let`-bound instance with
+;; every call against it folded into a single result vector on one line,
+;; not spread across session-persisted lines.
+;;
+;; `.nextFloat` is never printed RAW: `Value` has no separate f32
+;; representation (only `Value::Float(f64)`), so a `float` widened to
+;; `f64` prints with MORE significant digits than Java's
+;; `Float.toString()` would show for the same bit pattern (both sides
+;; compute the identical widened f64 -- confirmed by hand against the
+;; oracle -- only the PRINTED string shape differs). Multiplying by 1e8
+;; and truncating to a `long` (`(long (* 100000000 (.nextFloat r)))`)
+;; sidesteps this: Java auto-widens the float to double for `*` the exact
+;; same way mova's `.nextFloat` already does internally, so the truncated
+;; integer prints identically on both sides. This is a documented,
+;; deliberate representation gap, not a Random-algorithm bug.
+
+;; -- seed 42: six methods, one instance, in sequence (order matters --
+;; each call mutates and advances the LCG state) --
+(let [r (java.util.Random. 42)] [(.nextInt r) (.nextInt r 100) (.nextLong r) (.nextDouble r) (long (* 100000000 (.nextFloat r))) (.nextBoolean r)])
+
+;; -- seed 0: two bare nextInt calls, then a non-power-of-two bound --
+(let [r (java.util.Random. 0)] [(.nextInt r) (.nextInt r) (.nextInt r 10)])
+
+;; -- seed 12345: nextInt(7) (non-power-of-two, rejection-loop branch)
+;; three times on one instance, then nextLong/nextDouble --
+(let [r (java.util.Random. 12345)] [(.nextInt r 7) (.nextInt r 7) (.nextInt r 7) (.nextLong r) (.nextDouble r)])
+
+;; -- bound edge cases on seed 42: a POWER-OF-TWO bound (128), then bound 1
+;; (always 0), then bound 2 --
+(let [r (java.util.Random. 42)] [(.nextInt r 128) (.nextInt r 1) (.nextInt r 2)])
+
+;; -- a negative seed --
+(let [r (java.util.Random. -100)] [(.nextInt r) (.nextLong r) (.nextDouble r) (.nextBoolean r)])
+
+;; -- an out-of-i32-range (but in-i64) seed, plus .setSeed (returns nil,
+;; then re-seeds and resumes generating from the new seed) --
+(let [r (java.util.Random. 9223372036854775807)] [(.nextInt r) (.setSeed r 5) (.nextInt r)])
+
+;; -- repeated .nextInt on one instance, no intervening other methods --
+(let [r (java.util.Random. 42)] [(.nextInt r) (.nextInt r) (.nextInt r) (.nextInt r) (.nextInt r)])
+
+;; -- class/instance?/class?. Only the FULLY-QUALIFIED spelling resolves
+;; bare here (measured: real Clojure does NOT auto-resolve a short
+;; `Random`/`Date` -- neither is `java.lang.*` -- so mova's class table
+;; deliberately registers ONLY `java.util.Random`/`java.util.Date`, not a
+;; short alias; see `types::builtin_classes`'s own comment) --
+(class (java.util.Random. 1))
+(instance? java.util.Random (java.util.Random. 1))
+(class? java.util.Random)
+(instance? java.util.Random 3)
+
+;; -- java.util.Date: both constructors, .getTime only --
+(.getTime (java.util.Date. 123))
+(.getTime (java.util.Date. 0))
+(.getTime (java.util.Date. -50))
+(class (java.util.Date.))
+(class java.util.Date)
+(instance? java.util.Date (java.util.Date.))
+(instance? java.util.Date (new java.util.Date))
+(instance? java.util.Date 3)
+
+;; -- Thread/currentThread: a single stand-in "main" thread. `.getName`/
+;; `.getId`/`class`/`instance?` are stable; `.getStackTrace`'s ELEMENT
+;; COUNT is deliberately not asserted -- on the real JVM it reflects
+;; however deep the runner process's own call stack happens to be at that
+;; exact point (measured: 32 frames deep inside `tools/jvm-runner.clj`'s
+;; own `eval`/`read-string` nesting), which no corpus form can pin any
+;; more than a `Matcher`'s identity hash can. Only that it comes back as
+;; SOMETHING array-shaped is asserted (mova's own `.getStackTrace` is
+;; always an empty array -- a documented coarse stub, see
+;; `crate::hostclass`'s module doc -- real Java's never is, but nothing
+;; scorable here can tell the difference) --
+(.getName (Thread/currentThread))
+(.getId (Thread/currentThread))
+(vector? (into [] (.getStackTrace (Thread/currentThread))))
+(instance? Thread (Thread/currentThread))
+(class (Thread/currentThread))
+
+;; -- plain (non-proxied) ThreadLocal: no initialValue override, `.get`
+;; always answers nil (Java's default), matching the real JVM --
+(.get (java.lang.ThreadLocal.))
+(class (java.lang.ThreadLocal.))
+(instance? ThreadLocal (java.lang.ThreadLocal.))
+
+;; -- proxy [ThreadLocal] [] (initialValue [] ...): memoizes on first
+;; `.get`, `.set` overrides, `.remove` clears back to "recompute on next
+;; .get" -- the atom counter proves initialValue runs exactly once per
+;; live period, not once per `.get` call --
+(let [counter (atom 0) tl (proxy [ThreadLocal] [] (initialValue [] (swap! counter inc)))] [(.get tl) (.get tl) (do (.set tl 99) (.get tl)) (do (.remove tl) (.get tl)) @counter])

@@ -1,0 +1,86 @@
+;; mova core.async surface (v0.2 / A2, tasks as of L1/W4). Loaded by
+;; Interp::new() (see src/eval/mod.rs's `load_core_async`) AFTER
+;; core/core.mova, so both the native builtins from src/builtins/async.rs
+;; (chan, >!!, <!!, close!, timeout, put!, take!, alts!!, offer!, poll!,
+;; go*, thread*) and every core.mova macro (defn, let, loop, when, ->,
+;; etc.) are already available here.
+;;
+;; ####################################################################
+;; ## `go` blocks are TASKS now -- shard-scheduled, not OS threads.   ##
+;; ####################################################################
+;; `go`/`go-loop` bodies run as stackful coroutines multiplexed onto a
+;; handful of pinned shard threads (src/runtime/mod.rs), not one real OS
+;; thread apiece: ~1.5ns to switch between two tasks, ~16KiB idle RSS per
+;; task (flat from 100k to 1M live tasks), and a task can park at ANY
+;; interpreted depth -- inside a helper fn several calls below the `go`
+;; body, not just at its own top level, which is the one thing IOC-rewritten
+;; `go` macros (JVM core.async included) can never do. `put!`/`take!` get
+;; the identical treatment: their blocking op plus optional callback run as
+;; a task, not on a detached thread (S4 below).
+;;
+;; `>!`/`<!`/`alts!` below remain plain aliases of `>!!`/`<!!`/`alts!!` --
+;; and that is now TRUE, not a compromise. A blocking chan op called from
+;; inside a task parks the TASK (src/builtins/async.rs's sudog hand-off,
+;; L1/W3); the identical call from an ordinary thread parks the THREAD,
+;; exactly as it always did. One function, two park targets, chosen by
+;; `crate::runtime::in_task()` at the call site -- there is no separate IOC
+;; "parking op" to distinguish `<!` from `<!!` because the same blocking
+;; primitive already does the right thing in both contexts.
+;;
+;; ACCEPTED FOOTGUN (R1), loud on purpose: a blocking NATIVE inside a `go`
+;; body -- file IO, `Thread/sleep`, `deref` of an unresolved
+;; future/promise/delay -- blocks its whole SHARD, not just its own task,
+;; because those natives block the underlying OS thread with no task-aware
+;; park of their own. Same class of footgun as the JVM's 8-thread `go` pool,
+;; just N-core-wide instead of 8-wide. If a `go` body needs to do one of
+;; those things, reach for `thread` instead -- it always spawns a real,
+;; dedicated OS thread (see below), so blocking it costs that one thread and
+;; nothing else on the process. Task-aware `deref` is future work (L1.5),
+;; not something this surface has yet.
+;;
+;; Kill switch: `MOVA_GO_THREADS=1` in the environment reverts `go`/
+;; `go-loop`/`put!`/`take!` wholesale to the pre-L1 real-OS-thread path --
+;; `thread`'s implementation, verbatim -- read once via `OnceLock`
+;; (src/builtins/async.rs's `go_threads_kill_switch`). `thread` itself is
+;; unaffected either way; it was already that path.
+
+(defmacro go [& body]
+  (list 'go* (cons 'fn (cons [] body))))
+
+(defmacro go-loop [bindings & body]
+  (list 'go (cons 'loop (cons bindings body))))
+
+;; `thread`: "a real OS thread doing blocking core.async ops", as opposed to
+;; `go`'s lightweight-looking, task-backed spelling. As of L1/W4 this is no
+;; longer just `go` under another name -- `go*` defaults to a task, and
+;; `thread` is the escape hatch FROM that (the R1 footgun above), so it
+;; expands to its own native, `thread*`, which ALWAYS spawns a real 64MiB
+;; OS thread, unconditionally, kill switch or not.
+(defmacro thread [& body]
+  (list 'thread* (cons 'fn (cons [] body))))
+
+;; `>!`/`<!` are ONLY valid inside a `go` body in real Clojure (parking
+;; ops); mova v0 doesn't distinguish "inside a go block" from anywhere
+;; else, so these are unconditionally usable, blocking aliases. See the
+;; module-level note above.
+(def >! >!!)
+(def <! <!!)
+
+(def alts! alts!!)
+
+;; Puts every element of `coll` onto `ch`, in order, then closes `ch`;
+;; returns (like any `go`) a channel that itself closes once the whole
+;; process completes -- a `nil` go-body result (the last form is the
+;; `close!` call, which returns `nil`) means "just close", per `go*`'s
+;; contract.
+(defn onto-chan! [ch coll]
+  (go
+    (loop [s (seq coll)]
+      (when s
+        (>! ch (first s))
+        ;; `(seq (rest s))` -- NOT bare `(rest s)` -- normalizes the
+        ;; exhausted-tail case back to `nil`; `rest` alone returns a
+        ;; (truthy!) empty list, which would loop one extra time and put a
+        ;; `nil` (the `(first s)` of that empty list) onto `ch`.
+        (recur (seq (rest s)))))
+    (close! ch)))

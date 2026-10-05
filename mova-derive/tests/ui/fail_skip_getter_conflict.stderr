@@ -1,0 +1,5 @@
+error: `#[mova(skip)]` and `#[mova(getter = "...")]` conflict on the same field -- `skip` means this field is never read at all, `getter` means it's read via a method call; pick one
+ --> tests/ui/fail_skip_getter_conflict.rs:7:5
+  |
+7 |     #[mova(skip)]
+  |     ^

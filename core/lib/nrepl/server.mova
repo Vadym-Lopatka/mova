@@ -1,0 +1,58 @@
+;; nrepl.server: `default-handler` and `unknown-op`, for custom handlers and
+;; for middleware that wants the stack. No `start-server`: the server is
+;; native (`mova nrepl`).
+(ns nrepl.server
+  (:require [nrepl.middleware :as middleware]
+            [nrepl.misc :refer [response-for]]
+            [nrepl.transport :as t]
+            [nrepl.middleware.caught]
+            [nrepl.middleware.completion]
+            [nrepl.middleware.interruptible-eval]
+            [nrepl.middleware.io]
+            [nrepl.middleware.load-file]
+            [nrepl.middleware.lookup]
+            [nrepl.middleware.print]
+            [nrepl.middleware.session]))
+
+(def native-handler-fn
+  "Holds the function that hands a message to the native ops. Set by the lane."
+  (atom nil))
+
+(defn- native-handler
+  "The innermost handler: the native ops answer (or say unknown-op)."
+  [msg]
+  ((deref native-handler-fn) msg))
+
+(defn unknown-op
+  "Sends an :unknown-op :error for the given message."
+  [{:keys [op transport] :as msg}]
+  (t/send transport (response-for msg :status #{:error :unknown-op :done} :op op)))
+
+(def default-middleware
+  "Middleware vars that are implicitly merged with any additional
+   middleware provided to `default-handler`."
+  [#'nrepl.middleware.caught/wrap-caught
+   #'nrepl.middleware.completion/wrap-completion
+   #'nrepl.middleware.interruptible-eval/interruptible-eval
+   #'nrepl.middleware.io/wrap-out
+   #'nrepl.middleware.load-file/wrap-load-file
+   #'nrepl.middleware.lookup/wrap-lookup
+   #'nrepl.middleware.print/wrap-print
+   #'nrepl.middleware.session/add-stdin
+   #'nrepl.middleware.session/session])
+
+(def built-in-ops
+  "All op names of the built-in middleware."
+  (->> (conj default-middleware #'middleware/wrap-describe)
+       (mapcat #(-> % meta ::middleware/descriptor :handles keys))
+       set))
+
+(defn default-handler
+  "A handler with the default stack and the additional middleware mixed in
+  (see `nrepl.middleware/set-descriptor!`). The built-in ops are native."
+  [& additional-middleware]
+  (let [stack (middleware/linearize-middleware-stack
+               (into default-middleware additional-middleware))
+        base-handler (middleware/wrap-describe native-handler stack)
+        full-handler (reduce (fn [handler m] (m handler)) base-handler stack)]
+    (with-meta full-handler {:stack stack})))

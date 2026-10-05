@@ -1,0 +1,204 @@
+;; collections.corpus -- vector/map/set/list ops. One session. Multi-entry
+;; map/set literals are never left as the printed RESULT (unordered
+;; iteration); wrap with sort/get/count/contains? instead. Single-entry
+;; maps/sets are fine.
+(conj [1 2] 3)
+(conj [1 2] 3 4)
+(conj '(1 2) 3)
+(sort (conj #{1 2} 3))
+(count (conj #{1 2} 3))
+(conj {:a 1} [:b 2])
+(get (conj {:a 1} [:b 2]) :b)
+(assoc {:a 1} :b 2 :c 3)
+(get (assoc {:a 1} :b 2) :b)
+(assoc [1 2 3] 0 :x)
+(assoc [1 2 3] 3 4)
+(dissoc {:a 1 :b 2} :a)
+(count (dissoc {:a 1 :b 2 :c 3} :a))
+(get {:a 1} :a)
+(get {:a 1} :b)
+(get {:a 1} :b :default)
+(get [1 2 3] 1)
+(get [1 2 3] 5)
+(get [1 2 3] 5 :nope)
+(get #{1 2 3} 2)
+(get #{1 2 3} 9 :nope)
+(nth [1 2 3] 0)
+(nth [1 2 3] 2)
+(nth [1 2 3] 5 :default)
+(nth '(1 2 3) 1)
+(count [1 2 3])
+(count '(1 2 3))
+(count {:a 1 :b 2})
+(count #{1 2 3})
+(count "")
+(count [])
+(count nil)
+(contains? {:a 1} :a)
+(contains? {:a 1} :b)
+(contains? [1 2 3] 0)
+(contains? [1 2 3] 5)
+(contains? #{1 2} 1)
+(contains? #{1 2} 5)
+(sort (keys {:a 1 :b 2 :c 3}))
+(sort (vals {:a 1 :b 2 :c 3}))
+(first [1 2 3])
+(first '())
+(first nil)
+(first [])
+(rest [1 2 3])
+(rest [1])
+(rest [])
+(rest nil)
+(cons 0 [1 2 3])
+(cons 1 nil)
+(cons 1 '(2 3))
+(into [] '(1 2 3))
+(into [1 2] [3 4])
+(sort (into #{} [1 1 2 2 3]))
+(count (into #{} [1 1 2 2 3]))
+(into {} [[:a 1] [:b 2]])
+(get (into {} [[:a 1] [:b 2]]) :a)
+(empty? [])
+(empty? [1])
+(empty? {})
+(empty? nil)
+(empty? "")
+(empty [1 2 3])
+(empty {:a 1})
+(peek [1 2 3])
+(peek '(1 2 3))
+(peek [])
+(pop [1 2 3])
+(pop '(1 2 3))
+(subvec [1 2 3 4 5] 1 3)
+(subvec [1 2 3 4 5] 2)
+(update {:a 1} :a inc)
+(get (update {:a 1} :a inc) :a)
+(update [1 2 3] 0 inc)
+(update {:a 1} :b (fn [v] (if (nil? v) 1 (inc v))))
+(assoc-in {} [:a :b] 1)
+(get-in (assoc-in {} [:a :b] 1) [:a :b])
+(get-in {:a {:b {:c 42}}} [:a :b :c])
+(get-in {:a 1} [:x :y] :missing)
+(update-in {:a {:b 1}} [:a :b] inc)
+(get-in (update-in {:a {:b 1}} [:a :b] inc) [:a :b])
+(vector 1 2 3)
+(vector)
+(hash-map :a 1)
+(get (hash-map :a 1 :b 2) :b)
+(sort (hash-set 1 2 3))
+(count (hash-set 1 2 2 3))
+(sort (set [1 1 2 3]))
+(count (set [1 1 2 3]))
+(list 1 2 3)
+(list)
+(seq [1 2 3])
+(seq [])
+(seq nil)
+(seq "ab")
+(vec '(1 2 3))
+(vec #{1})
+(next [1 2 3])
+(next [1])
+(next nil)
+(:a {:a 1 :b 2})
+(:c {:a 1 :b 2} :default)
+({:a 1} :a)
+({:a 1} :b :default)
+(:a #{:a :b})
+(:z #{:a :b})
+([10 20 30] 1)
+(#{1 2 3} 2)
+(#{1 2 3} 9)
+(map? {:a 1})
+(map? [1 2])
+(vector? [1 2])
+(vector? '(1 2))
+(list? '(1 2))
+(list? [1 2])
+(set? #{1})
+(set? [1])
+(count (concat [1 2] [3 4] [5]))
+(vec (concat [1 2] '(3 4)))
+(reverse [1 2 3])
+(vec (reverse [1 2 3]))
+(let [v [1 2 3]] (conj v 4))
+(let [m {:x 1}] (assoc m :y 2 :z 3))
+(get (let [m {:x 1}] (assoc m :y 2)) :y)
+;; -- int/float key & element equality inside collection ops:
+;; verified-conforming, moved from the numerics/equality-hash gap-corpus
+;; sweep (see tests/conformance/pending/equality-hash.corpus) --
+(= {1 :a} {1.0 :a})
+(= #{1} #{1.0})
+(count (into #{} [1 1.0]))
+(get {1 :a} 1.0)
+(contains? {1 :a} 1.0)
+(frequencies [1 1.0 1])
+(group-by identity [1 1.0 2])
+
+;; sequence/transducer/collection gap-corpus sweep (see
+;; tests/conformance/pending/{seq-fns,collections}.corpus) -- confirmed
+;; already-conformant, so they live here instead of in pending.
+(get "hello" 100)
+(contains? [1 2 3] 1)
+
+;; compat/s4-sorted-vecof (2026-08-20): `compare`/`hash`/`key`/`val`/`find`
+;; didn't exist as builtins at all until this branch added them (for
+;; sorted-map/-set/vector-of's own choke points -- see
+;; tests/conformance/corpus/sorted-colls.corpus) -- moved out of
+;; tests/conformance/pending/{equality-hash,seq-fns}.corpus now that they
+;; conform. `(hash 1)`-style forms asserting the JVM's OWN hash NUMBER
+;; stay pending (mova's `hash` is a different, internally-consistent hash
+;; function, not a `hashCode` reimplementation) -- only relative-equality
+;; `hash` forms are here.
+(compare 1 2)
+(compare 1 1.0)
+(compare [1 2] [1 2 3])
+(= (hash 1) (hash 1N))
+(= (hash [1 2 3]) (hash '(1 2 3)))
+(= (hash {:a 1}) (hash {:a 1}))
+(= (hash {:a 1 :b 2}) (hash {:b 2 :a 1}))
+(= (hash #{1 2 3}) (hash #{3 2 1}))
+(= (hash [1 2]) (hash [2 1]))
+(key (first {:a 1}))
+(val (first {:a 1}))
+(find {:a 1 :b 2} :a)
+(find {:a 1} :z)
+
+;; C2 (defstruct): promoted from tests/conformance/pending/collections.corpus
+;; -- array-map itself now exists in mova (added alongside struct-maps),
+;; and `count` on a 9-key array-map now conforms (mova and real Clojure
+;; both say 9). `(type ...)` on the SAME form is left behind in pending
+;; -- see that file's own note for why (mova's size-threshold class-name
+;; heuristic still diverges from real array-map's "stays PersistentArrayMap
+;; regardless of size").
+(count (array-map :a 1 :b 2 :c 3 :d 4 :e 5 :f 6 :g 7 :h 8 :i 9))
+
+;; C13 (sequences/transducers wave): promoted from
+;; tests/conformance/pending/equality-hash.corpus -- `dedupe`'s 1-arity is
+;; `=`-based, same numeric-category-strict `=` this corpus's own earlier
+;; hash/compare rows above already exercise.
+(dedupe [1 1.0 1.0 2])
+;; Wave-C small sweep item 1: predicates.rs's coll?/map?/set?/seqable?
+;; never learned SortedMap/SortedSet/TypedVec even though types.rs's own
+;; is_map/is_set/is_coll (used by instance?) already did. Promoted from
+;; tests/conformance/pending/collections.corpus after the fix.
+(coll? (sorted-set 1 2))
+(coll? (sorted-map 1 2))
+(map? (sorted-map 1 2))
+(set? (sorted-set 1))
+(seqable? (sorted-map 1 2))
+(coll? (vector-of :int 1))
+;; C10 promotions (queue/format/... wave), union-merged
+(peek (conj (conj clojure.lang.PersistentQueue/EMPTY 1) 2))
+(seq (conj (conj clojure.lang.PersistentQueue/EMPTY 1) 2))
+(count (pop (conj (conj clojure.lang.PersistentQueue/EMPTY 1) 2)))
+
+;; -- W3d: the remaining transient mutators (core.mova `pop!`/`dissoc!`/
+;; `disj!`) -- promoted from tests/conformance/pending/collections.corpus,
+;; where they were unresolved symbols. Aliased to their persistent
+;; counterparts, same as `conj!`/`assoc!` already were.
+(persistent! (disj! (transient #{1 2 3}) 2))
+(persistent! (dissoc! (transient {:a 1 :b 2}) :a))
+(let [t (transient [1 2 3])] (persistent! (pop! t)))

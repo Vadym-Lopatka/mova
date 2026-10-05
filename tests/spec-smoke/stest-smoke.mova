@@ -1,0 +1,326 @@
+;; stest-smoke.mova -- the ORACLE-DIFFED acceptance corpus for the
+;; `clojure.spec.test.alpha` port (SPEC-W5). Sibling of `smoke.mova`, same
+;; discipline: this exact file is executed by mova AND by real Clojure
+;; 1.13.0-alpha6 (which ships clojure.spec.alpha) plus test.check 1.1.1,
+;; and the two stdout streams must be BYTE-IDENTICAL. See RUNNING.md.
+;;
+;; Determinism rules, same as smoke.mova's: never print a raw generated
+;; value, never print an auto-gensym, never print a map big enough for the
+;; two hosts' key orders to diverge. Generative sections print PROPERTIES
+;; (booleans, counts, sorted key lists), not samples.
+;;
+;; The one normalization this file needs that smoke.mova did not:
+;; `::stest/caller`'s `:file`. A JVM `StackTraceElement`'s `getFileName` is
+;; the file's BASENAME; mova's `callstack*` reports `Interp::source_name`,
+;; the path as given on the command line, matching mova's own `:file` var
+;; metadata and its rendered stack traces. `caller-file` below takes the
+;; basename on both sides. `:line` needs no normalization at all -- it is
+;; the same number on both hosts, which is the whole point of running ONE
+;; file through two implementations.
+
+(set! *print-namespace-maps* false)
+
+(require '[clojure.spec.alpha :as s])
+(require '[clojure.spec.test.alpha :as stest])
+(require '[clojure.string :as str])
+
+(defn caller-file
+  "The `:file` of a ::stest/caller map, reduced to its basename -- see this
+  file's header for why."
+  [caller]
+  (last (str/split (str (:file caller)) #"/")))
+
+(println "=== 1. fdef + instrument: a bad call throws ===")
+
+(defn adder [a b] (+ a b))
+(s/fdef adder
+  :args (s/cat :a number? :b number?)
+  :ret number?)
+
+(println (stest/instrument `adder))
+(println (adder 1 2))
+
+(def bad-call-ex
+  (try (adder 1 :nope) nil
+       (catch Throwable e e)))
+
+(println (ex-message bad-call-ex))
+(println (:clojure.spec.alpha/failure (ex-data bad-call-ex)))
+(println (:clojure.spec.alpha/fn (ex-data bad-call-ex)))
+(println (:clojure.spec.alpha/args (ex-data bad-call-ex)))
+(println (map :path (:clojure.spec.alpha/problems (ex-data bad-call-ex))))
+(println (map :val (:clojure.spec.alpha/problems (ex-data bad-call-ex))))
+(println (map :in (:clojure.spec.alpha/problems (ex-data bad-call-ex))))
+;; ::caller is deliberately dissoc'd before this comparison -- see section 2's
+;; note on top-level frames.
+(println (sort (map str (keys (dissoc (ex-data bad-call-ex)
+                                      :clojure.spec.test.alpha/caller)))))
+
+(println "=== 2. ::stest/caller names the fn that made the call ===")
+
+;; `report-bad-add` is a plain `defn`'d helper -- exactly the shape
+;; clojure/test_clojure/instr.clj's `fail-no-kwargs`/`fail-kwargs` use. The
+;; caller reported must be ITS var symbol, with spec's own plumbing frames
+;; (`spec-checking-fn`'s thunk, its `conform!` local, `clojure.core/apply`)
+;; skipped.
+(defn report-bad-add [x y]
+  (try (adder x y) nil
+       (catch Throwable e (:clojure.spec.test.alpha/caller (ex-data e)))))
+
+(def caller-1 (report-bad-add 1 :nope))
+(println (:var-scope caller-1))
+(println (caller-file caller-1))
+(println (sort (map str (keys caller-1))))
+;; `:line` is a PROPERTY here, not a value. Both hosts report a real source
+;; line, but not the SAME one: mova's macro expander rebuilds a macro's
+;; output with the macro CALL form's span, so every form inside a `defn`
+;; body carries the `defn`'s own position -- `report-bad-add`'s frame
+;; reports the line of its `(defn ...)` head where the JVM reports the line
+;; of the `(adder x y)` call inside it. That is a general, pre-existing
+;; mova property of every stack trace it renders, not something this port
+;; introduced; see docs/SPEC-PORT-PATCHES.md section D. The exact mova-side
+;; number is pinned by `stest_caller_line_is_the_defn_head` in
+;; tests/spec_test_alpha_test.rs so it cannot drift unnoticed.
+(println (pos-int? (:line caller-1)))
+
+;; A SECOND caller, one frame further out, proves the frame walk is not
+;; hard-wired to depth 1.
+(defn outer-caller [x y] (report-bad-add x y))
+(println (:var-scope (outer-caller 1 :nope)))
+
+(println "=== 3. unstrument restores the original fn ===")
+
+(println (stest/unstrument `adder))
+(println (adder 1 2))
+(println (try (adder 1 :nope) (catch Throwable _ :threw)))
+(println (stest/unstrument `adder))
+
+(println "=== 4. with-instrument-disabled ===")
+
+(println (stest/instrument `adder))
+(println (try (adder 1 :nope) (catch Throwable _ :threw)))
+(println (stest/with-instrument-disabled (try (adder 1 :nope) (catch Throwable _ :threw))))
+;; the scope is dynamic-extent, not permanent
+(println (try (adder 1 :nope) (catch Throwable _ :threw)))
+(println (stest/unstrument `adder))
+
+(println "=== 5. instrument :spec override ===")
+
+(defn over [x] x)
+(s/fdef over :args (s/cat :x int?))
+(println (stest/instrument `over {:spec {`over (s/fspec :args (s/cat :x string?))}}))
+(println (over "a string"))
+(println (try (over 1) (catch Throwable e (ex-message e))))
+(println (stest/unstrument `over))
+;; the REGISTERED spec is untouched by the override
+(println (over 1))
+(println (s/describe (:args (s/get-spec `over))))
+
+(println "=== 6. instrument :stub generates a return value ===")
+
+(s/def ::stub-ret (s/and int? #(< 100 %)))
+(defn stubbed [x] (throw (ex-info "the real body must not run" {})))
+(s/fdef stubbed :args (s/cat :x int?) :ret ::stub-ret)
+(println (stest/instrument `stubbed {:stub #{`stubbed}}))
+(println (s/valid? ::stub-ret (stubbed 1)))
+(println (try (stubbed :not-an-int) (catch Throwable e (ex-message e))))
+(println (stest/unstrument `stubbed))
+(println (try (stubbed 1) (catch Throwable e (ex-message e))))
+
+(println "=== 7. instrument :replace swaps the implementation ===")
+
+(defn repl-me [x] :original)
+(s/fdef repl-me :args (s/cat :x int?))
+(println (stest/instrument `repl-me {:replace {`repl-me (fn [x] :replaced)}}))
+(println (repl-me 1))
+;; :replace still checks :args first
+(println (try (repl-me :bad) (catch Throwable e (ex-message e))))
+(println (stest/unstrument `repl-me))
+(println (repl-me 1))
+
+(println "=== 8. kwargs fns: the kvs-emulation thunk ===")
+
+(s/def ::a any?)
+(s/def ::b number?)
+
+(defn kwargs-fn
+  ([opts] opts)
+  ([a b] [a b])
+  ([a b & {:as m}] [a b m]))
+
+(s/fdef kwargs-fn
+  :args (s/alt :unary    (s/cat :a ::a)
+               :binary   (s/cat :a ::a :b ::b)
+               :variadic (s/cat :a ::a
+                                :b ::b
+                                :kwargs (s/keys* :opt-un [::a ::b]))))
+
+(defn fail-kwargs [& args] (apply kwargs-fn args))
+
+;; The var's :arglists is what decides whether the forwarding thunk is
+;; built at all -- print it, since without it there is no kwargs emulation.
+(println (:arglists (meta #'kwargs-fn)))
+(println (stest/instrument `kwargs-fn))
+(println (kwargs-fn 1))
+(println (kwargs-fn 1 2))
+(println (kwargs-fn 1 2 :a 1))
+(println (kwargs-fn 1 2 {:a 1}))
+(println (kwargs-fn 1 2 :a 1 {:b 2}))
+(println (try (kwargs-fn 1 :not-num) (catch Throwable _ :threw)))
+(println (try (kwargs-fn 1 2 :a 1 {:b :not-num}) (catch Throwable _ :threw)))
+;; ...and the caller is still named THROUGH the thunk
+(println (try (fail-kwargs 1 :not-num) nil
+              (catch Throwable e (:var-scope (:clojure.spec.test.alpha/caller (ex-data e))))))
+(println (try (fail-kwargs 1 2 :a 1 {:b :not-num}) nil
+              (catch Throwable e (:var-scope (:clojure.spec.test.alpha/caller (ex-data e))))))
+(println (stest/unstrument `kwargs-fn))
+(println (kwargs-fn 1 2 :a 1 {:b :not-num}))
+
+(println "=== 9. varargs fns, and a var with no :arglists ===")
+
+(defn just-varargs [& args] (apply + args))
+(s/fdef just-varargs :args (s/cat :numbers (s/* number?)) :ret number?)
+(defn fail-varargs [& args] (apply just-varargs args))
+(println (stest/instrument `just-varargs))
+(println (just-varargs 1))
+(println (just-varargs 1 2 3 4 5))
+(println (try (just-varargs 1 :not-num) (catch Throwable _ :threw)))
+(println (try (fail-varargs 1 2 :not-num 3) nil
+              (catch Throwable e (:var-scope (:clojure.spec.test.alpha/caller (ex-data e))))))
+(println (stest/unstrument `just-varargs))
+
+;; instr.clj's `add10` shape: a var whose :arglists metadata has been
+;; removed, so `maybe-wrap-kvs-emulation` gets nil and must leave the
+;; checked fn alone.
+(defn add10 [n] (+ 10 n))
+(alter-meta! #'add10 dissoc :arglists)
+(println (:arglists (meta #'add10)))
+(s/fdef add10 :args (s/cat :arg ::b) :ret number?)
+(println (stest/instrument `add10))
+(println (add10 1))
+(println (try (add10 :not-num) (catch Throwable _ :threw)))
+(println (add10 1))
+(println (stest/unstrument `add10))
+
+(println "=== 10. check: a conforming fn ===")
+
+(defn ranged-rand [start end]
+  (+ start (long (rand (- end start)))))
+(s/fdef ranged-rand
+  :args (s/and (s/cat :start int? :end int?) #(< (:start %) (:end %)))
+  :ret int?
+  :fn (s/and #(>= (:ret %) (-> % :args :start))
+             #(< (:ret %) (-> % :args :end))))
+
+(def good-check
+  (first (stest/check `ranged-rand {:clojure.spec.test.check/opts {:num-tests 12}})))
+(println (:sym good-check))
+(println (-> good-check :clojure.spec.test.check/ret :pass?))
+(println (-> good-check :clojure.spec.test.check/ret :num-tests))
+(println (-> good-check :clojure.spec.test.check/ret :result))
+(println (contains? good-check :failure))
+(println (stest/abbrev-result good-check))
+
+;; the legacy spelling of the same option
+(println (-> (stest/check `ranged-rand {:clojure.spec.test.check/opts {:num-tests 3}})
+             first
+             :clojure.spec.test.check/ret
+             :num-tests))
+
+;; check-fn takes a spec and a fn directly, with no var involved
+(def fn-check
+  (stest/check-fn (fn [x] (inc x))
+                  (s/fspec :args (s/cat :x int?) :ret int?)
+                  {:clojure.spec.test.check/opts {:num-tests 8}}))
+(println (:sym fn-check))
+(println (-> fn-check :clojure.spec.test.check/ret :pass?))
+
+(println "=== 11. check: a non-conforming fn ===")
+
+(defn bad-ret [x] "not an int")
+(s/fdef bad-ret :args (s/cat :x int?) :ret int?)
+
+(def bad-check
+  (first (stest/check `bad-ret {:clojure.spec.test.check/opts {:num-tests 6}})))
+(println (:sym bad-check))
+(println (-> bad-check :clojure.spec.test.check/ret :pass?))
+(println (:clojure.spec.alpha/failure (ex-data (:failure bad-check))))
+(println (ex-message (:failure bad-check)))
+(println (sort (map str (keys (ex-data (:failure bad-check))))))
+
+(def bad-abbrev (stest/abbrev-result bad-check))
+(println (sort (map str (keys bad-abbrev))))
+(println (:sym bad-abbrev))
+(println (:spec bad-abbrev))
+(println (:clojure.spec.alpha/failure (:failure bad-abbrev)))
+(println (map :path (:clojure.spec.alpha/problems (:failure bad-abbrev))))
+
+;; a fn with a spec but no :args spec, and a sym with no fspec at all
+(defn only-ret [] 1)
+(s/fdef only-ret :ret int?)
+(println (:clojure.spec.alpha/failure (ex-data (:failure (first (stest/check `only-ret))))))
+(defn unspecd [x] x)
+(println (stest/instrument `unspecd))
+(println (stest/check `unspecd))
+
+(println "=== 12. summarize-results ===")
+
+;; `summarize-results` PRINTS each abbreviated result and RETURNS the
+;; summary map. The printing goes through `clojure.pprint/pprint` upstream
+;; and `prn` here (MOVA-PATCH P14), so only the returned map -- the
+;; documented contract -- is compared; the printed lines are captured and
+;; discarded on both hosts.
+(def summary-sink (atom nil))
+(with-out-str
+  (reset! summary-sink
+          (stest/summarize-results
+           (stest/check `ranged-rand {:clojure.spec.test.check/opts {:num-tests 4}}))))
+(println @summary-sink)
+
+(with-out-str
+  (reset! summary-sink
+          (stest/summarize-results
+           (stest/check `bad-ret {:clojure.spec.test.check/opts {:num-tests 4}}))))
+(println @summary-sink)
+
+;; a custom summary-result fn is honoured
+(with-out-str
+  (reset! summary-sink
+          (stest/summarize-results
+           (stest/check `ranged-rand {:clojure.spec.test.check/opts {:num-tests 4}})
+           :sym)))
+(println @summary-sink)
+
+(println "=== 13. the sym sets, and enumerate-namespace ===")
+
+(println (contains? (stest/checkable-syms) `ranged-rand))
+(println (contains? (stest/checkable-syms) `unspecd))
+(println (contains? (stest/instrumentable-syms) `ranged-rand))
+(println (contains? (stest/instrumentable-syms {:stub #{'nowhere/nothing}}) 'nowhere/nothing))
+(println (contains? (stest/checkable-syms {:spec {'nowhere/nothing (s/fspec :args (s/cat :x int?))}})
+                    'nowhere/nothing))
+(println (try (stest/checkable-syms {:gen {"not-an-ident" nil}})
+              (catch Throwable _ :asserted)))
+
+(println (contains? (stest/enumerate-namespace 'user) `ranged-rand))
+(println (contains? (stest/enumerate-namespace 'user) `caller-file))
+(println (contains? (stest/enumerate-namespace '[user clojure.string]) 'clojure.string/join))
+(println (contains? (stest/enumerate-namespace 'clojure.string) 'clojure.string/join))
+(println (every? qualified-symbol? (stest/enumerate-namespace 'clojure.string)))
+
+(println "=== 14. instrument/unstrument over a collection ===")
+
+(println (sort (stest/instrument [`adder `over `just-varargs])))
+(println (try (adder 1 :nope) (catch Throwable _ :threw)))
+(println (try (over :not-an-int) (catch Throwable _ :threw)))
+(println (sort (stest/unstrument [`adder `over `just-varargs])))
+(println (adder 1 2))
+
+;; a symbol naming nothing instrumentable is silently skipped
+(println (stest/instrument 'nowhere/nothing))
+(println (stest/unstrument 'nowhere/nothing))
+
+;; no-arg unstrument sweeps whatever is left instrumented
+(println (sort (stest/instrument [`adder `stubbed])))
+(println (sort (stest/unstrument)))
+(println (adder 1 2))

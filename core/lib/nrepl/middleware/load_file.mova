@@ -1,0 +1,17 @@
+;; Mova-level stand-in for the built-in nREPL middleware of the same name: the real
+;; work is native. It carries the descriptor so user middleware can order itself
+;; against it (`:requires` / `:expects`, var or op name) and `describe` lists it.
+(ns nrepl.middleware.load-file
+  (:require [nrepl.middleware :refer [set-descriptor!]]
+            [nrepl.middleware.caught :as caught]
+            [nrepl.middleware.print :as print]))
+
+(defn wrap-load-file
+  "Native; this wrapper passes every message on."
+  [h]
+  h)
+
+(set-descriptor! #'wrap-load-file
+                 {:requires #{#'caught/wrap-caught #'print/wrap-print}
+                  :expects #{"eval"}
+                  :handles {"load-file" {}}})

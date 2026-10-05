@@ -1,0 +1,15 @@
+[package]
+name = "mova-nrepl"
+version = "0.1.0"
+edition = "2021"
+license = "EPL-1.0"
+description = "nREPL server for Mova: wire layer (IO thread, bencode, sessions, router). std + libc only; no dependency on the interpreter."
+
+[dependencies]
+libc = "0.2"
+rustls = { version = "0.23", optional = true, default-features = false, features = ["ring", "std", "tls12"] }
+
+[features]
+# TLS (`--tls-keys-file`, `--tls-keys-str`). Off by default: the default build
+# has no extra dependency and starts as fast as before.
+tls = ["dep:rustls"]

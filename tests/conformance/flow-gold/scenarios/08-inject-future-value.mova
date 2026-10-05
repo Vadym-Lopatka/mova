@@ -1,0 +1,42 @@
+;;RUNS 5
+;; scenario 08: RESULT of dereffing an inject future's VALUE (gold:
+;; FutureTask wraps `doseq` over the msgs, which itself returns nil; mova:
+;; the injecting thread resolves the future to Value::Nil explicitly --
+;; both -> nil). Also: inject to a nonexistent in-port must error
+;; SYNCHRONOUSLY on the calling thread on both sides (gold: impl.clj:194
+;; `spi/get-write-chan` is called OUTSIDE the futurized do-io, so a bad
+;; coord throws before any future is even created; mova: flow.rs:3079
+;; `initial_ins.get(...).ok_or_else(...)` returns an `Err` before spawning
+;; the inject thread) -- print PASS if the error is signaled at all; the
+;; error SHAPES differ (gold ex-info vs mova {:message ...}) so no
+;; structural inspection of the caught value is portable, presence only.
+
+(def out-ch (chan 20))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:s {:proc (flow/process sink-step)}}
+          :conns []}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(def fut (flow/inject fl [:s :in] [1 2 3]))
+(println "RESULT future?" (future? fut))
+(def fut-value (deref fut 5000 :timed-out))
+(println "RESULT deref-value" (pr-str fut-value))
+(println (if (nil? fut-value) "PASS inject-future-resolves-nil" "FAIL inject-future-resolves-nil"))
+(def drained (deref (future (vec (repeatedly 3 #(<!! out-ch)))) 5000 :timed-out))
+(println (if (= drained [1 2 3]) "PASS messages-still-delivered" "FAIL messages-still-delivered"))
+
+(try
+  (flow/inject fl [:s :nonexistent-port] [1])
+  (println "FAIL inject-nonexistent-port-errors no-error-signaled")
+  (catch Exception e
+    (println "PASS inject-nonexistent-port-errors")))
+
+(flow/stop fl)

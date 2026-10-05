@@ -1,0 +1,29 @@
+;; metadata.corpus -- what's LEFT of the meta/with-meta/vary-meta/
+;; alter-meta!/reset-meta! gap after S5/M3 implemented the subsystem.
+;; The 21 forms that now agree with real Clojure 1.13.0-alpha6 were
+;; promoted to tests/conformance/corpus/metadata.corpus; these five are
+;; the remainder, and they fall into exactly two groups.
+;;
+;; GROUP 1 -- non-IObj `with-meta` (4 forms). mova throws on every one of
+;; these, and so does Clojure, so they are ERR-BOTH rather than a real
+;; behavioral gap: what is still missing is the exception TAXONOMY (see
+;; tests/pending_conformance_test.rs's `ErrBoth` doc -- mova has no
+;; exception classes, so "both threw" cannot yet be proven to be the same
+;; throw). The distinction these forms pin is worth keeping: `nil` throws
+;; NullPointerException while the others throw ClassCastException, because
+;; Clojure dereferences a null `x` in `((IObj) x).withMeta(m)` before any
+;; cast can fail. src/builtins/meta.rs keeps the two messages distinct so
+;; the taxonomy pass has the distinction already made.
+(with-meta 1 {:a 1})
+(with-meta :kw {:a 1})
+(with-meta nil {:a 1})
+;; the atom trap: IReference (alter-meta!/reset-meta! work -- both of
+;; those forms conform now and were promoted) but NOT IObj.
+(with-meta (atom 1) {:a 1})
+;; GROUP 2 -- `def`'s RETURN VALUE, which is not a metadata gap at all.
+;; Clojure's `def`/`defn` return the VAR (`#'user/metatag-fn`); mova
+;; returns the defined value. The metadata half of this form already
+;; works -- `(:foo (meta (var metatag-fn)))` is `true` in mova and was
+;; promoted -- so all that is left here is the def-return-value
+;; divergence, which belongs to whoever owns `def`/var semantics.
+(defn ^:foo metatag-fn [] 1)

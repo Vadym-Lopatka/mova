@@ -1,0 +1,76 @@
+;;RUNS 5
+;; 09-transform-error-contract: a step's :transform throws on a marker
+;; message (:boom); the scenario reads the resulting error-chan entry and
+;; prints only the NORMALIZED surface both sides agree on:
+;;   - presence of every standard field
+;;     (:clojure.core.async.flow/{pid,status,state,count,cid,msg,op,ex})
+;;   - the VALUES of :pid/:cid/:msg/:op only (never :status/:state/:count/
+;;     :ex -- gold's :ex is a Throwable, mova's is {:message ...}, so only
+;;     PRESENCE of :ex is checked, never its content)
+;;   - :op must be the literal keyword :step on both sides (this corpus's
+;;     recon already fixed mova to match gold here -- see
+;;     tests/conformance/DEVIATIONS.md:46-50)
+;; The step's :out payload is the counter VALUE (:n), not the raw message,
+;; so the "state kept across an error" contract becomes a plain integer
+;; comparison: two successful messages bring :n to 2, the error leaves it
+;; at 2 (never resets to 0), and the next successful message continues
+;; from there (:n -> 3) instead of restarting.
+;; Probed directly against both sides (mova via the prebuilt embed
+;; binary, gold via the exact `clojure -Sdeps ... -M` invocation
+;; tools/gen-flow-gold.bb uses): output below is byte-identical on both,
+;; 5/5 runs each side, so this is a NORMAL (non-;;DIVERGENT) scenario.
+
+(def step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :init (fn [_] {:n 0})
+    :transform (fn [s _ m]
+                 (if (= m :boom)
+                   (throw (ex-info "deliberate" {}))
+                   (let [s2 (update s :n inc)]
+                     [s2 {:out [(:n s2)]}])))}))
+
+(def out-ch (chan 10))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process step)}
+                  :s {:proc (flow/process sink)}}
+          :conns [[[:p :out] [:s :in]]]}))
+(def chans (flow/start fl))
+(flow/resume fl)
+
+;; establish pre-error state: two successful messages -> :n = 2
+(flow/inject fl [:p :in] [1 2])
+(def first-out [(<!! out-ch) (<!! out-ch)])
+(println "RESULT pre-error-outputs" (pr-str first-out))
+
+;; trigger the error
+(flow/inject fl [:p :in] [:boom])
+(def err (deref (future (<!! (:error-chan chans))) 10000 :timed-out))
+(if (= err :timed-out)
+  (println "FAIL error-chan-read timed-out")
+  (println "PASS error-chan-read"))
+
+(println "RESULT err-pid" (pr-str (:clojure.core.async.flow/pid err)))
+(println "RESULT err-cid" (pr-str (:clojure.core.async.flow/cid err)))
+(println "RESULT err-msg" (pr-str (:clojure.core.async.flow/msg err)))
+(println "RESULT err-op" (pr-str (:clojure.core.async.flow/op err)))
+(println "RESULT err-has-status" (contains? err :clojure.core.async.flow/status))
+(println "RESULT err-has-state" (contains? err :clojure.core.async.flow/state))
+(println "RESULT err-has-count" (contains? err :clojure.core.async.flow/count))
+(println "RESULT err-has-ex" (contains? err :clojure.core.async.flow/ex))
+
+;; state-kept contract: next successful message continues counting from
+;; 2, not 0 -- the transform sends (:n s2) itself, so this is a plain int.
+(flow/inject fl [:p :in] [10])
+(def post-error (deref (future (<!! out-ch)) 10000 :timed-out))
+(if (= post-error :timed-out)
+  (println "FAIL post-error-read timed-out")
+  (println "RESULT post-error-output" (pr-str post-error)))
+
+(flow/stop fl)

@@ -1,0 +1,15 @@
+OK	1
+OK	[1 2 {:a 1, :b 2, :c 3, :d 4}]
+OK	1
+OK	{}
+OK	{:a 1}
+OK	{:a 1, :b 2}
+OK	[5 {:a 5}]
+OK	[{:point {:x 1}} {:x 1}]
+OK	[{:point {:x 1, :y 2}} {:x 1, :y 2}]
+OK	5
+OK	1
+OK	[1 2]
+OK	[1 2]
+OK	1
+OK	[1 2]

@@ -1,0 +1,22 @@
+{
+ :empty-loop {:mova 2.6 :jvm 0.7},
+ :call-0arg {:mova 134.8 :jvm 3.7},
+ :call-1arg {:mova 172.2 :jvm 3.7},
+ :call-3arg {:mova 242.7 :jvm 2.2},
+ :call-local-fn {:mova 212.7 :jvm 1.5},
+ :call-closure-capture {:mova 183.7 :jvm 3.5},
+ :call-multi-arity {:mova 191.3 :jvm 4.3},
+ :call-variadic {:mova 317.9 :jvm 1.9},
+ :var-deref {:mova 218.2 :jvm 7.4},
+ :kw-get-4map {:mova 124.9 :jvm 4.0},
+ :get-4map {:mova 133.5 :jvm 4.0},
+ :assoc-4map {:mova 240.5 :jvm 14.9},
+ :conj-vector {:mova 232.2 :jvm 8.7},
+ :let-binding {:mova 159.0 :jvm 0.8},
+ :destructure-keys {:mova 169.9 :jvm 10.6},
+ :protocol-call {:mova 337.0 :jvm 2.1},
+ :multimethod {:mova 363.6 :jvm 8.2},
+ :instance? {:mova 145.6 :jvm 0.9},
+ :lazy-map-per-elem {:mova 1140.9 :jvm 57.7},
+ :reduce-per-step {:mova 210.9 :jvm 18.1}
+}

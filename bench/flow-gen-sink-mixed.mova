@@ -1,0 +1,49 @@
+;; flow-gen-sink-mixed.mova -- the native-step tier's MIXED row (N3, see
+;; NATIVE-STEP-DESIGN.md): a native source and a native sink bracketing ONE
+;; interpreted user fn running through `flow/step-map` -- the shape every
+;; real flow program actually has (native plumbing, user logic in the
+;; middle), as opposed to flow-gen-sink-native.mova's headline row, which is
+;; entirely closed (zero interp/msg end to end) and therefore an upper
+;; bound no real program with user logic can reach.
+;;
+;;   gen  = (flow/step-source tick)      + (flow/feed-range! tick N)
+;;   mid  = (flow/step-map inc-fn)       -- inc-fn is an ordinary mova fn,
+;;                                          ONE interpreter (or compiled)
+;;                                          call per message
+;;   sink = (flow/step-sink-deliver N done)
+;;
+;; All three procs still qualify for promotion (single in-port, <=1
+;; out-port, no ::flow/input-filter, every step-fn carries a StepFactory),
+;; so every proc runs run_proc_fast -- `step-map`'s own per-message cost is
+;; exactly `Interp::call(inc-fn, [msg])` plus the FastOut plumbing, with NO
+;; wrapper-closure call and NO `[state {out-id [msgs]}]` result-vector
+;; parsing (that's the whole win over a `map->step`-built equivalent, see
+;; flow_steps.rs's step-map doc). NEVER compare this row against
+;; flow-gen-sink-native.mova's number as if they measured the same thing:
+;; that one has NO interpreter entry per message at all; this one has
+;; exactly one.
+;;
+;;   ./target/release/mova bench/flow-gen-sink-mixed.mova
+
+(def N 500000)
+(def done (promise))
+(def tick (chan 1024))
+
+(defn inc-fn [x] (inc x))
+
+(def fl (flow/create-flow
+         {:procs {:gen {:proc (flow/process (flow/step-source tick))}
+                  :mid {:proc (flow/process (flow/step-map inc-fn))}
+                  :sink {:proc (flow/process (flow/step-sink-deliver N done))}}
+          :conns [[[:gen :out] [:mid :in]]
+                  [[:mid :out] [:sink :in]]]}))
+
+(def t0 (time-ms))
+(flow/start fl)
+(flow/resume fl)
+(flow/feed-range! tick N)
+(deref done)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-gen-sink-mixed" N elapsed rate)
+(flow/stop fl)

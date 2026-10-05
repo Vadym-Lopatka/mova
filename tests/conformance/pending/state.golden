@@ -1,0 +1,25 @@
+OK	true
+OK	"x"
+OK	#'user/wlog
+OK	#'user/wa
+OK	:watched
+OK	[[0 1]]
+OK	:unwatched
+OK	[[0 1]]
+OK	#'user/cs
+OK	true
+OK	2
+OK	false
+OK	2
+OK	#'user/svs
+OK	#'user/v
+OK	#'user/ag
+OK	:sent
+OK	nil
+OK	1
+OK	#'user/f1
+OK	true
+OK	false
+OK	false
+OK	#'user/lockobj
+OK	"hi"

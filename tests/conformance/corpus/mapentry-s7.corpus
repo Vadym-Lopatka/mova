@@ -1,0 +1,179 @@
+;; mapentry-s7.corpus -- S7 wave-C item 8: mova's real, Rust-native
+;; `clojure.lang.MapEntry` value (`Value::MapEntry`, src/value.rs).
+;;
+;; Two DEVIATIONS.md rows died to make this file (classrows-s6.corpus:30's
+;; `instance? clojure.lang.IMapEntry` and s6-closer.corpus:24's
+;; `map-entry?`, both previously honest-`false` because mova's map entries
+;; were plain `Value::Vector`s indistinguishable from a `[:a 1]` literal).
+;; This corpus locks in what replaced them: an entry that IS the 2-vector
+;; for `=`/`hash`/`compare`/`nth`/`seq`/print, ANSWERS honestly for
+;; `map-entry?`/`instance?`/`class`, and PROMOTES to a plain vector under
+;; every growing/shrinking op.
+;;
+;; Full ground-truth matrix (~220 measured oracle rows, including the ones
+;; mova deliberately does NOT reproduce): compat/mapentry-probe.clj +
+;; compat/mapentry-probe2.clj and their compat/mapentry-oracle-transcript*
+;; .txt transcripts. Rows deliberately kept OUT of this file, with reasons:
+;;   - sorted-map entry class: the JVM leaks its red-black node class
+;;     (`PersistentTreeMap$BlackVal`); mova says `MapEntry`. `map-entry?`
+;;     is `true` on both sides, which is what walk/the suite dispatch on.
+;;   - `(class (seq entry))` / `(class (subvec entry 1))`: mova has no
+;;     ChunkedSeq/SubVector classes at all (pre-existing, unrelated).
+;;   - every `(try .. (catch Throwable e (.getSimpleName (class e))))` row:
+;;     mova has no exception taxonomy yet (M8) -- both sides throw, which
+;;     is all `tests/conformance_test.rs` compares today anyway.
+;;   - `.count`/`.nth`/`.setValue` dot-methods: no vendored-suite call
+;;     site, so unmeasured surface per the design directive.
+
+;; -- class / type --
+(class (first {:a 1}))
+(class (find {:a 1} :a))
+(class (find [10 20] 1))
+(class [:a 1])
+(class (conj (first {:a 1}) :x))
+(class (assoc (first {:a 1}) 0 :z))
+(class (pop (first {:a 1})))
+(class (vec (first {:a 1})))
+(class (first (into [] {:a 1})))
+(class (empty (first {:a 1})))
+
+;; -- `=` and hash, both directions, plus key-lookup interop --
+(= (first {:a 1}) [:a 1])
+(= [:a 1] (first {:a 1}))
+(= (hash (first {:a 1})) (hash [:a 1]))
+(= (first {:a 1}) '(:a 1))
+(= #{[:a 1]} #{(first {:a 1})})
+(get {[:a 1] :hit} (first {:a 1}))
+(compare (first {:a 1}) [:a 1])
+
+;; -- the predicate battery, including the boundary that must stay false --
+(map-entry? (first {:a 1}))
+(map-entry? (first (sorted-map :a 1)))
+(map-entry? (first (seq {:a 1})))
+(map-entry? (clojure.lang.MapEntry/create :a 1))
+(map-entry? [:a 1])
+(map-entry? nil)
+(instance? clojure.lang.IMapEntry (first {:a 1}))
+(instance? clojure.lang.IMapEntry [:a 1])
+(instance? clojure.lang.IMapEntry {:a 1})
+(instance? java.util.Map$Entry (first {:a 1}))
+(instance? clojure.lang.IPersistentVector (first {:a 1}))
+(vector? (first {:a 1}))
+(sequential? (first {:a 1}))
+(coll? (first {:a 1}))
+(counted? (first {:a 1}))
+(indexed? (first {:a 1}))
+(seqable? (first {:a 1}))
+(ifn? (first {:a 1}))
+(seq? (first {:a 1}))
+(list? (first {:a 1}))
+(map? (first {:a 1}))
+
+;; -- key / val --
+(key (first {:a 1}))
+(val (first {:a 1}))
+(key (first (sorted-map :a 1)))
+(val (find [10 20] 1))
+(.key (first {:a 1}))
+(.val (first {:a 1}))
+(.getKey (first {:a 1}))
+(.getValue (first {:a 1}))
+
+;; -- indexed reads --
+(nth (first {:a 1}) 0)
+(nth (first {:a 1}) 1)
+(nth (first {:a 1}) 2 :dflt)
+(nth (first {:a 1}) -1 :dflt)
+(get (first {:a 1}) 0)
+(get (first {:a 1}) 1)
+(get (first {:a 1}) 2)
+(get (first {:a 1}) :missing :dflt)
+(contains? (first {:a 1}) 0)
+(contains? (first {:a 1}) 2)
+((first {:a 1}) 0)
+((first {:a 1}) 1)
+(peek (first {:a 1}))
+
+;; -- seq view --
+(seq (first {:a 1}))
+(first (first {:a 1}))
+(second (first {:a 1}))
+(last (first {:a 1}))
+(next (first {:a 1}))
+(rest (first {:a 1}))
+(rseq (first {:a 1}))
+(reverse (first {:a 1}))
+(count (first {:a 1}))
+(vec (first {:a 1}))
+(into [] (first {:a 1}))
+(apply vector (first {:a 1}))
+(apply hash-map (first {:a 1}))
+(reduce conj [] (first {:a 1}))
+(map identity (first {:a 1}))
+(apply str (first {:a 1}))
+(flatten [(first {:a 1})])
+
+;; -- promotion under every growing/shrinking op --
+(conj (first {:a 1}) :x)
+(assoc (first {:a 1}) 0 :z)
+(assoc (first {:a 1}) 1 :z)
+(assoc (first {:a 1}) 2 :z)
+(update (first {:a 1}) 1 inc)
+(pop (first {:a 1}))
+(subvec (first {:a 1}) 1)
+(empty (first {:a 1}))
+
+;; -- entries flowing back into maps, and out again --
+(into {} [(first {:a 1})])
+(into (sorted-map) (seq {:a 1 :b 2}))
+(into [] {:a 1})
+(conj {} (first {:a 1}))
+(conj [] (first {:a 1}))
+(into (sorted-map) [(clojure.lang.MapEntry/create :a 1)])
+
+;; -- destructuring --
+(let [[k v] (first {:a 1})] [k v])
+(let [e (first {:a 1})] [(key e) (val e)])
+(map (fn [[k v]] [v k]) (into (sorted-map) {:a 1 :b 2}))
+
+;; -- print --
+(pr-str (first {:a 1}))
+(str (first {:a 1}))
+(pr-str [(first {:a 1})])
+(pr-str (clojure.lang.MapEntry/create :a 1))
+
+;; -- materialization: plain `reduce` over a map DOES yield entries on the
+;; -- JVM (only `reduce-kv` skips them); every lazy/transducing seq op
+;; -- preserves them.
+(reduce (fn [acc e] (conj acc (map-entry? e))) [] {:a 1})
+(reduce (fn [acc e] (conj acc (class e))) [] {:a 1})
+(reduce (fn [acc e] (conj acc (class e))) [] (seq {:a 1}))
+(reduce-kv (fn [acc k v] (conj acc k v)) [] {:a 1})
+(class (first (map identity {:a 1})))
+(class (first (filter (constantly true) {:a 1})))
+(class (first (take 1 {:a 1})))
+(class (first (sequence (map identity) {:a 1})))
+(class (first (keys {:a 1})))
+(class (first (vals {:a 1})))
+
+;; -- the static factory clojure/walk.clj calls --
+(clojure.lang.MapEntry/create :a 1)
+(= (clojure.lang.MapEntry/create :a 1) [:a 1])
+(key (clojure.lang.MapEntry/create :a 1))
+(val (clojure.lang.MapEntry/create :a 1))
+
+;; -- the lazy-value-entry bug this branch FIXED as a side effect --
+;; mova encodes a lazy seq's cons cell as a 2-element collection whose
+;; second slot is a `Value::Lazy`, and `uncons`/`count` special-case that
+;; shape. Before S7 a map entry WAS that shape, so an entry whose VALUE
+;; happened to be lazy was silently read as a cons cell: measured on the
+;; pre-branch binary, `(count (first {:a (lazy-seq [1 2])}))` was `3` and
+;; `(second ..)` was `1`. `Value::MapEntry` gets its own `uncons`/`count`
+;; arms with no lazy-tail guard (its two-slot invariant is structural), so
+;; both now match the oracle.
+(count (first {:a (lazy-seq [1 2])}))
+(key (first {:a (lazy-seq [1 2])}))
+(pr-str (val (first {:a (lazy-seq [1 2])})))
+(pr-str (first (first {:a (lazy-seq [1 2])})))
+(pr-str (second (first {:a (lazy-seq [1 2])})))
+(map-entry? (first {:a (lazy-seq [1 2])}))

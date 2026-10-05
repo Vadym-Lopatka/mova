@@ -1,0 +1,53 @@
+;; collections.corpus -- collection TYPES mova lacks entirely: array-map
+;; (with 1.13's raised keyword-key growth threshold -- an array-map with 9
+;; keyword keys stays a PersistentArrayMap in real Clojure 1.13, where
+;; older Clojure would have promoted it to a hash-map), and
+;; clojure.lang.PersistentQueue. Also transient-collection semantics:
+;; disj!/dissoc!/pop!, reuse of a transient AFTER persistent! (Clojure
+;; throws IllegalAccessError; mova silently keeps mutating it), and
+;; transient on a type that doesn't support it (Clojure throws
+;; ClassCastException; mova silently hands back the original collection
+;; unchanged). All forms self-contained (no cross-form session state).
+;;
+;; compat/s4-sorted-vecof (2026-08-20): sorted-map/-by, sorted-set/-by,
+;; subseq, rsubseq, rseq, sorted?, and vector-of all now conform -- moved
+;; to tests/conformance/corpus/sorted-colls.corpus.
+;;
+;; compat/c10-datastructures (2026-08-21): clojure.lang.PersistentQueue
+;; (Value::Queue, a Rust-native FIFO) and `set?` on a sorted-set now
+;; conform -- both moved to tests/conformance/corpus/collections.corpus.
+
+;; -- array-map, 1.13 keyword-key threshold --
+;; C2 (defstruct): `array-map` itself now exists in mova (added alongside
+;; struct-maps -- the vendored data_structures.clj's own struct-vs-other-
+;; map-classes `are` test calls it directly), but mova's `class`/`type`
+;; still reports it via the generic `m.len() <= 8` size threshold
+;; (`types::builtin_class_name`), not "real array-map, stays
+;; PersistentArrayMap regardless of size" -- so `(type ...)` on a 9-key
+;; array-map STILL diverges (mova says PersistentHashMap, oracle says
+;; PersistentArrayMap). `(count ...)` on the very same form now conforms
+;; (promoted to tests/conformance/corpus/collections.corpus).
+(type (array-map :a 1 :b 2 :c 3 :d 4 :e 5 :f 6 :g 7 :h 8 :i 9))
+
+;; -- transients: missing ops -- ALL PROMOTED (W3d): `pop!`/`dissoc!`/
+;; `disj!` now exist in core.mova, aliased to their persistent
+;; counterparts like `conj!`/`assoc!` before them; the three forms moved
+;; to corpus/collections.corpus's tail.
+
+;; -- transients: silent wrongness --
+(let [t (transient [1 2 3])] (persistent! t) (conj! t 4))
+(transient (list 1 2 3))
+(transient (range 5))
+
+;; -- S7 (MapEntry branch, found while closing clojure_walk.clj) --
+;; `builtins/predicates.rs`'s `coll?`/`map?`/`set?`/`seqable?` were never
+;; extended to S4's sorted/typed collection variants, even though
+;; `types.rs`'s OWN `is_coll`/`is_map`/`is_set` (which back `instance?
+;; clojure.lang.IPersistentCollection` etc) were -- so the two registries
+;; disagree with each other and with the oracle. This is what the last 4
+;; failing assertions of `tests/clojure-suite/vendor/clojure_walk.clj`'s
+;; `walk` deftest are: `clojure/walk.clj`'s `(coll? form)` branch is never
+;; taken for a sorted map/set, so `walk` falls to `:else (outer form)` and
+;; never applies `inner` (measured: 6 where the oracle gives 9, 60 where it
+;; gives 63). Unrelated to MapEntry -- entered here rather than fixed in
+;; that branch so its bench/suite evidence stays attributable.

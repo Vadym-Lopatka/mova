@@ -1,0 +1,9 @@
+OK	true
+OK	false
+ERR	{:message "compare: cannot compare keyword and string", :type :error/type}
+OK	0
+ERR	{:message "compare: cannot compare keyword and string", :type :error/type}
+OK	7541581120933061747
+OK	-8685015344439118686
+OK	:marker
+OK	true

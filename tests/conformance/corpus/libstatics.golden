@@ -1,0 +1,44 @@
+OK	true
+OK	false
+OK	false
+OK	true
+OK	true
+OK	true
+OK	false
+OK	true
+OK	3
+OK	0
+OK	-1023
+OK	3
+OK	1024
+OK	1024
+OK	1024
+OK	63
+OK	64
+OK	0
+OK	1
+OK	true
+OK	true
+OK	true
+OK	false
+OK	false
+OK	-9223372036854775808
+OK	0
+OK	-1
+OK	-2
+OK	1
+OK	"5"
+OK	"true"
+OK	"false"
+OK	"a"
+OK	"1.5"
+OK	"hi"
+ERR	NullPointerException
+OK	["msg1" true true true true false]
+OK	[nil true true]
+OK	["rt-msg" nil true]
+OK	["exc-msg" nil true false]
+OK	"boom"
+OK	"kaboom"
+OK	"m"
+OK	{:a 2}

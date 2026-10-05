@@ -1,0 +1,6 @@
+# M8: mimalloc arena slices (= small pages) of 16 KiB instead of 64 KiB on
+# Apple silicon: one long-lived block now pins one OS page (16 KiB), not four.
+# clojure-lsp lib/ end-of-session footprint ~330 -> ~250 MB. Read by cc in
+# libmimalloc-sys's build script (only C dependency built for this target).
+[env]
+CFLAGS_aarch64_apple_darwin = "-DMI_ARENA_SLICE_SHIFT=14"

@@ -1,0 +1,67 @@
+;;RUNS 5
+;; 15-ping-shape: ping a proc while paused (right after flow/start, before
+;; resume) and again while running (after processing a few messages).
+;; Prints ONLY normalized fields, per SPEC.md's catalog note: status
+;; value, count value, presence of :ins/:outs/:state (via contains?), and
+;; the CARDINALITY of :ins/:outs (via count, which works uniformly on a
+;; map OR a vector -- see below) -- never the raw :ins/:outs value itself.
+;;
+;; Recon flagged possible divergence here ("mova's :ins/:outs values are
+;; vectors + includes :state? -- VERIFY"). Probed and confirmed BOTH
+;; halves of that: gold's pong assoc's `:state` unconditionally too
+;; (`(ping-map-fn state)`, impl.clj's `run`), so :state presence is NOT
+;; divergent, it's always present on both sides. And gold's :ins/:outs
+;; VALUES genuinely are maps of io-id->channel (walked by `datafy`, which
+;; leaves a channel object unchanged since it has no Datafiable impl) --
+;; while mova's are vectors of io-id keywords (`build_ping_reply_params`,
+;; src/builtins/flow.rs) -- a real shape difference, but `count` reports
+;; the same cardinality against a map OR a vector, so this scenario never
+;; actually exposes the shape difference: every printed line below came
+;; back byte-identical, 5/5 runs each side. Normal (non-;;DIVERGENT)
+;; scenario -- see FINDINGS.md for the fuller probe writeup.
+
+(def step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :init (fn [_] {:n 0})
+    :transform (fn [s _ m] [(update s :n inc) {:out [m]}])}))
+
+(def sink-ch (chan 10))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! sink-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process step)} :s {:proc (flow/process sink)}}
+          :conns [[[:p :out] [:s :in]]]}))
+(def chans (flow/start fl))
+
+(def paused-reply (flow/ping-proc fl :p 2000))
+(println "RESULT paused-status" (pr-str (:clojure.core.async.flow/status paused-reply)))
+(println "RESULT paused-count" (pr-str (:clojure.core.async.flow/count paused-reply)))
+(println "RESULT paused-has-ins" (contains? paused-reply :clojure.core.async.flow/ins))
+(println "RESULT paused-has-outs" (contains? paused-reply :clojure.core.async.flow/outs))
+(println "RESULT paused-has-state" (contains? paused-reply :clojure.core.async.flow/state))
+(println "RESULT paused-ins-count" (count (:clojure.core.async.flow/ins paused-reply)))
+(println "RESULT paused-outs-count" (count (:clojure.core.async.flow/outs paused-reply)))
+
+(flow/resume fl)
+(deref (flow/inject fl [:p :in] [1 2 3]))
+
+;; Delivery is guaranteed by design, so a plain blocking drain is safe
+;; (same convention as 00-smoke.mova).
+(def drained (vec (repeatedly 3 #(<!! sink-ch))))
+(println "RESULT drained" (pr-str drained))
+
+(def running-reply (flow/ping-proc fl :p 2000))
+(println "RESULT running-status" (pr-str (:clojure.core.async.flow/status running-reply)))
+(println "RESULT running-count" (pr-str (:clojure.core.async.flow/count running-reply)))
+(println "RESULT running-has-ins" (contains? running-reply :clojure.core.async.flow/ins))
+(println "RESULT running-has-outs" (contains? running-reply :clojure.core.async.flow/outs))
+(println "RESULT running-has-state" (contains? running-reply :clojure.core.async.flow/state))
+(println "RESULT running-ins-count" (count (:clojure.core.async.flow/ins running-reply)))
+(println "RESULT running-outs-count" (count (:clojure.core.async.flow/outs running-reply)))
+
+(flow/stop fl)

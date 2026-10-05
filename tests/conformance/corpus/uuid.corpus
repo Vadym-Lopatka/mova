@@ -1,0 +1,38 @@
+;; uuid.corpus -- S6 (assert/namespace/uuid batch): `java.util.UUID` --
+;; `#uuid "..."` literal, `java.util.UUID/randomUUID`, `java.util.UUID/
+;; fromString`, `uuid?`. See `Value::Uuid`'s own doc (src/value.rs) for the
+;; representation and `hostclass.rs`'s doc for why `java.util.UUID` needed
+;; no new HostKind (it's a distinct, non-`HostInst` `Value` variant).
+;;
+;; Deliberately avoids ever PRINTING a raw `(java.util.UUID/randomUUID)`
+;; result -- its bits are genuinely random, so no golden could ever pin
+;; them (same "never assert #object[..." style exclusion nsfns.corpus's
+;; header documents for JVM-identity-hash prints). Every random-producing
+;; form below only asserts a DETERMINISTIC property of the random result
+;; (its class, its printed length, that two independent draws differ) --
+;; never the value itself. The deterministic-content forms all key off one
+;; FIXED literal UUID (`550e8400-...`, the well-known RFC 4122 example)
+;; instead.
+#uuid "550e8400-e29b-41d4-a716-446655440000"
+(pr-str #uuid "550e8400-e29b-41d4-a716-446655440000")
+(str #uuid "550e8400-e29b-41d4-a716-446655440000")
+(uuid? #uuid "550e8400-e29b-41d4-a716-446655440000")
+(class #uuid "550e8400-e29b-41d4-a716-446655440000")
+(= #uuid "550e8400-e29b-41d4-a716-446655440000" (java.util.UUID/fromString "550e8400-e29b-41d4-a716-446655440000"))
+(= (hash #uuid "550e8400-e29b-41d4-a716-446655440000") (hash (java.util.UUID/fromString "550e8400-e29b-41d4-a716-446655440000")))
+(= #uuid "550e8400-e29b-41d4-a716-446655440000" #uuid "550E8400-E29B-41D4-A716-446655440000")
+(pr-str (java.util.UUID/fromString "550E8400-E29B-41D4-A716-446655440000"))
+(= #uuid "550e8400-e29b-41d4-a716-446655440000" #uuid "00000000-0000-0000-0000-000000000000")
+(uuid? "550e8400-e29b-41d4-a716-446655440000")
+(uuid? 5)
+(uuid? nil)
+;; random UUID: only deterministic properties of a random draw.
+(uuid? (java.util.UUID/randomUUID))
+(class (java.util.UUID/randomUUID))
+(count (str (java.util.UUID/randomUUID)))
+(= (java.util.UUID/randomUUID) (java.util.UUID/randomUUID))
+;; malformed #uuid content: throws at READ time on both sides (routed
+;; through `read-string` so the corpus line itself stays a single valid
+;; top-level form -- see `reader.rs`'s `read_uuid_literal` doc).
+(read-string "#uuid [1 2]")
+(read-string "#uuid \"not-a-uuid\"")

@@ -1,0 +1,84 @@
+;; Micro-probe for the FieldGet inline cache.
+;; Reproduces exactly the shapes that dominate transducers.clj's 83.75M
+;; escape-execs: test.check's RoseTree accessors and constructor.
+;;
+;;   root       (.-root rose)         27,614,772 escapes
+;;   children   (.-children rose)     15,874,420 escapes
+;;   make-rose  (RoseTree. r c)       27,944,151 escapes
+;;   make-gen   (Generator. g)        12,319,375 escapes
+;;
+;; EVERY timed loop lives inside a `defn`, because a top-level `loop` is
+;; tree-walked -- the compiled tier only ever sees fn bodies, and it is the
+;; compiled tier this probe is about.
+;;
+;; N=... overrides the iteration count.
+
+(deftype RoseTree [root children])
+(defrecord Gen [gen])
+(deftype Other [root extra])
+
+(defn rt-root [^RoseTree rose] (.-root rose))
+(defn rt-children [^RoseTree rose] (.-children rose))
+(defn rt-root-unhinted [rose] (.-root rose))
+(defn make-rose [root children] (RoseTree. root children))
+
+(def N (if-let [n (getenv "N")] (parse-long n) 2000000))
+
+;; (1) hinted deftype field read -- the `root`/`children` shape
+(defn bench-read [n r]
+  (loop [i 0 acc 0]
+    (if (< i n) (recur (inc i) (+ acc (rt-root r))) acc)))
+
+;; (2) the same read with no type hint on the receiver
+(defn bench-unhinted [n r]
+  (loop [i 0 acc 0]
+    (if (< i n) (recur (inc i) (+ acc (rt-root-unhinted r))) acc)))
+
+;; (3) polymorphic site: two shapes alternating through ONE accessor.
+;; A small-bank IC must stay CORRECT here.
+(defn bench-poly [n r o]
+  (loop [i 0 acc 0]
+    (if (< i n)
+      (recur (inc i) (+ acc (rt-root-unhinted (if (even? i) r o))))
+      acc)))
+
+;; (4) record field read -- Gen is a defrecord, like test.check's Generator
+(defn gen-gen [^Gen g] (.-gen g))
+(defn bench-record [n g]
+  (loop [i 0 acc 0]
+    (if (< i n) (recur (inc i) (+ acc (gen-gen g))) acc)))
+
+;; (5) constructor -- the `make-rose`/`make-gen` shape (NOT specialized yet;
+;; here as the control that shows what an un-specialized escape still costs)
+(defn bench-ctor [n]
+  (loop [i 0 acc nil]
+    (if (< i n) (recur (inc i) (make-rose i acc)) i)))
+
+;; (6) the pure call+loop floor: same shape, no interop at all. The
+;; difference between this and (1) is what the field read itself costs.
+(defn plain-root [x] x)
+(defn bench-floor [n r]
+  (loop [i 0 acc 0]
+    (if (< i n) (recur (inc i) (+ acc (plain-root 1))) acc)))
+
+(defn timed [label f]
+  (let [t0 (time-ms)
+        v (f)
+        e (max 1 (- (time-ms) t0))]
+    (println label N e "ms" (quot (* N 1000) e) "ops/s" (quot (* e 1000000) N) "ns/op")
+    v))
+
+(def r (RoseTree. 1 2))
+(def o (Other. 10 20))
+(def g (Gen. 7))
+
+;; one untimed warmup of each, so first-call compile/fault-in costs stay out
+(bench-read 1000 r) (bench-unhinted 1000 r) (bench-poly 1000 r o)
+(bench-record 1000 g) (bench-ctor 1000) (bench-floor 1000 r)
+
+(timed "fg-read    " (fn [] (bench-read N r)))
+(timed "fg-unhinted" (fn [] (bench-unhinted N r)))
+(timed "fg-poly    " (fn [] (bench-poly N r o)))
+(timed "fg-record  " (fn [] (bench-record N g)))
+(timed "fg-ctor    " (fn [] (bench-ctor N)))
+(timed "fg-floor   " (fn [] (bench-floor N r)))

@@ -1,0 +1,44 @@
+;;RUNS 5
+;; 12-fanout-mult-order: one producer proc fans its single :out into TWO
+;; sinks (:a and :b) via two conns off the same [:p :out] coordinate --
+;; both sides build a native `mult` for this (`needs-mult?` on gold's
+;; side, an equivalent fan-out transport on mova's). Invariant: each
+;; sink independently sees every message, in the original order. A
+;; single flow/inject call gives within-call FIFO end-to-end (scenarios
+;; 01-03), so the expected sequence on both sinks is exactly (range N).
+
+(def N 100)
+
+(def producer
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(defn mk-sink [ch]
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! ch m) [s {}])}))
+
+(def a-ch (chan (+ N 10)))
+(def b-ch (chan (+ N 10)))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process producer)}
+                  :a {:proc (flow/process (mk-sink a-ch))}
+                  :b {:proc (flow/process (mk-sink b-ch))}}
+          :conns [[[:p :out] [:a :in]]
+                  [[:p :out] [:b :in]]]}))
+(def chans (flow/start fl))
+(flow/resume fl)
+(deref (flow/inject fl [:p :in] (vec (range N))))
+
+;; Delivery to both sinks is guaranteed by design (a single inject call,
+;; within-call FIFO end-to-end -- scenarios 01-03), so a plain blocking
+;; drain is safe, same convention as 00-smoke.mova.
+(def a-res (vec (repeatedly N #(<!! a-ch))))
+(def b-res (vec (repeatedly N #(<!! b-ch))))
+(def expected (vec (range N)))
+(println (if (= a-res expected) "PASS sink-a-order" (str "FAIL sink-a-order " (pr-str a-res))))
+(println (if (= b-res expected) "PASS sink-b-order" (str "FAIL sink-b-order " (pr-str b-res))))
+
+(flow/stop fl)

@@ -1,0 +1,18 @@
+;; Mova-level stand-in for the built-in nREPL middleware of the same name: the real
+;; work is native. It carries the descriptor so user middleware can order itself
+;; against it (`:requires` / `:expects`, var or op name) and `describe` lists it.
+(ns nrepl.middleware.completion
+  (:require [nrepl.middleware :refer [set-descriptor!]]))
+
+(def ^:dynamic *complete-fn* nil)
+
+(defn wrap-completion
+  "Native; this wrapper passes every message on."
+  [h]
+  h)
+
+(set-descriptor! #'wrap-completion
+                 {:requires #{"clone"}
+                  :expects #{}
+                  :handles {"completions" {}}
+                  :session-dynvars #{#'*complete-fn*}})

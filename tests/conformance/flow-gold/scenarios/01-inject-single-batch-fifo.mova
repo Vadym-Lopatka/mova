@@ -1,0 +1,45 @@
+;;RUNS 5
+;; scenario 01: one inject of (range 100) through a 3-proc pipeline;
+;; RESULT = the drained vector. Pins within-call FIFO end-to-end: a single
+;; `flow/inject` call puts its messages onto the target in-port strictly in
+;; order (both sides: gold impl.clj:190-197 `doseq` over `msgs`; mova
+;; flow.rs:3094 `for m in msgs` -- both single-threaded per-call loops), and
+;; a straight-through 3-proc chain with no fan-out/fan-in preserves that
+;; order end-to-end.
+;;
+;; Bounded-read idiom used throughout this corpus (see SPEC.md rule 6):
+;; `alts!!`/`a/alts!!` is NOT in the fixed JVM prelude's :refer list, so the
+;; portable bounded-read recipe is `(deref (future (<!! ch)) MS :sentinel)`
+;; -- `future`+`deref-with-timeout` are plain clojure.core, no require
+;; needed on either side, and both are confirmed portable by probe (see
+;; FINDINGS.md).
+
+(def out-ch (chan 200))
+
+(def pass-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p1 {:proc (flow/process pass-step)}
+                  :p2 {:proc (flow/process pass-step)}
+                  :p3 {:proc (flow/process sink-step)}}
+          :conns [[[:p1 :out] [:p2 :in]]
+                  [[:p2 :out] [:p3 :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+(def inject-fut (flow/inject fl [:p1 :in] (range 100)))
+(deref inject-fut 5000 :timed-out)
+
+(def result (deref (future (vec (repeatedly 100 #(<!! out-ch)))) 10000 :timed-out))
+(println "RESULT drained" (pr-str result))
+(println (if (= result (vec (range 100))) "PASS fifo-order" "FAIL fifo-order"))
+
+(flow/stop fl)

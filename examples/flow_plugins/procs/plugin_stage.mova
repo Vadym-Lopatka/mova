@@ -1,0 +1,81 @@
+;; procs/plugin_stage.mova -- the plugin manager AND applier, in one proc.
+;;
+;; This is the only file in the pipeline that knows plugins exist. It has
+;; TWO input ports (declared in :describe, wired up by topology.mova):
+;;
+;;   :in   data events flowing through the pipeline, each threaded through
+;;         every registered plugin fn in turn.
+;;   :ctl  control messages that CRUD the plugin registry itself. Plugin
+;;         lifecycle travels through the flow as ordinary messages on a
+;;         dedicated port -- not through some side channel the host reaches
+;;         into the proc's state with. That is the whole point of this
+;;         example.
+;;
+;; The registry lives in proc STATE as a VECTOR of `[name fn]` pairs (not a
+;; map) so registration order is preserved and visible in the `:active`
+;; ack and the `:via` trail stamped on every event. Re-registering a name
+;; removes the old entry and appends the new one at the end -- so an
+;; updated plugin moves to the back of the pipeline order, same as a fresh
+;; registration would.
+
+(defn remove-plugin
+  "Returns `plugins` (a vector of [name fn] pairs) with any entry named
+   `name` removed. Plain reduce+conj rather than a map/filter combinator,
+   per this dialect's proven-construct list."
+  [plugins name]
+  (reduce (fn [acc pair]
+            (if (= (first pair) name)
+              acc
+              (conj acc pair)))
+          []
+          plugins))
+
+(defn register-plugin
+  "Removes any existing entry for `name`, then appends `[name f]` -- so a
+   re-registration moves to the end of application order."
+  [plugins name f]
+  (conj (remove-plugin plugins name) [name f]))
+
+(defn apply-plugins
+  "Threads `ev` through every `[name fn]` pair in order. Each call is
+   wrapped in its own try/catch so ONE broken plugin can't kill this proc
+   or starve its neighbors downstream: on error, the plugin's name is
+   appended to `:plugin-errors` on the event and the PRE-error event
+   (untouched by the failing call) is what the next plugin sees."
+  [ev plugins]
+  (reduce (fn [acc pair]
+            (let [name (first pair)
+                  f (second pair)]
+              (try
+                (f acc)
+                (catch e
+                       (assoc acc :plugin-errors (conj (get acc :plugin-errors []) name))))))
+          ev
+          plugins))
+
+(defn plugin-ack
+  "The event this proc outputs after a :ctl message, so the host can
+   confirm a register/deregister landed before it injects anything else --
+   see the README's \"flow/inject ordering paper-cut\" section for why this
+   ack matters at all."
+  [op name plugins]
+  {:kind :plugin-event :op op :name name :active (mapv first plugins)})
+
+(def plugin-stage-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {} :ctl {}} :outs {:out {}}})
+    :init (fn [_] {:plugins []})
+    :transform
+    (fn [state cid msg]
+      (if (= cid :ctl)
+        ;; Control message: mutate the registry, ack on :out.
+        (let [op (:op msg)
+              name (:name msg)
+              plugins (if (= op :register)
+                        (register-plugin (:plugins state) name (:fn msg))
+                        (remove-plugin (:plugins state) name))]
+          [(assoc state :plugins plugins) {:out [(plugin-ack op name plugins)]}])
+        ;; Data message: run the registry over it, stamp :via, forward.
+        (let [plugins (:plugins state)
+              enriched (assoc (apply-plugins msg plugins) :via (mapv first plugins))]
+          [state {:out [enriched]}])))}))

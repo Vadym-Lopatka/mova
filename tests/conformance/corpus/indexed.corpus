@@ -1,0 +1,19 @@
+;; indexed.corpus -- S6: `clojure.lang.Indexed` (`builtin_interfaces()`
+;; in src/types.rs) plus core `nth`'s dispatch to a deftype's own `nth`
+;; impl (src/builtins/collections.rs). Motivating blocker: test.check
+;; 1.1.3's `rose_tree.cljc` `(deftype RoseTree [root children]
+;; clojure.lang.Indexed (nth [this i] ...) (nth [this i not-found]
+;; ...))` -- `clojure.lang.Indexed` was an unresolved symbol before this.
+;; Every row measured on 1.13.0-alpha6; session model per
+;; tools/gen-golden.bb's doc: one file = one session, later lines see
+;; earlier `def`s.
+(deftype RTIndexed [root children] clojure.lang.Indexed (nth [this i] (if (zero? i) root (throw (ex-info "oob" {})))) (nth [this i not-found] (if (zero? i) root not-found)))
+(do (def rt-i (RTIndexed. :root [:c1 :c2])) :defined)
+(nth rt-i 0)
+(nth rt-i 3 :nf)
+(nth rt-i 99)
+(nth rt-i -1)
+(nth rt-i -1 :nf)
+(instance? clojure.lang.Indexed rt-i)
+(get rt-i 0)
+(seq rt-i)

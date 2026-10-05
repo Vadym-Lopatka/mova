@@ -1,0 +1,1373 @@
+;; mova-test-shim.mova -- a minimal clojure.test-workalike, written in mova
+;; itself, so vendored Clojure test files can (partially) run under mova.
+;;
+;; THIS IS TEST INFRASTRUCTURE, NOT PART OF THE SHIPPED LANGUAGE. It is
+;; deliberately kept out of core/ -- load it explicitly before a test file,
+;; e.g. `mova tests/clojure-suite/mova-test-shim.mova tests/clojure-suite/some-test.mova`
+;; (mova has no multi-file `load`/`require` at the time this was written, so
+;; in practice a runner cats the shim + the target file together, or the
+;; target file is pasted after the shim in one process).
+;;
+;; Why this can't just be clojure.test transliterated -- mova is missing,
+;; confirmed by hand against a live mova before writing a line of this:
+;;   - (ORIGINALLY) no dynamic vars / `binding`  -> this shim's OWN
+;;     "current test"/"running totals" state (ts-t-*/ts-s-* below) was
+;;     built on plain atoms rather than `binding`, and stays that way --
+;;     not a limitation anymore (mova gained real dynamic vars/`binding`
+;;     in a later milestone, confirmed by hand: `(def ^:dynamic *x* 1)
+;;     (binding [*x* 5] ...)` genuinely pushes/pops), but changing this
+;;     shim's OWN bookkeeping to match would be unrelated churn. `report`
+;;     (below) and `use-fixtures`/`test-vars`'s fixture-bound dynamic vars
+;;     (e.g. test_fixtures.clj's `*a*`/`*b*`/`*c*`/`*d*`/`*n*`) DO now
+;;     rely on real `binding` -- W-DECL fixed the one sharp edge this used
+;;     to surface (an UNBOUND-but-interned var, which is what mova's own
+;;     `declare` produces, was not `binding`-able; now it is, for a
+;;     `^:dynamic`-declared name -- see core/core.mova's `declare` doc and
+;;     `eval::special_forms::check_dynamic_or_err`), so this shim no
+;;     longer shadows `declare` at all.
+;;   - (ORIGINALLY) no `defmulti`/`defmethod`     -> `report` is a `cond`
+;;     (`ts-default-report`) rather than a multimethod, and stays that
+;;     way -- not a limitation anymore (mova gained real defmulti/
+;;     defmethod/get-method, confirmed by probe; `assert-expr` below IS a
+;;     genuine `defmulti`), but rewriting `report` would be unrelated
+;;     churn and nothing in this corpus adds a report `:type` beyond the
+;;     five `ts-default-report` already handles.
+;;   - no metadata (`with-meta`/`meta`/var meta)  -> deftest keeps its own
+;;                                                    registry atom instead
+;;                                                    of `:test` var meta
+;;   - (ORIGINALLY) `try` supported exactly ONE untyped `catch` -> `thrown?`
+;;     could only prove "something was thrown", never check the class; the
+;;     `thrown-with-msg?` family was class-blind and checked `re` against
+;;     `ex-message` only where that was non-nil. NOT a limitation anymore
+;;     (C3g: `catch` supports any number of typed clauses, matched in
+;;     order -- `eval::special_forms::catch_class_matches`): `thrown?` and
+;;     the `thrown-with-msg?` family now genuinely catch by class (`(catch
+;;     ~klass e# ...)`, `klass` = the raw `C` symbol/form from the `is`
+;;     call site, spliced in unevaluated), so a wrong-class throw
+;;     propagates past them and is reported `:error`, not a false `:pass`.
+;;     The message check (`ex-message` + `re-find`) is unchanged and still
+;;     degrades to message-blind (passes on ANY throw of the right class)
+;;     wherever `ex-message` returns `nil` -- see SHIM-LIMITS.md for the
+;;     current, narrower disclosed-false-pass family and the measured
+;;     before/after delta this upgrade produced in the vendored corpus.
+;; gensym, quasiquote/unquote/unquote-splice with auto-gensym hygiene,
+;; atoms, str, pr-str, regex (re-find), partition, zipmap, doseq, cond --
+;; all present and used freely below.
+
+;; ==================== state ====================
+;; No dynamic vars, so every piece of "current test" / "running totals"
+;; state below is a plain atom, reset explicitly by `ts-run-one` /
+;; `run-tests` rather than established via `binding`.
+
+;; field2/W-NS: the namespace THIS COPY of the shim was spliced into,
+;; captured at load time -- when `*ns*` provably still IS that namespace
+;; (tools/clojure-suite-run.bb injects the shim immediately after the
+;; vendored file's own `(ns ...)` form; the two materialized module copies
+;; prepend `(ns clojure.test)` / `(ns clojure.test-helper)`).
+;;
+;; Needed because the runner now runs the tests the way the ground-truth
+;; oracle harness does -- `tools/oracle-census.clj` `require`s the file
+;; (which restores `*ns*`) and only THEN calls `(run-tests ns-sym)`, so
+;; real deftest bodies execute with `*ns*` = `user` while their symbols
+;; were already resolved against the file's own namespace. Real
+;; clojure.test survives that because `test-ns` takes the namespace as an
+;; ARGUMENT (`(test-all-vars ns-obj)`, `(find-var (symbol (str (ns-name
+;; ns-obj)) "test-ns-hook"))`) and never consults `*ns*`; this shim's
+;; equivalents used `*ns*`, which under the aligned runner would have
+;; enumerated `user`'s vars instead of the test file's. `ts-own-ns` is the
+;; same answer real clojure.test gets from its argument.
+(def ts-own-ns (ns-name *ns*))
+
+(def ts-registry (atom []))              ; vector of [name-str thunk-fn], in deftest order
+
+(def ts-t-assertions (atom 0))           ; assertions seen in the CURRENT test
+(def ts-t-failures (atom 0))             ; fail+error assertions in the CURRENT test
+(def ts-t-status (atom :pass))           ; :pass | :fail | :error, monotonically escalates
+(def ts-t-first-failure (atom nil))      ; string, first non-pass assertion's detail
+(def ts-testing-ctx (atom []))           ; stack of `testing` strings, for message prefixes
+
+(def ts-s-tests (atom 0))
+(def ts-s-pass (atom 0))
+(def ts-s-fail (atom 0))
+(def ts-s-error (atom 0))
+(def ts-s-assertions (atom 0))
+(def ts-s-assertions-passed (atom 0))
+
+;; use-fixtures state: the CURRENT (not accumulated -- see `use-fixtures`
+;; below) vector of :each / :once fixture fns. Reset only by `use-fixtures`
+;; itself, never by run-tests -- matches real clojure.test, where fixtures
+;; are registered once at load time and apply to every subsequent
+;; run-tests/test-vars call in the same session.
+(def ts-each-fixtures (atom []))
+(def ts-once-fixtures (atom []))
+
+;; W4C: real clojure.test's `*testing-vars*` (a dynamic var, the stack of
+;; currently-running test vars -- `test-var` `conj`es the CURRENT var onto
+;; it around each test, restored after). This shim never bound anything
+;; meaningful onto it (`ts-run-one` has no equivalent push/pop), so this is
+;; the plain, permanently-empty default real clojure.test itself starts
+;; with OUTSIDE of any `test-var` call -- needed only so the SYMBOL
+;; resolves at all: `clojure.test.check.clojure-test/assert-check`
+;; (`defspec`'s own `:test` fn calls this) reads `ct/*testing-vars*`
+;; directly (`(let [testing-vars ct/*testing-vars* ...] (when (seq
+;; testing-vars) {:test-var ...}))`), and this materialized shim IS
+;; `clojure.test` as far as `(:require [clojure.test :as ct])` is
+;; concerned (`tools/clojure-suite-run.bb`'s `materialize-shim-as-
+;; clojure-test`) -- without this def, that reads as "Unable to resolve
+;; symbol: ct/*testing-vars*" and the whole `:test` thunk errors before
+;; `quick-check` ever runs (measured: `sequences.clj`'s two `defspec`
+;; forms, once `ts-meta-tests` started finding them). Always empty here
+;; is harmless, not merely convenient: `(seq testing-vars)` is then always
+;; `nil`, so `assert-check`'s `merge` never overrides the `:test-var` key
+;; `defspec`'s own `:test` fn already `assoc`ed in explicitly one line
+;; earlier -- this var's content, unlike its mere existence, was never
+;; load-bearing for defspec's pass/fail outcome.
+(def ^:dynamic *testing-vars* (list))
+
+;; `declare`: W-DECL -- this shim used to SHADOW core.mova's `declare`
+;; here (defs each name to `nil` instead of leaving it unbound, and
+;; ignored `^:dynamic`), working around two real engine defects: `declare`
+;; failed to intern anything a `binding` could ever see, and `binding`
+;; enforced no `^:dynamic` requirement at all. Both are fixed now
+;; (core/core.mova's `declare` doc comment; `eval::special_forms::
+;; check_dynamic_or_err`), so this shadow is gone -- the shim uses
+;; core.mova's OWN `declare` like every other real macro it calls.
+;; `test_fixtures.clj`'s `(declare ^:dynamic *a* *b* *c* *d*)` (the shape
+;; this shadow existed for) now gets REAL `:dynamic true` var meta from
+;; `declare` itself, exactly like a hand-written `(def ^:dynamic *a*)`
+;; would.
+
+;; :error beats :fail beats :pass -- once a test has errored, a later
+;; passing assertion must not downgrade its status back to :pass.
+(defn ts-status-escalate [current new]
+  (cond
+    (= current :error) :error
+    (= new :error) :error
+    (= current :fail) :fail
+    (= new :fail) :fail
+    :else :pass))
+
+(defn ts-ctx-prefix []
+  (if (seq @ts-testing-ctx)
+    (str (apply str (interpose " " @ts-testing-ctx)) ": ")
+    ""))
+
+;; ==================== reporting primitives ====================
+;; `report` is a REAL `(defmulti ^:dynamic report :type)`, byte-for-byte
+;; the shape real clojure.test 1.13.0-alpha6 uses (read from
+;; .oracle/clojure-src/src/clj/clojure/test.clj: `(defmulti ^{... :dynamic
+;; true ...} report :type)`), with one `defmethod` per `:type` instead of
+;; the single `cond`-dispatched `ts-default-report` fn this used to be.
+;;
+;; It was a `cond` only because mova had no `defmulti`/`defmethod` when
+;; this shim was written. mova has them now (probed: dispatch, cross-
+;; namespace `defmethod`, `get-method`, AND `(binding [m ...] ...)` on a
+;; `^:dynamic` defmulti var all work), and being a genuine multimethod is
+;; not cosmetic here -- vendored test.check's
+;; `clojure/test/check/clojure_test.cljc` gates its whole reporting setup
+;; on exactly this, at LOAD time:
+;;
+;;   (if-not (instance? clojure.lang.MultiFn ct/report)
+;;     (binding [*out* *err*] (println "clojure.test/report is not a
+;;                                      multimethod, ..."))
+;;     (let [...] (defmethod ct/report :begin-test-var ...) ...))
+;;
+;; With a plain-fn `report`, that predicate is false (measured:
+;; `(instance? clojure.lang.MultiFn f)` => `false` for a fn, `true` for a
+;; defmulti -- mova genuinely knows this class), the file takes the
+;; warning branch, and dies on bare `*err*`, which mova has no
+;; interpreter-level binding for. That single expression is what kept
+;; `sequences.clj` (1148 oracle assertions) and `transducers.clj` (108)
+;; `:blocked` even after `assert-expr` landed. Being a real multimethod
+;; takes the OTHER branch, where test.check's own `defmethod ct/report`
+;; calls land on this multi for real.
+;;
+;; The bookkeeping below is UNCHANGED from `ts-default-report`'s `cond`,
+;; one branch per method: :pass, :fail and :error each do exactly what
+;; they did, and `:default` (which now catches `:begin-test-var` /
+;; `:end-test-var` / test.check's own `::trial`/`::complete` types /
+;; anything with no `:type` at all) is the same `nil` no-op the `:else`
+;; branch was -- purely a hook point for a rebound `report` to see.
+;;
+;; Rebindability is why the counting lives HERE rather than in
+;; `ts-report-pass`/`ts-report-bad`: when a vendored test rebinds
+;; `report` to something that doesn't touch these atoms
+;; (test_fixtures.clj's `can-run-a-single-test-with-fixtures` does
+;; exactly this, to intercept `:begin-test-var`/`:pass`/`:end-test-var`
+;; events while calling `test-vars`), assertions evaluated UNDER that
+;; binding must NOT inflate the enclosing test's own counts -- matching
+;; real clojure.test, where `*report-counters*` updates are ALSO a side
+;; effect of the (now-overridden) `report` multimethod's default methods,
+;; not a separate hardcoded path.
+(defmulti ^:dynamic report :type)
+
+;; C3c follow-up (delays.clj, conductor-added at merge): counting is
+;; gated on this dynamic var, bound `true` by `ts-run-one` around each
+;; test body -- the exact mirror of real clojure.test, where
+;; `inc-report-counter` no-ops unless `*report-counters*` is
+;; thread-bound. A raw `(Thread. f)` body does NOT convey bindings
+;; (measured JVM semantics; see hostclass.rs's `.start` doc), so its
+;; `is` calls see the root `false` here and count nothing -- delays.clj's
+;; 100-thread deftests score their oracle-true 25, not 3,000,025 --
+;; while `future` bodies DO convey (parallel.clj's
+;; `future-fn-properly-retains-conveyed-bindings` depends on it).
+(def ^:dynamic ts-counting* false)
+
+(defn ts-record-bad [t m]
+  (when ts-counting*
+    (swap! ts-t-assertions inc)
+    (swap! ts-s-assertions inc)
+    (swap! ts-t-failures inc)
+    (swap! ts-t-status (fn [s] (ts-status-escalate s t)))
+    (when (nil? @ts-t-first-failure)
+      (reset! ts-t-first-failure (str (ts-ctx-prefix) (:detail m))))))
+
+(defmethod report :pass [m]
+  (when ts-counting*
+    (swap! ts-t-assertions inc)
+    (swap! ts-s-assertions inc)
+    (swap! ts-s-assertions-passed inc)))
+
+(defmethod report :fail [m] (ts-record-bad :fail m))
+
+(defmethod report :error [m] (ts-record-bad :error m))
+
+(defmethod report :default [m] nil)
+
+;; `:message` is real clojure.test's own report-map key, carrying the
+;; `msg` argument of `(is form msg)` VERBATIM (not folded into prose).
+;; This shim used to drop it on the floor -- `msg` only ever reached the
+;; free-text `:detail` string, via `ts-msg-suffix`. That is invisible to
+;; every ordinary consumer but fatal to a vendored file that rebinds
+;; `report` and DISPATCHES on the message: `vendor/test.clj`'s
+;; `custom-report` is exactly that file (it asserts `(= (:message data)
+;; "Should fail")` etc. to invert deliberately-failing assertions), and
+;; is where all 58 of that file's oracle assertions come from. Carrying
+;; `:message` is purely additive for everything else -- nothing in this
+;; shim or in any other vendored file reads it, and `:detail` (which the
+;; `#RESULT` line's `:first-failure` is built from) is untouched.
+;;
+;; The 1-arity forms are kept, and still emit a map with NO `:message`
+;; key at all, so the shim's own internal reporting (`ts-run-one`'s
+;; fixture-throw path) produces byte-identical maps to before.
+(defn ts-report-pass
+  ([] (report {:type :pass}))
+  ([msg] (report {:type :pass :message msg})))
+
+(defn ts-report-bad
+  ([status detail] (report {:type status :detail detail}))
+  ([status detail msg] (report {:type status :detail detail :message msg})))
+
+(defn ts-report-fail
+  ([detail] (ts-report-bad :fail detail))
+  ([detail msg] (ts-report-bad :fail detail msg)))
+
+(defn ts-report-error
+  ([detail] (ts-report-bad :error detail))
+  ([detail msg] (ts-report-bad :error detail msg)))
+
+;; `msg` in `(is form msg)` is an arbitrary RUNTIME expression in real
+;; clojure.test (not necessarily a literal), so it must be evaluated once,
+;; at runtime, inside the generated code below -- never inspected at
+;; macroexpansion time. Every `is` branch below arranges for `msg` to be
+;; evaluated EXACTLY ONCE per assertion, and only on the path actually
+;; taken -- AFTER the asserted form has run, exactly where real
+;; clojure.test evaluates it (inside the `do-report` call `assert-any`/
+;; `try-expr` emit). Paths that need the value only once splice `~msg`
+;; straight into the `ts-report-*` call; the failure paths, which need it
+;; twice (once for the `:detail` prose via `ts-msg-suffix`, once for the
+;; report map's `:message`), bind ONE gensym-ed local `msg#` in the
+;; narrowest possible scope -- at the report site, never around the whole
+;; expansion.
+;;
+;; That "narrowest possible scope" is load-bearing, not style. Hoisting
+;; the binding to the top of the expansion (the obvious first cut) makes
+;; `msg` run BEFORE the form under test, which is observable whenever
+;; `msg` is itself an assertion: `vendor/string.clj`'s `t-ends-with?`
+;; has an upstream paren typo that makes a whole second `(is ...)` the
+;; FIRST `is`'s `msg` argument, and real Clojure runs the outer form
+;; first and the nested `is` only when it reports. Measured both ways:
+;; the hoisted binding reordered that file's `#RESULT` first-failure;
+;; the narrow binding reproduces real Clojure's order. (Either way the
+;; nested `is` DOES now run on the failure path, where it never used to
+;; -- which is why `string.clj`'s assertion count moved from 130 to the
+;; oracle's own 133.)
+;; nREPL gaps: message a `thrown-with-*msg?` head checks. `cause?` heads read
+;; the immediate cause's message (falling back to the exception itself).
+(defn ts-ex-msg [e cause?]
+  (ex-message (if cause? (or (ex-cause e) e) e)))
+
+(defn ts-msg-suffix [msg]
+  (if (nil? msg) "" (str " \"" msg "\"")))
+
+;; ==================== file-and-line / stacktrace-file-and-line ====================
+;; W4-veneer (`vendor/test.clj`'s `clj-1102-empty-stack-trace-should-not-
+;; throw-exceptions`, the ONLY vendored call site of either name -- verified
+;; `grep -rn 'file-and-line' vendor/*.clj`): real clojure.test's own two
+;; PRIVATE (`defn-`) helpers, transcribed VERBATIM from `.oracle/clojure-
+;; src/src/clj/clojure/test.clj` (not paraphrased) because that deftest
+;; calls them directly through `#'clojure.test/file-and-line` /
+;; `#'clojure.test/stacktrace-file-and-line` (the `#'` var-quote bypasses
+;; Clojure's own privacy check, same as it does on the real JVM). Neither
+;; was ever defined here before this task -- `#'clojure.test/file-and-line`
+;; auto-vivified an UNBOUND var (mova's `var`/`#'` special form creates a
+;; placeholder on a bare qualified symbol rather than throwing "no such
+;; namespace", measured), and calling an unbound var threw "var ... is
+;; unbound" -- which is what made this deftest's first two assertions
+;; report as failures (its `test-ns-hook`-installed `custom-report`
+;; inverts a caught `:error` into a `:fail` for a "Should pass"-tagged
+;; `is`, so the crash surfaced as a scored failure, not a blocked file).
+;;
+;; Both call `.getStackTrace` on their argument -- `hostclass.rs`'s
+;; `.getStackTrace` arm (added alongside this) answers with an ALWAYS-
+;; empty `StackTraceElement[]` for any of our synthetic exception
+;; instances (mova captures no real per-frame trace at all, matching
+;; `.setStackTrace`'s existing no-op). That is exactly enough for THIS
+;; deftest: `t`'s stack was itself explicitly set to an empty array, so
+;; `file-and-line`'s `(< depth (count stacktrace))` is false at depth 0
+;; and `stacktrace-file-and-line`'s `(seq stacktrace)` is nil -- both take
+;; their `{:file nil :line nil}` branch without ever calling `.getFileName`/
+;; `.getLineNumber` on a `StackTraceElement` (neither implemented; that
+;; class is a pure marker, see `types::builtin_classes()`'s own doc for
+;; why). A stack trace with real frames would need those two methods and
+;; is out of scope -- undisclosed, narrow veneer exactly to what this one
+;; measured call site touches.
+(defn file-and-line
+  [exception depth]
+  (let [stacktrace (.getStackTrace exception)]
+    (if (< depth (count stacktrace))
+      (let [s (nth stacktrace depth)]
+        {:file (.getFileName s) :line (.getLineNumber s)})
+      {:file nil :line nil})))
+
+(defn stacktrace-file-and-line
+  [stacktrace]
+  (if (seq stacktrace)
+    (let [s (first stacktrace)]
+      {:file (.getFileName s) :line (.getLineNumber s)})
+    {:file nil :line nil}))
+
+;; ==================== do-report / assert-expr ====================
+;; Real clojure.test's PUBLIC extension seam, and the only reason
+;; `sequences.clj` (1148 oracle assertions) and `transducers.clj` (108)
+;; were `:blocked` before this landed: both pull in vendored test.check,
+;; whose `clojure/test/check/clojure_test/assertions.cljc` does
+;;
+;;   (defmethod t/assert-expr 'clojure.test.check.clojure-test/check? ...)
+;;
+;; at LOAD time of that namespace. With no `assert-expr` in the shim's
+;; materialized `clojure/test.mova`, that `defmethod` failed with
+;; "Unable to resolve symbol: t/assert-expr" while the `ns` form was
+;; still being processed -- so not one deftest in either file ever
+;; registered. The two files' 1256 assertions were unreachable for a
+;; missing 30-line seam, not for any real mova gap.
+;;
+;; mova genuinely has `defmulti`/`defmethod`/`get-method` (probed against
+;; the same live mova binary this shim is scored with, before a line of
+;; this was written: a `defmethod` on a NAMESPACE-QUALIFIED dispatch value
+;; registers and dispatches, `get-method` on an unregistered value returns
+;; the `:default` method itself -- `(= (get-method m 'a/b) (get-method m
+;; :default))` => `true` -- and stops being `=` to it the moment a real
+;; method is registered for that value). That last fact is exactly the
+;; "does this form have a CUSTOM method?" test `is` uses below; there is
+;; no `methods`-map introspection needed.
+;;
+;; `do-report` is the other half of the seam: a custom `assert-expr`
+;; method returns an expansion that calls `clojure.test/do-report` with a
+;; REAL clojure.test report map (`{:type :pass :message ...}` /
+;; `{:type :fail :expected {:result true} :actual m :file f :line l}` --
+;; see `check-results` in assertions.cljc), not with this shim's own
+;; `{:type ... :detail "..."}` shape. `do-report` translates one into the
+;; other and hands it to the SAME rebindable `report` var everything else
+;; in this shim goes through -- so a `binding [report ...]` still
+;; intercepts custom-assert-expr events, and the counters stay single-
+;; sourced. Real clojure.test's `do-report` additionally decorates :fail/
+;; :error maps with `:file`/`:line` scraped from a live stack trace;
+;; there is no such trace here (see below), so this one passes the map
+;; through with whatever `:file`/`:line` its caller already put in it.
+;;
+;; MEASURED, because the vendored `check-results` path depends on it:
+;; `(.getStackTrace (Thread/currentThread))` under this mova build does
+;; NOT throw -- it returns a degenerate empty array object, on which
+;; `(seq ...)` => `nil`, `(count ...)` => `0`, `(first ...)` => `nil`,
+;; and `(drop-while pred ...)` => `nil` WITHOUT ever calling `pred`
+;; (so `test-context-stacktrace`'s `.getClassName` interop, which mova
+;; does not have, is never reached). `file-and-line*` therefore takes its
+;; `(if (seq stacktrace) ... {:file nil :line nil})` else-branch and
+;; yields `{:file nil :line nil}`, which `merge`s harmlessly into the
+;; report map. The vendored code path survives intact, with degraded
+;; (nil) file/line -- documented in SHIM-LIMITS.md.
+
+;; Renders a real clojure.test report map's diagnostic fields down into
+;; the single free-text `:detail` string this shim's own `ts-report-bad`
+;; carries. Deliberately total (no collection walking, no `contains?`
+;; branching): every real report map either has these keys or reads them
+;; as nil, and a detail string is prose for a human, not a parsed
+;; contract (see SHIM-LIMITS.md's `testing`-context section).
+(defn ts-report-map->detail [m]
+  (str (if (nil? (:message m)) "" (str (pr-str (:message m)) " -- "))
+       "expected: " (pr-str (:expected m))
+       ", actual: " (pr-str (:actual m))
+       (if (nil? (:file m)) "" (str " (" (:file m) ":" (:line m) ")"))))
+
+;; Real clojure.test's own public `do-report` name and contract: "If you
+;; are writing a custom assert-expr method, call this function to pass
+;; test results to report." Routes :pass/:fail/:error onto this shim's
+;; existing primitives (which themselves go through the rebindable
+;; `report`); anything else (`:begin-test-var`, test.check's own
+;; `::trial`/`::complete` report types, ...) is handed to `report`
+;; unchanged, exactly as real clojure.test does, so a rebound `report`
+;; sees it and the default `ts-default-report` ignores it.
+(defn do-report [m]
+  (let [t (:type m)]
+    (cond
+      (= t :pass) (ts-report-pass)
+      (= t :fail) (ts-report-fail (ts-report-map->detail m))
+      (= t :error) (ts-report-error (ts-report-map->detail m))
+      :else (report m))))
+
+;; Dispatch fn mirrored EXACTLY from real clojure.test 1.13.0-alpha6
+;; (read from .oracle/clojure-src/src/clj/clojure/test.clj, not recalled):
+;;
+;;   (defmulti assert-expr
+;;     (fn [msg form]
+;;       (cond (nil? form) :always-fail
+;;             (seq? form) (first form)
+;;             :else :default)))
+;;
+;; Note it dispatches on the UNRESOLVED `(first form)`. test.check's
+;; `defspec` machinery relies on that: `clojure_test.cljc`'s
+;; `assert-check` writes `(ct/is (clojure.test.check.clojure-test/check?
+;; m))` -- head symbol spelled out fully qualified at the call site,
+;; matching the `defmethod` key verbatim -- so no resolution/aliasing
+;; step is needed here or wanted (adding one would DIVERGE from real
+;; clojure.test).
+(defmulti assert-expr
+  (fn [msg form]
+    (cond
+      (nil? form) :always-fail
+      (seq? form) (first form)
+      :else :default)))
+
+;; `(is nil)` -- real clojure.test's `:always-fail` method, verbatim.
+(defmethod assert-expr :always-fail [msg form]
+  `(do-report {:type :fail :message ~msg}))
+
+;; The `:default` method. Real clojure.test's splits into
+;; `assert-predicate` (when `(first form)` resolves to a non-macro fn) and
+;; `assert-any`; this shim implements `assert-any`'s shape only -- the
+;; same "evaluate the whole form once, pass if truthy, report the single
+;; result value" approximation SHIM-LIMITS.md already documents for `is`'s
+;; own generic branch, and for the same reason (no var-metadata `:macro`
+;; flag to tell a fn from a macro).
+;;
+;; `is` NEVER routes through this method (it keeps its own byte-identical
+;; generic branch, see below) -- it exists so that (a) `get-method` has a
+;; `:default` to compare against, which is how `is` detects a CUSTOM
+;; method, and (b) a vendored file calling `(assert-expr msg form)`
+;; directly gets working, honest code back rather than nil.
+(defmethod assert-expr :default [msg form]
+  `(let [value# ~form]
+     (if value#
+       (do-report {:type :pass :message ~msg :expected '~form :actual value#})
+       (do-report {:type :fail :message ~msg :expected '~form :actual value#}))
+     value#))
+
+;; "Does `form`'s head symbol have a method registered on `assert-expr`
+;; that is NOT the `:default` fallback?" -- the exact question `is`'s
+;; generic branch asks at macroexpansion time. `get-method` on an
+;; unregistered dispatch value returns the `:default` method itself
+;; (probed, see above), so identity against `(get-method assert-expr
+;; :default)` is the whole test. A non-seq form, or a seq whose head is
+;; not a symbol, can never have one.
+(defn ts-custom-assert-expr? [form]
+  (if (seq? form)
+    (let [head (first form)]
+      (if (symbol? head)
+        (not (= (get-method assert-expr head)
+                (get-method assert-expr :default)))
+        false))
+    false))
+
+;; ==================== is ====================
+;; Special-cases `(is (thrown? C expr))` and `(is (= a b))` at
+;; macroexpansion time (both are just inspecting the unevaluated `form`,
+;; which is plain data here -- no reader/analyzer tricks needed); anything
+;; else falls through to a generic truthy check, mirroring real
+;; clojure.test's assert-predicate/assert-any split closely enough for
+;; this corpus. The WHOLE expansion is wrapped in one outer try/catch so
+;; an unexpected throw from evaluating `form` itself (not a `thrown?`
+;; clause) is reported as :error, never silently swallowed or allowed to
+;; crash the enclosing deftest.
+(defmacro is
+  ([form] `(is ~form nil))
+  ([form msg]
+   (cond
+     ;; (is (thrown? C expr)) -- C3g: mova's `catch` is now class-aware
+     ;; (multiple typed clauses, matched in order -- see
+     ;; `eval::special_forms::catch_class_matches`), so this is no longer
+     ;; the class-blind "asserts only something was thrown" branch it used
+     ;; to be. `klass` is the RAW, unevaluated symbol/form written as `C` --
+     ;; spliced directly into the inner `(catch ~klass e# ...)`, never
+     ;; evaluated here either (same "class position is literal AST, not a
+     ;; resolved var" contract `parse_catch_head` documents engine-side).
+     ;; If `expr` throws something whose class does NOT match `C`, the
+     ;; inner typed catch simply does not fire -- the exception propagates
+     ;; out of the inner `try` into the OUTER untyped `outer-e#` catch,
+     ;; which reports `:error` ("unexpected exception"), exactly mirroring
+     ;; real clojure.test's own architecture (a wrong-class throw escapes
+     ;; the `is`-generated `catch ~klass` and is caught by the surrounding
+     ;; test-run machinery as an error, not a fail or a pass). Regression-
+     ;; tested in shim-selftest.mova: a right-class throw passes, a
+     ;; wrong-class throw errors, no throw fails -- see SHIM-LIMITS.md for
+     ;; the measured before/after delta this flips in the vendored corpus.
+     (and (seq? form) (= (first form) 'thrown?))
+     (let [klass (second form)
+           body (rest (rest form))]
+       `(try
+          (try
+            ~(cons 'do body)
+            (let [msg# ~msg]
+              (ts-report-fail (str "(is " '~form ")" (ts-msg-suffix msg#) " -- did not throw") msg#))
+            (catch ~klass e#
+              (ts-report-pass ~msg)
+              e#))
+          (catch outer-e#
+            (ts-report-error (str "(is " '~form ") -- unexpected exception: " (pr-str outer-e#)) ~msg))))
+
+     ;; (is (thrown-with-msg? C re expr)) / (is (thrown-with-cause-msg? C
+     ;; re expr)) / (is (fails-with-cause? C re expr)) -- all three share
+     ;; the SAME `(head C re expr...)` shape and, under mova, the same
+     ;; semantics, so they share one branch.
+     ;;
+     ;; C3g CLASS-AWARE UPGRADE: mova's `catch` now supports multiple typed
+     ;; clauses (`eval::special_forms::catch_class_matches`), so `klass` --
+     ;; `C`, the raw unevaluated symbol/form written at the `is` call site
+     ;; -- is spliced directly into `(catch ~klass e# ...)` below, exactly
+     ;; like `thrown?`'s own branch above. This used to be structurally
+     ;; class-blind (documented at length in a since-removed version of
+     ;; this comment, and in SHIM-LIMITS.md's history): `C` was inert
+     ;; quoted data ONLY, embedded in failure messages but never checked,
+     ;; because mova's `catch` had no typed clauses at all to check it
+     ;; with. Now it is checked, for real, as the FIRST gate: if `expr`
+     ;; throws something whose class does not match `C`, the typed catch
+     ;; below does not fire and the exception propagates to the OUTER
+     ;; untyped `outer-e#` catch, reporting `:error` -- this is what
+     ;; genuinely flips some previously-passing vendored assertions to
+     ;; failing (see SHIM-LIMITS.md's dated delta table), and is the whole
+     ;; point of this upgrade: a `thrown-with-msg?` pass now means "the
+     ;; documented class was thrown AND (where a message was recoverable)
+     ;; it matched", not merely "something was thrown".
+     ;;
+     ;; What runs INSIDE the (now class-gated) catch is UNCHANGED from
+     ;; before this upgrade: evaluate `expr`; if nothing throws, :fail
+     ;; ("did not throw" -- same as `thrown?`). Once inside a class-matched
+     ;; catch, if `ex-message` gives a non-nil string (confirmed by probe:
+     ;; true for `ex-info`-created exceptions, nil for most other throws
+     ;; such as a plain string throw or an internal arithmetic error), `re`
+     ;; IS genuinely checked against it with `re-find` -- a real pass/fail,
+     ;; not a rubber stamp. Where the message is inaccessible, this passes
+     ;; on ANY throw THAT ALREADY MATCHED THE CLASS -- a narrower, now
+     ;; class-gated version of the same DISCLOSED message-blind false-pass
+     ;; family documented below and in SHIM-LIMITS.md.
+     ;;
+     ;; Cause-walking pair specifically: upstream test-helper.clj implements
+     ;; both via `defmethod assert-expr`, walking expr's thrown exception's
+     ;; `.getCause` chain looking for a C whose message matches `re`
+     ;; (thrown-with-cause-msg? checks only the immediate cause;
+     ;; fails-with-cause? walks the whole chain via a `causes` helper).
+     ;; mova has neither `.getCause` nor `ex-cause` (confirmed by probe:
+     ;; both "Unable to resolve symbol"), so there is no cause chain to
+     ;; walk -- both forms check `C` against the exception ACTUALLY CAUGHT
+     ;; (via the same typed `catch ~klass` every head in this branch uses)
+     ;; rather than against a `.getCause` this host cannot produce. This is
+     ;; a disclosed, deliberate approximation, not a full port: it is
+     ;; either coincidentally correct (mova never actually wraps one
+     ;; exception inside another, so "the caught exception" and "its
+     ;; would-be cause" are the same thing here) or a narrower miss than
+     ;; before (previously class-blind on both the top exception AND any
+     ;; cause; now class-checked against the top exception only) -- never
+     ;; a NEW false pass. `ex-message` gaps are unchanged from the
+     ;; message-blind description above. Documented further in
+     ;; SHIM-LIMITS.md; regression-tested in shim-selftest.mova (the
+     ;; right-class-message-matched pass, the right-class-message-blind
+     ;; pass, the right-class-message-mismatch fail, the wrong-class error,
+     ;; and the did-not-throw fail).
+     (and (seq? form) (or (= (first form) 'thrown-with-msg?)
+                           (= (first form) 'thrown-with-cause-msg?)
+                           (= (first form) 'fails-with-cause?)))
+     (let [klass (second form)
+           re (nth form 2)
+           body (drop 3 form)]
+       `(try
+          (try
+            ~(cons 'do body)
+            (let [msg# ~msg]
+              (ts-report-fail (str "(is " '~form ")" (ts-msg-suffix msg#) " -- did not throw") msg#))
+            (catch ~klass e#
+              ;; nREPL gaps: mova now has real causes (`ex-cause`), so the
+              ;; cause-checking heads read the immediate cause's message
+              ;; (falling back to the exception itself when it has none).
+              (let [m# (ts-ex-msg e# ~(contains? '#{thrown-with-cause-msg? fails-with-cause?} (first form)))]
+                (if (nil? m#)
+                  (ts-report-pass ~msg)
+                  (if (re-find ~re m#)
+                    (ts-report-pass ~msg)
+                    (let [msg# ~msg]
+                      (ts-report-fail (str "(is " '~form ")" (ts-msg-suffix msg#)
+                                            " -- exception thrown but message did not match "
+                                            (pr-str ~re) ": " (pr-str m#))
+                                       msg#)))))
+              e#))
+          (catch outer-e#
+            (ts-report-error (str "(is " '~form ") -- unexpected exception: " (pr-str outer-e#)) ~msg))))
+
+     ;; (is (= a b c ...)) -- ANY arity, including the degenerate 0- and
+     ;; 1-operand cases. This used to read only `(second form)`/`(nth form
+     ;; 2)` -- i.e. exactly the first two operands -- so `(is (= 1 1 2))`
+     ;; evaluated as `(= 1 1)`, silently reported :pass, and never looked at
+     ;; the third operand at all. That was a genuine FALSE PASS on every
+     ;; vendored `(is (= a b c ...))` with 3+ operands (22 such forms in the
+     ;; corpus at the time this was found) -- the one thing this shim exists
+     ;; to never do. Fixed by gensym-ing one fresh local PER OPERAND (so
+     ;; every operand is still evaluated EXACTLY ONCE, same guarantee as
+     ;; before and as real clojure.test -- operands may have side effects)
+     ;; and checking `(apply = ...)` across all of them. `(apply = gs)`
+     ;; naturally covers the degenerate arities too: 0 operands is a
+     ;; runtime arity error (caught below as :error, never a macroexpand-
+     ;; time crash -- there is no more `(nth form 2)` to blow up on a short
+     ;; form), 1 operand is `true` (matches real Clojure's `(= x)`).
+     ;; Regression-tested in shim-selftest.mova.
+     (and (seq? form) (= (first form) '=))
+     (let [operands (rest form)
+           gs (vec (map (fn [_] (gensym "v")) operands))
+           bindings (vec (interleave gs operands))]
+       `(try
+          (let ~bindings
+            (if (apply = ~gs)
+              (ts-report-pass ~msg)
+              (let [msg# ~msg]
+                (ts-report-fail (str "(is " '~form ")"
+                                      (ts-msg-suffix msg#)
+                                      " -- expected: " (pr-str '~form)
+                                      "\n      actual: (not (= "
+                                      (apply str (interpose " " (map pr-str ~gs)))
+                                      "))")
+                                 msg#)))
+            (apply = ~gs))
+          (catch e#
+            (ts-report-error (str "(is " '~form ") -- unexpected exception: " (pr-str e#)) ~msg))))
+
+     ;; A form whose head symbol has a CUSTOM `assert-expr` method
+     ;; registered (see the `assert-expr` section above): hand the
+     ;; expansion off to that method, exactly as real clojure.test's
+     ;; `try-expr` does (`(try ~(assert-expr msg form) (catch Throwable
+     ;; t# (do-report {:type :error ...})))`). `msg` is passed through
+     ;; UNEVALUATED, same as real clojure.test -- it is the method's job
+     ;; to splice it into the code it returns.
+     ;;
+     ;; Deliberately placed AFTER every existing special case, not
+     ;; before: `thrown?`/`thrown-with-msg?`/`thrown-with-cause-msg?`/
+     ;; `fails-with-cause?`/`=` keep byte-identical behavior, and a
+     ;; vendored `defmethod assert-expr 'thrown?` (nothing in this corpus
+     ;; writes one) would be ignored rather than silently swapping this
+     ;; shim's measured degraded semantics for an expansion that needs
+     ;; typed catch. The outer try/catch -> :error plumbing is the same
+     ;; shape every other branch uses.
+     (ts-custom-assert-expr? form)
+     `(try
+        ~(assert-expr msg form)
+        (catch e#
+          (ts-report-error (str "(is " '~form ") -- unexpected exception: " (pr-str e#)) ~msg)))
+
+     ;; generic: evaluate `form` once, pass if truthy.
+     :else
+     `(try
+        (let [v# ~form]
+          (if v#
+            (ts-report-pass ~msg)
+            (let [msg# ~msg]
+              (ts-report-fail (str "(is " '~form ")"
+                                    (ts-msg-suffix msg#)
+                                    " -- expected truthy, actual: " (pr-str v#))
+                               msg#)))
+          v#)
+        (catch e#
+          (ts-report-error (str "(is " '~form ") -- unexpected exception: " (pr-str e#)) ~msg))))))
+
+;; ==================== are ====================
+;; A literal template expansion, exactly like real clojure.test/are (via
+;; clojure.template/do-template): `argv` names the per-row bindings,
+;; `args` is a flat list chunked into (count argv)-sized rows, and each row
+;; becomes one `(is <expr with argv symbols substituted for that row's
+;; values>)`. No runtime machinery beyond substituting symbols in a form
+;; tree -- `ts-are-subst` below.
+;; Was missing map? and set? branches -- a template containing a map or
+;; set literal (e.g. `(are [x] (= {:k x} {:k 99}) 99)`) fell through to
+;; `:else form` unchanged, so `x` inside the map/set was never replaced
+;; and evaluating the expanded `is` threw "Unable to resolve symbol: x".
+;; Not a false pass (it fails LOUD, as :error) but it mis-attributes a
+;; harness limitation to the code under test -- the opposite of what this
+;; shim exists to do. Real clojure.test's `are` goes through
+;; clojure.template/do-template, a full postwalk-replace that walks every
+;; collection type; these two branches bring this shim's walk to parity
+;; for the two collection types the corpus actually uses. Records/other
+;; opaque types still fall through to `:else form` unchanged, same as
+;; before. Regression-tested in shim-selftest.mova.
+(defn ts-are-subst [form bindings]
+  (cond
+    (symbol? form) (get bindings form form)
+    (seq? form) (apply list (map (fn [x] (ts-are-subst x bindings)) form))
+    (vector? form) (vec (map (fn [x] (ts-are-subst x bindings)) form))
+    (map? form) (reduce-kv (fn [m k v] (assoc m (ts-are-subst k bindings) (ts-are-subst v bindings))) {} form)
+    (set? form) (into #{} (map (fn [x] (ts-are-subst x bindings)) form))
+    :else form))
+
+(defn ts-are-row->is [argv expr row]
+  (list 'is (ts-are-subst expr (zipmap argv row))))
+
+(defmacro are [argv expr & args]
+  (if (empty? args)
+    nil
+    ;; `doall` matters here, not cosmetic: `cons`'ing a still-lazy `map`
+    ;; result directly nests the whole unrealized seq as ONE element
+    ;; instead of splicing it in (confirmed against a live mova -- see
+    ;; SHIM-LIMITS.md / mova bug notes in the final report).
+    (cons 'do (doall (map (fn [row] (ts-are-row->is argv expr row)) (partition (count argv) args))))))
+
+;; ==================== testing ====================
+;; Pushes a context string, runs body, pops it in a `finally` so nesting
+;; stays correct even when body throws (the throw still propagates -- it's
+;; the enclosing `is`/deftest try/catch that turns it into a report).
+(defmacro testing [ctx-str & body]
+  `(do
+     (swap! ts-testing-ctx conj ~ctx-str)
+     (try
+       ~(cons 'do body)
+       (finally (swap! ts-testing-ctx pop)))))
+
+;; ==================== use-fixtures / fixture composition ====================
+;; `ts-compose-fixtures`/`ts-join-fixtures` are a direct port of real
+;; clojure.test's `compose-fixtures`/`join-fixtures`: `join-fixtures`
+;; folds a list of `(fn [test-thunk] ...)` fixture fns into ONE such fn,
+;; where the FIRST-listed fixture ends up OUTERMOST (its pre-test code
+;; runs first, its post-test code runs last). Measured against real
+;; Clojure 1.13.0-alpha6 before writing this (`clojure.test/run-tests`
+;; with three logging :each fixtures registered via one `use-fixtures`
+;; call): `(use-fixtures :each ea eb ec)` on a test that itself logs
+;; `:test-body` produced, in order, `[:ea-pre :eb-pre :ec-pre :test-body
+;; :ec-post :eb-post :ea-post]` -- first-listed outermost, last-listed
+;; innermost (closest to the test body). `:once` fixtures compose the
+;; same way (measured: `(use-fixtures :once oa ob)` produced `[:oa-pre
+;; :ob-pre ... :ob-post :oa-post]` wrapping the ENTIRE test run, not any
+;; one test). `ts-join-fixtures` folds left over `fixtures` starting from
+;; the identity fixture `(fn [f] (f))`, same recurrence real
+;; clojure.test's own `(reduce compose-fixtures default-fixture
+;; fixtures)` uses, and reduces to the identity wrapper on an empty
+;; vector -- the case every OTHER vendored file (none of which call
+;; `use-fixtures`) exercises, making this a no-op everywhere except
+;; test_fixtures.clj.
+(defn ts-compose-fixtures [f1 f2]
+  (fn [g] (f1 (fn [] (f2 g)))))
+
+(defn ts-join-fixtures [fixtures]
+  (reduce ts-compose-fixtures (fn [f] (f)) fixtures))
+
+;; `use-fixtures`: a plain function (real clojure.test's is too -- fixture
+;; fns are ordinary already-evaluated args, no macro needed). REPLACES the
+;; current :each/:once list on every call rather than appending -- measured
+;; directly from test_fixtures.clj's own `use-fixtures-replaces` deftest,
+;; which calls `(use-fixtures :each fixture-c fixture-d inc-n-fixture
+;; side-effecting-fixture)` TWICE in a row (identical args) and then
+;; asserts `inc-n-fixture` only ran ONCE per test (`*n*` is `1`, not `2`).
+;; `reset!` (not `swap!`/`conj`) gives replace-not-append for free.
+(defn use-fixtures [kind & fns]
+  (cond
+    (= kind :each) (reset! ts-each-fixtures (vec fns))
+    (= kind :once) (reset! ts-once-fixtures (vec fns))
+    :else nil))
+
+;; ==================== deftest ====================
+;; `deftest` ALSO `def`s `name` as a real, invocable var (needed for
+;; `test-vars`, which takes a collection of `#'name` var references --
+;; mova vars are directly invocable, confirmed: `(def v (fn [] 1)) (v)`
+;; => `1`) and appends [name-string var] to the ts-registry atom.
+;; `ts-registry-find` below uses `=` on the var itself (pointer/identity
+;; equality on mova's `Value::Var`, confirmed: `(= (var foo) #'foo)` =>
+;; `true` -- both resolve to the SAME interned VarCell) as the PRIMARY
+;; "is this var a registered test" check -- this is what every SAME-
+;; namespace caller (`run-tests`, `test-vars` on this file's own vars)
+;; already exercises, unchanged. A var NOT registered via `deftest` (e.g.
+;; a plain `defn`) simply never appears in `ts-registry` and carries no
+;; `:test` metadata either, so `ts-registry-find` correctly reports "not
+;; a test" for it -- see
+;; `a-var-lacking-test-meta-should-not-trigger-fixtures`. Order of
+;; registration is preserved and is the order `run-tests` executes in.
+;;
+;; W3f (small-tail sweep): `~name` ALSO gets real `:test` var metadata
+;; now (`vary-meta`, same proven mechanism `ts-meta-tests`'s own doc
+;; already uses for `defspec` -- var metadata genuinely works in mova,
+;; confirmed there since C3a), and `ts-registry-find` falls back to
+;; checking it when the direct-identity scan misses. This is NOT a
+;; behavior change for any SAME-namespace caller (the atom scan still
+;; wins there); it fixes a genuine CROSS-namespace gap: `run_single_
+;; test.clj`'s `(run-test tf/can-use-once-fixtures)` resolves a var
+;; DEFINED in a different vendored file's own materialized namespace
+;; (`clojure.test-clojure.test-fixtures`), which -- because this shim is
+;; spliced ONCE PER NAMESPACE (see this file's own header) -- has its OWN
+;; separate `ts-registry` atom that `tf/can-use-once-fixtures` landed in,
+;; never this namespace's. `(ts-registry-find v)` here used to always
+;; miss, so `run-test` fell to its "not a test" branch and returned `nil`
+;; (measured: `run_single_test.clj`'s `can-run-test-with-fixtures`).
+;; `:test` metadata lives ON THE VAR, visible identically regardless of
+;; which namespace's code reads it, so the fallback closes exactly this
+;; gap without touching the per-namespace atom's role in enumeration
+;; order at all.
+(defmacro deftest [name & body]
+  `(do
+     (def ~(vary-meta name assoc :test true) (fn [] ~@body))
+     (swap! ts-registry conj [~(str name) (var ~name)])))
+
+;; W4C: the same-namespace-ATOM-ONLY half of `ts-registry-find` below,
+;; split out so `ts-meta-tests` (further down) can use JUST this half --
+;; see that fn's own doc for why the FULL `ts-registry-find` (with its
+;; meta-fallback) is the wrong exclusion check there.
+(defn ts-registry-atom-find [v]
+  (some (fn [entry] (when (= (second entry) v) entry)) @ts-registry))
+
+(defn ts-registry-find [v]
+  (or (ts-registry-atom-find v)
+      (:test (meta v))))
+
+;; ==================== ts-invoke-test / run-tests / test-vars ====================
+;; `ts-invoke-test` runs `thunk` (a test's body-fn, or a var wrapping one)
+;; wrapped by the CURRENT :each fixture chain, with `:begin-test-var` /
+;; `:end-test-var` reported immediately inside the fixtures (matching real
+;; clojure.test's `test-var`, whose own `do-report {:type
+;; :begin-test-var}` / `(t)` / `do-report {:type :end-test-var}` sequence
+;; runs INSIDE `each-fixture-fn`'s wrapping -- measured directly:
+;; `can-run-a-single-test-with-fixtures` asserts the exact sequence
+;; `[:begin-test-var :pass :pass :end-test-var]` from a `test-vars` call,
+;; with no fixture-tagged events in between, meaning the :each fixtures
+;; that DO run around it never call `report` themselves). This single
+;; function backs BOTH `run-tests`' normal per-test path and `test-vars`,
+;; so the two can't drift. The inner try/catch (a bare deftest-body throw)
+;; is UNCHANGED from before fixtures existed -- still direct atom
+;; manipulation, not routed through `report`/`ts-report-error`, so a body
+;; crash's bookkeeping is byte-for-byte what it was before this file ever
+;; had fixtures (verified: this is the one spot where going through
+;; `report` would have double-escalated status if `ts-invoke-test` is ever
+;; itself called from inside a `report`-rebound scope -- staying with
+;; direct atom writes here sidesteps that entirely, at the cost of a body
+;; crash never appearing to a rebound `report` as an :error event; no
+;; vendored file needs that and it is the smaller, safer approximation).
+;; W4-SHIM: `ts-invoke-test`'s actual body, with the :each fixture chain
+;; to wrap with taken as an explicit ARGUMENT instead of always reading
+;; the CURRENT namespace's own `@ts-each-fixtures`. `ts-invoke-test`
+;; itself (below) is now a one-line call to this with the current
+;; namespace's own fixtures -- zero behavior change for its existing
+;; callers (`run-tests`/`test-vars`/`ts-run-one`, all same-namespace).
+;; The reason this split exists: `ts-run-test-single` (`run-test`,
+;; singular -- see its own doc) is explicitly designed to run a var that
+;; lives in a DIFFERENT namespace than the caller, and that var's fixtures
+;; live in ITS OWN namespace's atom, not the caller's -- see
+;; `ts-cross-ns-fixtures`'s doc below for the full explanation.
+(defn ts-invoke-test-with-fixtures [each-fixtures thunk]
+  ((ts-join-fixtures each-fixtures)
+   (fn []
+     (report {:type :begin-test-var})
+     (try
+       (thunk)
+       (catch e
+         (swap! ts-t-status (fn [s] (ts-status-escalate s :error)))
+         (swap! ts-t-failures inc)
+         (when (nil? @ts-t-first-failure)
+           (reset! ts-t-first-failure (str "deftest body threw: " (pr-str e))))))
+     (report {:type :end-test-var}))))
+
+(defn ts-invoke-test [thunk]
+  (ts-invoke-test-with-fixtures @ts-each-fixtures thunk))
+
+;; Runs every registered deftest thunk, resetting all per-test atoms first.
+;; Wrapped in its own try/catch so EITHER a body that blows up OUTSIDE any
+;; `is` OR a fixture itself throwing still yields a #RESULT line -- a test
+;; is never silently dropped because of a crash. The fixture-throw catch is
+;; new (fixtures didn't exist before); it is UNREACHABLE for every
+;; vendored file except test_fixtures.clj, since `ts-join-fixtures` on the
+;; empty vector every other file leaves `ts-each-fixtures` at is the
+;; identity wrapper `(fn [f] (f))`, which cannot itself throw -- so this
+;; is a zero-behavior-change no-op everywhere else, confirmed by running
+;; the full suite before/after.
+(defn ts-run-one [name thunk]
+  (reset! ts-t-assertions 0)
+  (reset! ts-t-failures 0)
+  (reset! ts-t-status :pass)
+  (reset! ts-t-first-failure nil)
+  (reset! ts-testing-ctx [])
+  (binding [ts-counting* true]
+    (try
+      (ts-invoke-test thunk)
+      (catch e
+        (ts-report-error (str "fixture threw: " (pr-str e))))))
+  (swap! ts-s-tests inc)
+  (cond
+    (= @ts-t-status :pass) (swap! ts-s-pass inc)
+    (= @ts-t-status :fail) (swap! ts-s-fail inc)
+    :else (swap! ts-s-error inc))
+  (println (str "#RESULT {:test " (pr-str name)
+                " :status " (pr-str @ts-t-status)
+                " :assertions " @ts-t-assertions
+                " :failures " @ts-t-failures
+                " :first-failure " (pr-str @ts-t-first-failure)
+                "}")))
+
+;; `test-all-vars`: real clojure.test's is `(test-vars (vals (ns-interns
+;; ns)))` -- every var interned in `ns` that carries `:test` metadata.
+;; mova has neither `ns-interns` (confirmed unresolvable by probe) nor
+;; var metadata, and this shim's stand-in for "the tests in this
+;; namespace" has always been `ts-registry` (see `deftest`'s own comment)
+;; -- which, because the shim is spliced ONCE per namespace, IS exactly
+;; the per-namespace set real `ns-interns` would return here. The `ns`
+;; argument is therefore accepted for signature parity and ignored; the
+;; only vendored caller (`test.clj`'s `test-ns-hook`) passes
+;; `(find-ns 'clojure.test-clojure.test)`, i.e. its OWN namespace, which
+;; is the one whose registry this is.
+;;
+;; Runs through `ts-run-one` (not the bare `ts-invoke-test` real
+;; `test-vars` would use) so each test still resets the per-test atoms
+;; and prints its own `#RESULT` line -- the scoreboard contract must not
+;; change shape just because a file routes its run through a hook.
+;; ==================== ts-meta-tests (defspec etc.) ====================
+;; `deftest` (above) is the shim's stand-in for real clojure.test's
+;; `(:test (meta v))` var-metadata contract -- it was written back when
+;; mova genuinely had no var metadata at all (module header: "no metadata
+;; (with-meta/meta/var meta)"), so it keeps its own `ts-registry` atom
+;; instead. That gap has since closed (probed against this same live
+;; mova build, C3a: `(defn ~(vary-meta name assoc :test (fn [] ...)) ...)`
+;; genuinely attaches `:test` to the resulting var's metadata, readable
+;; back via `(meta (var name))` -- and `ns-publics` genuinely enumerates
+;; every var interned in a namespace, unlike `ns-interns` above, which is
+;; still unresolvable). `deftest` itself was left alone at the time this
+;; was written (no behavior change to the 50-file-wide, already-passing
+;; registry path); W3f (small-tail sweep) later ALSO gave `deftest` real
+;; `:test` metadata (see its own doc) to close a DIFFERENT, cross-
+;; namespace gap -- `ts-meta-tests`'s exclusion clause below already
+;; anticipated this ("if that ever changes"), so nothing here needed to
+;; change: a same-namespace `deftest` var is still found by the atom scan
+;; FIRST and excluded, same as always.
+;;
+;; The gap this closes: vendored `clojure.test.check.clojure-test/defspec`
+;; (tests/clojure-suite/vendor-libs/clojure/test/check/clojure_test.cljc)
+;; expands to a plain `defn` carrying real `:test` var metadata -- NOT a
+;; `deftest` call -- so it was never added to `ts-registry` and its body
+;; never ran under `run-tests` at all (measured 2026-08-21: sequences.clj's
+;; `longrange-equals-range` and `iteration-seq-equals-reduce`, its only two
+;; `defspec` forms, silently contributed 0 assertions each instead of the
+;; oracle's 1 apiece).
+;;
+;; `ts-meta-tests` returns every var in the CURRENT namespace (`ns-publics
+;; *ns*` -- the shim is spliced once per namespace, so this is exactly the
+;; same "tests in this file" scope `ts-registry` itself covers, see
+;; `test-all-vars`'s own comment below) whose metadata carries a truthy
+;; `:test`, EXCLUDING anything a `deftest` in THIS file already registered.
+;;
+;; W4C (measured, fixing a bug in the paragraph this replaces): that
+;; exclusion must NOT be `ts-registry-find` -- this was tried first and
+;; silently made `ts-meta-tests` return `()` ALWAYS, for every var, in
+;; every file. `ts-registry-find`'s whole point (see its own doc above) is
+;; a SECOND, broader check: "OR does this var's metadata merely SAY
+;; `:test`, even if it was never added to `ts-registry` at all" -- exactly
+;; the meta-only, not-atom-registered shape a `defspec` var has. So
+;; `(ts-registry-find defspec-var)` is ALSO truthy (via that very
+;; fallback, `(:test (meta v))`, which for a `defspec` var is the spec's
+;; own real check fn, not `deftest`'s literal `true`) -- meaning the
+;; exclusion filter discarded every `defspec` var right back out, the
+;; exact "invoked a second time" collision it was trying to prevent, only
+;; now applied to a var that was never registered even ONCE. Confirmed by
+;; direct probe (`compat/w4c-defspec-ts-registry-find-probe.clj` +
+;; transcript): `(ts-registry-find (resolve 'longrange-equals-range))`
+;; returned the spec's own `:test` fn, non-nil, so `(nil? ...)` was
+;; `false` and the var never reached `ts-run-one` at all -- silently, no
+;; error, matching this file's own scoreboard row (`tests: 71`, not the
+;; oracle's 73, with `error: 0`).
+;;
+;; The fix: exclude ONLY on the same-namespace ATOM scan
+;; (`ts-registry-atom-find`, defined next to `ts-registry-find` above --
+;; that fn's own `some` half, no meta fallback) -- exactly "was this var
+;; appended to THIS namespace's `ts-registry` by a `deftest` call", which
+;; is the one collision this filter actually needs to guard against (a
+;; `deftest`'s own var, since W3f, ALSO carries real `:test` metadata and
+;; would otherwise show up here too and run a second time). A `defspec`
+;; var is never appended to `ts-registry` by anything, so it is never
+;; excluded, and now correctly reaches `ts-run-one` via the walk below.
+(defn ts-meta-tests []
+  (filter (fn [v] (and (:test (meta v)) (nil? (ts-registry-atom-find v))))
+          (vals (ns-publics ts-own-ns))))
+
+;; W4C: a `defspec` var's `:test` fn (`clojure_test.cljc`'s own, verbatim:
+;; `(fn [] (clojure.test.check.clojure-test/assert-check (assoc (~name)
+;; :test-var (str '~name))))`) does NOT report through THIS namespace's
+;; counting atoms at all, even though `ts-run-one` binds `ts-counting*`
+;; and reads `ts-t-assertions` right here, in the file's own spliced
+;; copy. Measured (`compat/w4c-defspec-cross-namespace-probe.clj` +
+;; transcript): `assert-check` calls `(ct/is (check? m))`, where `ct` is
+;; test.check's OWN internal alias for `clojure.test` -- and because this
+;; shim is SPLICED, separately, into EVERY vendored file's own namespace
+;; (this module's very first design decision, see the header doc), the
+;; `is`/`do-report`/`report`/`ts-counting*`/`ts-t-assertions` THIS
+;; namespace defines are a completely different, disconnected set of
+;; vars from the ones test.check's `ct/` alias resolves to (the ONE
+;; MATERIALIZED `clojure.test` module every vendored file's `(:require
+;; [clojure.test :as/:refer ...])` actually loads --
+;; `tools/clojure-suite-run.bb`'s `materialize-shim-as-clojure-test`).
+;; `ts-run-one` binding ITS OWN `ts-counting*` true and then reading ITS
+;; OWN `ts-t-assertions` afterward never observes anything `assert-check`
+;; reports, because `assert-check` increments the MATERIALIZED module's
+;; separate copy instead -- confirmed directly: a manual `(do-report
+;; {:type :pass})` call bumps this namespace's `ts-t-assertions` (0->1)
+;; immediately, but a subsequent real `assert-check` call on the SAME
+;; passing result leaves it unchanged.
+;;
+;; Fixing the general cross-namespace identity gap (making every
+;; spliced-per-file copy of the counting atoms into ONE shared set) is a
+;; MUCH bigger, riskier change touching all 50 files' scoring, not
+;; something this task's narrow "wire up defspec" scope calls for. The
+;; targeted fix: for a `defspec` var specifically -- identified by the
+;; SAME `::clojure.test.check.clojure-test/defspec` marker key
+;; `defspec`'s own macro already attaches via `vary-meta` (not a guess;
+;; the exact contract that macro documents) -- skip `assert-check`
+;; entirely. Call the var directly (`(v)`, the spec's own 0-arg arity,
+;; which runs `quick-check` with its declared default options -- the
+;; SAME generator/property/trial-count real Clojure would run; nothing
+;; about the actual test changes, only how its PASS/FAIL gets reported)
+;; and translate its `:pass?` into exactly ONE `ts-report-pass`/
+;; `ts-report-fail` call THROUGH THIS NAMESPACE's own (correct, locally-
+;; read) reporting -- matching the oracle's own accounting for a defspec
+;; (`ORACLE-ASSERTIONS.edn`: 1 assertion per `defspec`, exactly what a
+;; single passing/failing `is` inside `assert-check` would have
+;; contributed, had it landed in the right place).
+(defn ts-defspec-var? [v]
+  (:clojure.test.check.clojure-test/defspec (meta v)))
+
+(defn ts-meta-test-thunk [v]
+  (if (ts-defspec-var? v)
+    (fn []
+      (let [result (v)]
+        (if (:pass? result)
+          (ts-report-pass)
+          (ts-report-fail (str "defspec failed: " (pr-str (dissoc result :result)))))))
+    (:test (meta v))))
+
+;; `test-all-vars`: real clojure.test's own is `(test-vars (vals (ns-
+;; interns ns)))` -- every var interned in `ns` that carries `:test`
+;; metadata. `ns-interns` itself is still unresolvable in mova (confirmed
+;; by probe); this shim's stand-in has always been `ts-registry` (see
+;; `deftest`'s own comment) for the reason given there; it now ALSO runs
+;; `ts-meta-tests` (above) for the metadata-tagged vars `deftest` never
+;; sees at all (`defspec`, concretely) -- so between the two, every var
+;; real clojure.test would have found via `(:test (meta v))` is covered:
+;; `deftest`-registered ones through `ts-registry`, metadata-only ones
+;; through the walk. The `ns` argument is accepted for signature parity and
+;; ignored (both sources are already scoped to the current namespace); the
+;; only vendored caller (`test.clj`'s `test-ns-hook`) passes `(find-ns
+;; 'clojure.test-clojure.test)`, i.e. its OWN namespace, which is the one
+;; both `ts-registry` and `ts-meta-tests` already cover. Runs each through
+;; `ts-run-one` (not the bare `ts-invoke-test` real `test-vars` would use),
+;; same as the registry loop, so every test -- registry or
+;; metadata-discovered -- still resets the per-test atoms and prints its
+;; own `#RESULT` line. The metadata-discovered loop passes `ts-meta-test-
+;; thunk`'s wrapper, not the raw `(:test (meta v))`, so a `defspec` var's
+;; accounting lands in THIS namespace's own atoms -- see that fn's own
+;; doc for why the raw `:test` fn's reporting cannot be trusted here.
+(defn test-all-vars [ns]
+  (doseq [entry @ts-registry]
+    (ts-run-one (first entry) (second entry)))
+  (doseq [v (ts-meta-tests)]
+    (ts-run-one (str (:name (meta v))) (ts-meta-test-thunk v))))
+
+;; `test-ns-hook`: real clojure.test's `test-ns` looks for a var named
+;; `test-ns-hook` in the namespace under test and, if it finds one, calls
+;; it INSTEAD of `test-all-vars`:
+;;
+;;   (if-let [v (find-var (symbol (str (ns-name ns-obj)) "test-ns-hook"))]
+;;     ((var-get v))
+;;     (test-all-vars ns-obj))
+;;
+;; SHIM-LIMITS.md listed this under "what's still NOT replicated". It is
+;; the single reason `vendor/test.clj` scored 11/58: that file's whole
+;; design is a `test-ns-hook` that rebinds `report` to a `custom-report`
+;; which INVERTS deliberately-failing assertions (an `is` tagged
+;; `"Should fail"` that genuinely fails is reported as a `:pass`), so
+;; without the hook every "Should fail"/"Should error" assertion in it
+;; scored as a real failure and the hook's own `original-report` var
+;; stayed `nil` -- which is what made `clj-1588-symbols-in-are-isolated-
+;; from-test-clauses` blow up with "nil is not callable" (measured; NOT
+;; an `are` substitution bug -- `ts-are-subst` produces the oracle's
+;; exact `(= ((fn [x] (inc x)) 1) 2)` expansion for that deftest, and
+;; that assertion passes standalone).
+;;
+;; `(ns-resolve ts-own-ns ..)` is the stand-in for `find-var` + `ns-name`
+;; string-building, and it names the namespace EXPLICITLY for the same
+;; reason real clojure.test's `test-ns` does: the shim is spliced into
+;; the file's own namespace, but `run-tests` runs with `*ns*` = `user`
+;; (the runner calls it the way `tools/oracle-census.clj` does), so the
+;; lookup must not depend on `*ns*` at all. `ns-resolve` on an undefined
+;; name returns `nil` rather than throwing (probed). Exactly one vendored
+;; file defines a `test-ns-hook` (`test.clj` -- verified by grep), so this
+;; path is unreachable for the other 50.
+;;
+;; SPEC-W3: this used bare `(resolve 'test-ns-hook)` and worked only
+;; because mova's `resolve` read the LEXICAL namespace. `resolve` is
+;; `(ns-resolve *ns* sym)` on the JVM and now is here too, so the shim
+;; says which namespace it means -- which is what real clojure.test does
+;; (`(find-var (symbol (str (ns-name ns-obj)) "test-ns-hook"))`) and is
+;; strictly more honest than leaning on `*ns*` being ignored.
+(defn ts-ns-hook []
+  (ns-resolve ts-own-ns 'test-ns-hook))
+
+(defn run-tests []
+  (reset! ts-s-tests 0)
+  (reset! ts-s-pass 0)
+  (reset! ts-s-fail 0)
+  (reset! ts-s-error 0)
+  (reset! ts-s-assertions 0)
+  (reset! ts-s-assertions-passed 0)
+  ((ts-join-fixtures @ts-once-fixtures)
+   (fn []
+     (let [hook (ts-ns-hook)]
+       (if (nil? hook)
+         (test-all-vars nil)
+         (hook)))))
+  (println (str "#SUMMARY {:tests " @ts-s-tests
+                " :pass " @ts-s-pass
+                " :fail " @ts-s-fail
+                " :error " @ts-s-error
+                " :assertions " @ts-s-assertions
+                " :assertions-passed " @ts-s-assertions-passed
+                "}"))
+  nil)
+
+;; `test-vars`: real clojure.test's own signature -- given a seq of
+;; `#'var`s, runs each one that IS a registered test (see `deftest`'s own
+;; comment on `ts-registry-find` standing in for `(:test (meta v))`)
+;; wrapped in the CURRENT :each fixtures, all wrapped in the CURRENT :once
+;; fixtures ONCE for the whole call. Measured directly against real
+;; Clojure 1.13.0-alpha6 before writing this (not guessed): a standalone
+;; `test-vars` call on a var lacking test registration runs :once fixtures
+;; (they wrap the call unconditionally) but NOT :each fixtures (skipped
+;; per-var, matching `a-var-lacking-test-meta-should-not-trigger-fixtures`
+;; -- only the :each-fixture-tracked `side-effects` atom is required to
+;; stay unchanged there); a `test-vars` call on a real registered test runs
+;; both, exactly once. Does NOT touch `ts-s-tests`/`ts-s-*` summary counts
+;; or reset `ts-t-*` per-test atoms -- real clojure.test's own counting is
+;; entirely a side effect of the (rebindable) `report` var's default
+;; methods, and this shim now mirrors that (see `ts-default-report`'s own
+;; comment): every vendored use of `test-vars` in this corpus rebinds
+;; `report` for its entire dynamic extent specifically to observe/capture
+;; events instead of letting them fall through to the default counters, so
+;; there is nothing for `test-vars` itself to reset without corrupting
+;; whatever OUTER test's `ts-t-*` state is still live around it.
+;; NOTE: does not re-wrap with :each fixtures here -- `ts-invoke-test`
+;; (called below) already applies `@ts-each-fixtures` itself; doing it
+;; again here would apply every :each fixture TWICE per var.
+;;
+;; `ts-s-tests` IS bumped here (unlike `ts-s-pass`/`ts-s-assertions`/etc,
+;; which flow only through the rebindable `report`) because real
+;; clojure.test's own `:test` counter is incremented by a DIRECT
+;; `(inc-report-counter :test)` call inside `test-var`, not via the
+;; `report` multimethod -- so, unlike pass/fail/error, it is NOT bypassed
+;; when a caller rebinds `report` (confirmed against real Clojure's
+;; source). This is why ORACLE-ASSERTIONS.edn's own :deftests count for
+;; this file is 6, not the 5 literal `deftest` forms in it: the nested
+;; `test-vars` call inside `can-run-a-single-test-with-fixtures` re-runs
+;; `can-use-each-fixtures` and that counts as a 6th test invocation.
+(defn test-vars [vars]
+  ((ts-join-fixtures @ts-once-fixtures)
+   (fn []
+     (doseq [v vars]
+       (when (ts-registry-find v)
+         (swap! ts-s-tests inc)
+         (ts-invoke-test v))))))
+
+;; ==================== *err* / run-test (singular) ====================
+;; S5: unblocks run_single_test.clj's two remaining failures
+;; (`reports-missing-var`, `reports-non-test-var`) plus its passing case
+;; (`can-run-test-with-fixtures`).
+;;
+;; `*err*`: SHIM-LIMITS.md used to say this can't exist at all ("*err*
+;; was never wired up" -- true of mova's own `*err*`, i.e. a real dynamic
+;; var an interpreter-level `print`/`println` writes THROUGH). This is
+;; NOT that: it's this shim's OWN plain dynamic var (mova genuinely
+;; supports `def ^:dynamic` + `binding` now -- confirmed working
+;; elsewhere in this file, e.g. `report`), used ONLY as a hand-rolled
+;; "writer" that `run-test`'s two failure paths (below) and
+;; `with-err-string-writer` (mova-test-helper-shim.mova) agree on: `nil`
+;; means "nobody is capturing", any other value is an atom to `swap!`
+;; onto. Nothing routes mova's real stdout/stderr through it -- there is
+;; no interpreter-level *err* to hook (confirmed unresolvable, still),
+;; so a vendored assertion that needs to observe genuine process stderr
+;; (as opposed to just this shim's OWN `run-test` diagnostics) is still
+;; out of reach. `ts-err-write` is the only writer: silently drops
+;; everything when `*err*` is unbound (`nil`), matching "no real stderr
+;; fallback" -- there's nothing in this corpus that wants a bypass to the
+;; genuine process stderr, only a captured string.
+(def ^:dynamic *err* nil)
+
+(defn ts-err-write [s]
+  (when-not (nil? *err*)
+    (swap! *err* str s)))
+
+;; `run-test`'s message text embeds `test-symbol` the same way real
+;; Clojure's does -- `(str (namespace-of test-symbol) "/" (name-of
+;; test-symbol))` -- EXCEPT mova's syntax-quote does not auto-qualify a
+;; bare symbol to `current-ns/name` the way real Clojure's backtick does
+;; (confirmed by probe: `` `sym `` reads back as the bare `sym`, no `ns/`
+;; prefix, unlike real Clojure where syntax-quote is what supplies the
+;; qualification real `run-test`'s message text relies on). Every
+;; vendored caller of `run-test` builds its argument inside a
+;; syntax-quote precisely to get that namespace-qualified shape
+;; (`` `(run-test function-missing) ``), so this shim reproduces the
+;; SAME qualified shape itself, at the point it prints the message,
+;; rather than silently emitting an unqualified name that would fail
+;; every vendored regex expecting `.*/name` (both failure-path regexes
+;; in run_single_test.clj are exactly this shape).
+(defn ts-qualify-sym [sym]
+  (let [s (str sym)]
+    (if (includes? s "/")
+      s
+      (str (str ts-own-ns) "/" s))))
+
+;; Isolated per-call counters (mirrors real `run-test-var`'s fresh
+;; `*report-counters*` ref, "isolated" being the load-bearing word -- a
+;; nested `run-test` must not corrupt whatever OUTER `ts-t-*`/`ts-s-*`
+;; state is live around it, same reasoning as `test-vars`'s own comment
+;; above): rebinds `report` for the dynamic extent of ONE `ts-invoke-test`
+;; call, tallying pass/fail/error into fresh local atoms instead of the
+;; shared `ts-*` ones, then returns real clojure.test's own
+;; `run-test-var` summary shape.
+;; W4-SHIM: `report` is ALSO a per-namespace-spliced var, exactly like
+;; `ts-once-fixtures`/`ts-each-fixtures` (see `ts-cross-ns-fixtures`'s own
+;; doc below) -- and this one bit HARDER, because a plain `binding
+;; [report ...]` cannot fix it. Measured directly (a live probe against
+;; `run_single_test.clj`'s assembled file): a `deftest` body's `is`
+;; macroexpansion is compiled AT DEFINE TIME, in whatever namespace was
+;; current then, and the `report` call inside that expansion resolves the
+;; SAME way -- baked to THAT namespace's own `report` cell, never
+;; re-resolved against whoever later CALLS the compiled var. Rebinding
+;; `report` in the CALLING namespace (the only thing a literal `binding
+;; [report ...]` can ever do -- `binding` needs a literal symbol at its
+;; own call site, same constraint `with-var-roots`'s doc documents for
+;; `set!`) therefore misses every assertion a cross-namespace target var
+;; reports through: before this fix, `can-run-test-with-fixtures` reliably
+;; measured `{:pass 0 :fail 0 :error 0}` for a target whose body actually
+;; ran two real, passing assertions -- REPORTED NOWHERE, not merely
+;; miscounted, because `ts-invoke-test-with-fixtures`'s try/catch never
+;; even saw a mismatch to catch.
+;;
+;; `push-thread-bindings` (S7 tail wave; rt.clj's own `bare-rt-print`
+;; already exercises it, `{#'clojure.core/print-initialized false}`) is
+;; the fix: unlike `binding`, it takes an ORDINARY MAP of already-resolved
+;; `Var` VALUES to new values, evaluated normally like any function
+;; argument -- so a `Var` obtained at RUNTIME via `ns-resolve` (the
+;; target namespace's OWN `report`, found the same way
+;; `ts-cross-ns-fixtures` finds its fixtures atoms) works as a key, no
+;; literal symbol required. `pop-thread-bindings` inside a `finally`
+;; unwinds it on every exit path, same discipline `binding` itself
+;; guarantees.
+(defn ts-run-test-var-summary-cross-ns [each-fixtures v report-var]
+  (let [pass (atom 0) fail (atom 0) error (atom 0)
+        counting-fn (fn [m]
+                       (let [t (:type m)]
+                         (cond
+                           (= t :pass) (swap! pass inc)
+                           (= t :fail) (swap! fail inc)
+                           (= t :error) (swap! error inc)
+                           :else nil)))]
+    (push-thread-bindings {report-var counting-fn})
+    (try
+      (ts-invoke-test-with-fixtures each-fixtures v)
+      (finally (pop-thread-bindings)))
+    {:test 1 :pass @pass :fail @fail :error @error :type :summary}))
+
+;; The two failure paths mirror real `run-test`'s `(binding [*out* *err*]
+;; (println ...))` -- this shim has no `*out*`/`*err*` swap to lean on, so
+;; it writes directly to the `*err*` writer above instead. "Is this var a
+;; registered test" is `ts-registry-find`, same standin `deftest`'s own
+;; comment documents for real clojure.test's `(:test (meta v))`.
+;; W4-SHIM (2026-08-21): `run-test`'s whole point (unlike `run-tests`/
+;; `test-vars`, both same-namespace-only) is running a var that may live
+;; in a DIFFERENT namespace than the caller -- SHIM-LIMITS.md's old
+;; "`*err*` / `run-test` (S5)" section documented exactly this case
+;; (`run_single_test.clj`'s `can-run-test-with-fixtures`, `(run-test
+;; tf/can-use-once-fixtures)`) as an out-of-scope "next blocker": W3f's
+;; var-metadata fallback already fixed `ts-registry-find` finding the
+;; cross-namespace var, but the FIXTURES it needs to run under
+;; (`fixture-a`/`fixture-b`, registered via `test_fixtures.clj`'s own
+;; `(use-fixtures :once fixture-a fixture-b)`) live in THAT namespace's
+;; OWN `ts-once-fixtures` atom -- a plain per-namespace `def` (module
+;; header, "use-fixtures state"), never shared process-wide. Blindly
+;; reading `@ts-once-fixtures` here reads THIS (calling) namespace's own
+;; copy, which is empty for any file that never calls `use-fixtures`
+;; itself (confirmed: `run_single_test.clj` doesn't), so the once
+;; fixtures silently never ran and `*a*`/`*b*` stayed unbound.
+;;
+;; `(:ns (meta v))` is the var's namespace as a SYMBOL (real mova var
+;; metadata written by `publish_var_meta` in `src/eval/special_forms.rs`
+;; -- NOT a Namespace object the way real Clojure's own `:ns` meta is),
+;; and `ns-resolve` on it finds THAT namespace's own `ts-once-fixtures`/
+;; `ts-each-fixtures` var -- one `deref` to reach the atom (a Var's bound
+;; value), a second to reach the vector inside it (measured: `ns-resolve`
+;; returns the VAR itself, same as `resolve`, never auto-dereffed).
+;; Falls back to the CURRENT namespace's own atom when the var carries no
+;; `:ns` (shouldn't happen for anything `deftest` registers -- every
+;; qualified `def` gets one, see `publish_var_meta`) or `ns-resolve`
+;; somehow misses (defensive; not expected to fire for any vendored
+;; caller).
+(defn ts-cross-ns-fixtures [v fixtures-sym fallback]
+  (let [ns-sym (:ns (meta v))]
+    (if (nil? ns-sym)
+      fallback
+      (let [fv (ns-resolve ns-sym fixtures-sym)]
+        (if (nil? fv) fallback @@fv)))))
+
+;; The `report` counterpart to `ts-cross-ns-fixtures` above: resolves the
+;; TARGET var's own namespace's `report` Var (not the caller's), for
+;; `push-thread-bindings` to override directly -- see
+;; `ts-run-test-var-summary-cross-ns`'s own doc for why this, not
+;; `binding`, is required. Falls back to the CALLING namespace's own
+;; `report` (via `*ns*`) on the same defensive terms
+;; `ts-cross-ns-fixtures` documents -- not expected to fire for any
+;; vendored caller, since only a `deftest`-registered var (which
+;; guarantees the shim, and therefore `report`, was spliced into its
+;; namespace) ever reaches this point at all (`ts-registry-find` above).
+(defn ts-cross-ns-report-var [v]
+  (let [ns-sym (or (:ns (meta v)) ts-own-ns)
+        rv (ns-resolve ns-sym 'report)]
+    (if (nil? rv) (ns-resolve ts-own-ns 'report) rv)))
+
+;; SPEC-W3: `(ns-resolve ts-own-ns sym)`, not bare `(resolve sym)`, for
+;; the same reason `ts-ns-hook` above names its namespace: `run-test` is
+;; called from a deftest body running with `*ns*` = `user`, while `sym`
+;; (which may be alias-qualified, e.g. `tf/can-use-once-fixtures`) is
+;; written in, and must resolve against, the FILE's own namespace -- the
+;; one the shim was spliced into.
+(defn ts-run-test-single [sym]
+  (let [v (ns-resolve ts-own-ns sym)]
+    (cond
+      (nil? v)
+      (do (ts-err-write (str "Unable to resolve " (ts-qualify-sym sym) " to a test function.\n"))
+          nil)
+
+      (nil? (ts-registry-find v))
+      (do (ts-err-write (str (ts-qualify-sym sym) " is not a test.\n"))
+          nil)
+
+      :else
+      (let [once-fx (ts-cross-ns-fixtures v 'ts-once-fixtures @ts-once-fixtures)
+            each-fx (ts-cross-ns-fixtures v 'ts-each-fixtures @ts-each-fixtures)
+            report-var (ts-cross-ns-report-var v)]
+        ((ts-join-fixtures once-fx)
+         (fn [] (ts-run-test-var-summary-cross-ns each-fx v report-var)))))))
+
+(defmacro run-test [test-symbol]
+  `(ts-run-test-single '~test-symbol))

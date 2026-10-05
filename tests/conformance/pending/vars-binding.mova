@@ -1,0 +1,18 @@
+OK	1
+OK	1
+OK	2
+OK	#<fn f>
+OK	0
+OK	100
+ERR	{:message "Unable to resolve symbol: bound?", :type :error/unresolved}
+OK	1
+OK	#'user/a1
+OK	2
+OK	#<fn foo>
+OK	nil
+OK	true
+ERR	{:message "Unable to resolve symbol: *clojure-version*", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: *command-line-args*", :type :error/unresolved}
+OK	#<macro two>
+OK	#<macro two>
+OK	#<macro my-name>

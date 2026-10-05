@@ -1,0 +1,4 @@
+OK	nil
+ERR	{:message "defprotocol: expected a method signature list", :type :error/other}
+ERR	{:message "defprotocol: expected a method signature list", :type :error/other}
+ERR	{:message "No implementation of method: :rpm of protocol: #'user/RP found for class: java.lang.Long", :type :error/other}

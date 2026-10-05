@@ -1,0 +1,199 @@
+;; numbers.corpus -- arithmetic, comparisons, numeric equality, inc/dec/
+;; min/max/abs, mod/rem/quot sign cases. One session (forms may build on
+;; earlier `def`s in this file). No ratios, no bigints, no int overflow.
+(+ 1 2)
+(+ 1 2 3 4)
+(+)
+(+ 1)
+(+ 1.5 2.5)
+(+ 1 2.5)
+(- 5 3)
+(- 5)
+(- 5 1 1 1)
+(- 1.5 0.5)
+(*)
+(* 2 3 4)
+(* 2 3.0)
+(/ 6 3)
+(/ 8 4.0)
+(/ 1)
+(/ 10 2 5)
+(< 1 2)
+(< 1 2 3)
+(< 1 2 2)
+(<= 1 1 2)
+(> 3 2 1)
+(>= 3 3 2)
+(= 1 1)
+(= 1 2)
+(= 1 1.0)
+(= 1.0 1.0)
+(= "a" "a")
+(= :a :a)
+(= [1 2] [1 2])
+(= '(1 2) [1 2])
+(= {:a 1} {:a 1})
+(= #{1 2} #{2 1})
+(not= 1 2)
+(not= 1 1)
+(inc 5)
+(inc -1)
+(inc 5.5)
+(dec 5)
+(dec 0)
+(dec 5.5)
+(mod 7 3)
+(mod -7 3)
+(mod 7 -3)
+(mod -7 -3)
+(mod 7.5 2)
+(rem 7 3)
+(rem -7 3)
+(rem 7 -3)
+(rem -7 -3)
+(quot 7 3)
+(quot -7 3)
+(quot 7 -3)
+(quot -7 -3)
+(abs -5)
+(abs 5)
+(abs -5.5)
+(min 3 1 2)
+(min 3.0 1 2)
+(max 3 1 2)
+(max 1 2 3.5)
+(even? 4)
+(even? 5)
+(odd? 3)
+(odd? 4)
+(pos? 5)
+(pos? -5)
+(pos? 0)
+(neg? -5)
+(neg? 5)
+(zero? 0)
+(zero? 1)
+(zero? 0.0)
+(+ 100000000 1)
+(* 1000 1000)
+(- 0 0)
+(= (+ 1 2) 3)
+(= (* 2 (+ 1 1)) 4)
+(let [x 10 y 20] (+ x y))
+(let [a 1.0 b 2] (+ a b))
+(> 5 4 3 2 1)
+(<= 1 2 3 3 4)
+(dec (inc 41))
+(abs (- 3 10))
+(max (min 5 3) (min 10 1))
+;; -- bit ops / numeric casts / float printing: verified-conforming, moved
+;; from the numerics/equality-hash gap-corpus sweep (see
+;; tests/conformance/pending/numerics.corpus) --
+(bit-and 6 3)
+(bit-or 6 3)
+(bit-xor 6 3)
+(bit-not 0)
+(bit-shift-left 1 63)
+(bit-shift-right -8 1)
+(int 3.9)
+(int -3.9)
+(long 3.9)
+(double 3)
+(float 3)
+-0.0
+(sort [3 1 2.0])
+;; Promoted from pending/numerics.corpus (M1: conforms as of the
+;; reader-literals + S12 Java float printing change).
+(/ 1.0 0.0)
+(/ -1.0 0.0)
+(/ 0.0 0.0)
+1e10
+1e300
+1e-4
+;; Promoted from pending/numerics.corpus (M1: conforms as of the
+;; bignum Value wiring -- Ratio/BigInt/BigDecimal literals).
+7N
+(integer? 7N)
+1.5M
+(= 1 1N)
+;; Promoted from pending/numerics.corpus (M2: byte/short/num/bigint/bigdec casts).
+(bigint 5)
+(bigdec 5)
+(num 3)
+;; Promoted from pending/numerics.corpus (M2: clojure.math port; Math/sqrt
+;; and Math/pow resolve through the pre-existing bare-name fallback and
+;; agree with the JVM's values). The ;;PRELUDE line below (same mechanism
+;; and reason as async.corpus's) requires clojure.math on the JVM side
+;; only: real Clojure does NOT auto-load it on qualified reference
+;; (measured: ERR CompilerException in a bare session), while mova ships
+;; it built in. The original promotion hand-copied goldens from the
+;; PRELUDE'd pending session instead of regenerating -- caught by the
+;; S3 gen-golden run being non-byte-stable.
+;;PRELUDE (require (quote [clojure.math]))
+(clojure.math/sqrt 4.0)
+(clojure.math/pow 2 10)
+(clojure.math/floor 2.7)
+(clojure.math/round 2.5)
+(clojure.math/atan2 1.0 1.0)
+(clojure.math/hypot 3.0 4.0)
+(Math/sqrt 4.0)
+(Math/pow 2 10)
+;; ---------------------------------------------------------------------
+;; S5 (SPEC-numtower): promoted out of tests/conformance/pending/
+;; numerics.corpus and equality-hash.corpus, which is where all of these
+;; sat while mova had no tower arithmetic. Covers, in order: the
+;; `'`-suffixed promoting family, `unchecked-*` wraparound, ratios and
+;; ratio-producing division, numerator/denominator, `rationalize`, the
+;; BigInt/BigDecimal contagion rules, `==` across ranks, and -- from
+;; equality-hash -- the now-type-strict `=` and its leakage into
+;; collection ops (`distinct`/`distinct?`), plus two `hash` values that
+;; are only stable because `hash` reproduces clojure.lang.Util.hasheq
+;; exactly for numbers.
+(+' 9223372036854775807 1)
+(-' -9223372036854775808 1)
+(*' 3037000500 3037000500)
+(inc' 9223372036854775807)
+(dec' -9223372036854775808)
+(unchecked-add 9223372036854775807 1)
+(unchecked-inc 9223372036854775807)
+(unchecked-multiply 3037000500 3037000500)
+(unchecked-dec -9223372036854775808)
+(unchecked-negate -9223372036854775808)
+(/ 1 3)
+(/ 6 4)
+(+ 1/2 1/3)
+(* 2/3 3)
+(numerator 3/4)
+(denominator 3/4)
+(ratio? 3/4)
+(rational? 3/4)
+(== 1/2 0.5)
+(rationalize 0.25)
+(+ 1N 1)
+(+ 1.5M 1)
+(* 2N 3N)
+(== 1 1N)
+(decimal? 1.5M)
+(= [1] [1.0])
+(= '(1) [1.0])
+(== 1 1.0)
+(distinct [1 1.0 1])
+(apply distinct? [1 1.0])
+(hash 1)
+(hash 1.0)
+;; S5: the last two forms promoted out of pending/numerics.corpus --
+;; `NaN?`/`infinite?` are `^double`-hinted in clojure.core but the hint
+;; WIDENS rather than rejects, so both are total over every numeric rank
+;; (measured: `(NaN? 1)` and `(NaN? 1M)` are `false`, not throws).
+(NaN? (/ 0.0 0.0))
+(infinite? (/ 1.0 0.0))
+(NaN? 1)
+(infinite? 1M)
+;; S5: promoted from pending/equality-hash.corpus. Clojure's `=` on two
+;; Doubles is `DoubleOps.equiv`, i.e. plain IEEE `==` on the primitives --
+;; NOT a bit comparison -- so `-0.0` IS `0.0` and a NaN is equal to
+;; nothing, itself included. mova compared floats by bits until S5.
+(= (/ 0.0 0.0) (/ 0.0 0.0))
+(= -0.0 0.0)
+(== -0.0 0.0)
+(hash -0.0)

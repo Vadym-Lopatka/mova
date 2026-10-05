@@ -1,0 +1,180 @@
+clojure.core/int?
+5
+{:clojure.spec.alpha/problems [{:path [], :pred clojure.core/int?, :val "a", :via [:user/x], :in []}], :clojure.spec.alpha/spec :user/x, :clojure.spec.alpha/value "a"}
+"\"a\" - failed: int? spec: :user/x\n"
+int?
+true clojure.core/int? "\"a\" - failed: int?\n"
+true
+true nil
+clojure.core/int?
+clojure.core/int? 3
+false
+user/my-pred "\"a\" - failed: my-pred spec: :user/mine\n"
+(clojure.spec.alpha/and clojure.core/int? (clojure.core/fn [%] (clojure.core/> % 10))) (and int? (> % 10))
+20 :clojure.spec.alpha/invalid
+"5 - failed: (> % 10) spec: :user/big\n"
+[:i 5] [:st "a"] :clojure.spec.alpha/invalid
+":k - failed: int? at: [:i] spec: :user/e\n:k - failed: string? at: [:st] spec: :user/e\n"
+"a"
+(clojure.spec.alpha/or :i clojure.core/int? :st clojure.core/string?) (or :i int? :st string?)
+[:n 4] :clojure.spec.alpha/invalid [:s "abcd"] :clojure.spec.alpha/invalid
+"\"a\" - failed: int? at: [:n] spec: :user/even-int\n\"a\" - failed: (> (count %) 2) at: [:s] spec: :user/long-str\n"
+4
+(clojure.spec.alpha/or :n :user/even-int :s :user/long-str) (or :n :user/even-int :s :user/long-str)
+true false
+true
+:clojure.spec.alpha/invalid false
+{:user/fname "a", :user/lname "b"}
+false
+"{:user/fname \"a\"} - failed: (contains? % :user/lname) spec: :user/person\n"
+{:clojure.spec.alpha/problems ({:path [:user/lname], :pred clojure.core/string?, :val 3, :via [:user/person :user/lname], :in [:user/lname]}), :clojure.spec.alpha/spec :user/person, :clojure.spec.alpha/value {:user/fname "a", :user/lname 3}}
+(clojure.spec.alpha/keys :req [:user/fname :user/lname] :opt [:user/email]) (keys :req [:user/fname :user/lname] :opt [:user/email])
+{:user/fname "a", :user/lname "b"}
+{:fname "a", :lname "b", :email "e"}
+false
+"{:fname \"a\"} - failed: (contains? % :lname) spec: :user/un-person\n"
+(keys :req-un [:user/fname :user/lname] :opt-un [:user/email])
+true false true
+"{} - failed: (or (contains? % :user/fname) (and (contains? % :user/lname) (contains? % :user/email))) spec: :user/grouped\n"
+(clojure.spec.alpha/keys :req [(or :user/fname (and :user/lname :user/email))])
+{:fname "a", :age 3}
+false
+"{:fname \"a\"} - failed: (contains? % :age) spec: :user/m2\n"
+(clojure.spec.alpha/merge :user/m1 :user/m2) (merge :user/m1 :user/m2)
+[1 2 3] (1 2) #{1 2}
+false "\"a\" - failed: int? in: [1] spec: :user/ints\n"
+(clojure.spec.alpha/coll-of clojure.core/int?) (coll-of int?)
+true false "(1 2) - failed: vector? spec: :user/iv\n"
+(coll-of int? :kind vector?)
+true false "[1 2] - failed: (= 3 (count %)) spec: :user/i3\n"
+false true false
+"[1] - failed: (<= 2 (count %) 5) spec: :user/i25\n"
+true false "[1 1] - failed: distinct? spec: :user/idist\n"
+#{1 2} (coll-of int? :into #{})
+[1 2]
+[1 2] false (every int?)
+{:a 1} false (every-kv keyword? int?)
+{:a 1, :b 2} false
+"\"x\" - failed: int? in: [:a 1] at: [1] spec: :user/mo\n"
+(clojure.spec.alpha/map-of clojure.core/keyword? clojure.core/int?) (map-of keyword? int?)
+{:a 1}
+[1 2 :a] :clojure.spec.alpha/invalid :clojure.spec.alpha/invalid
+"3 - failed: keyword? in: [2] at: [2] spec: :user/pt\n"
+(clojure.spec.alpha/tuple clojure.core/int? clojure.core/int? clojure.core/keyword?) (tuple int? int? keyword?)
+[1 2 :a]
+nil 1 :clojure.spec.alpha/invalid
+"\"a\" - failed: int? at: [:clojure.spec.alpha/pred] spec: :user/ni\n\"a\" - failed: nil? at: [:clojure.spec.alpha/nil] spec: :user/ni\n"
+(clojure.spec.alpha/nilable clojure.core/int?) (nilable int?) nil
+{:quantity 2, :unit :teaspoon}
+:clojure.spec.alpha/invalid
+"\"teaspoon\" - failed: keyword? in: [1] at: [:unit] spec: :user/ingredient\n"
+"() - failed: Insufficient input at: [:unit] spec: :user/ingredient\n"
+"(:extra) - failed: Extra input in: [2] spec: :user/ingredient\n"
+(2 :teaspoon)
+(clojure.spec.alpha/cat :quantity clojure.core/number? :unit clojure.core/keyword?) (cat :quantity number? :unit keyword?)
+[:i 1] [:s "a"] :clojure.spec.alpha/invalid
+":k - failed: int? in: [0] at: [:i] spec: :user/alt1\n:k - failed: string? in: [0] at: [:s] spec: :user/alt1\n"
+["a"] (alt :i int? :s string?)
+[] [1 2] :clojure.spec.alpha/invalid
+(* int?)
+:clojure.spec.alpha/invalid [1 2]
+"() - failed: Insufficient input spec: :user/plus\n" (+ int?)
+nil 1 :clojure.spec.alpha/invalid
+(? int?)
+{:prefix [:a :b], :nums [1 2]} {:prefix [:a]}
+"1 - failed: keyword? in: [0] at: [:prefix] spec: :user/seq2\n"
+(:a :b 1 2)
+(cat :prefix (+ keyword?) :nums (* int?))
+{:first {:a 1, :b 2}, :rest [:x :y]}
+false
+"1 - failed: (or (nil? %) (sequential? %)) in: [0] at: [:first] spec: :user/inner\n"
+(cat :first :user/inner :rest (* keyword?))
+[1 2] :clojure.spec.alpha/invalid
+"[1] - failed: (even? (count %)) spec: :user/amp\n" (& (* int?) (even? (count %)))
+{:name "bob", :age 3}
+false
+(:name "bob")
+(& (* (cat :clojure.spec.alpha/k keyword? :clojure.spec.alpha/v any?)) :clojure.spec.alpha/kvs->map)
+"a" :clojure.spec.alpha/invalid
+5 "a" :clojure.spec.alpha/invalid
+(nonconforming (or :i int? :s string?))
+true true false false false
+42
+"100 - failed: (int-in-range? 0 100 %) spec: :user/pct\n"
+true false false
+true false false
+false
+5
+true
+5
+:assertion-failed
+true
+false "x"
+true
+true
+true
+true
+true
+true
+true
+10
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+5
+true
+true clojure.core/int?
+(5)
+(7)
+(8)
+(fspec :args (cat :x int?) :ret int? :fn nil)
+(clojure.spec.alpha/fspec :args (clojure.spec.alpha/cat :x clojure.core/int?) :ret clojure.core/int? :fn nil)
+true
+false
+true
+:clojure.spec.alpha/invalid
+false
+"42 - failed: ifn? spec: :user/inc-like\n"
+(clojure.spec.alpha/cat :x clojure.core/int?) clojure.core/int? nil
+(clojure.spec.alpha/cat :x clojure.core/int?) nil :default
+true
+false
+true
+true
+(fspec :args (cat :x int?) :ret int? :fn nil)
+true
+(multi-spec event-type :event/type) (clojure.spec.alpha/multi-spec user/event-type :event/type)
+true true
+{:event/type :event/search, :event/ts 1, :search/q "hi"}
+true
+false
+"{:event/type :event/search, :event/ts 1} - failed: (contains? % :search/q) at: [:event/search] spec: :user/event\n"
+false
+"{:event/type :event/nope, :event/ts 1} - failed: no method at: [:event/nope] spec: :user/event\n"
+"42 - failed: no method at: [nil] spec: :user/event\n"
+true
+(:event/error :event/search)
+5
+(and inst? (inst-in-range? #inst "1990-01-01T00:00:00.000-00:00" #inst "2000-01-01T00:00:00.000-00:00" %))
+true
+true
+false
+false
+false
+#inst "1995-06-01T00:00:00.000-00:00"
+:clojure.spec.alpha/invalid
+"#inst \"2005-01-01T00:00:00.000-00:00\" - failed: (inst-in-range? #inst \"1990-01-01T00:00:00.000-00:00\" #inst \"2000-01-01T00:00:00.000-00:00\" %) spec: :user/the90s\n"
+true
+false
+false
+500
+true
+true

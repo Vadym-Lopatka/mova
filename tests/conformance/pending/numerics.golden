@@ -1,0 +1,10 @@
+ERR	ArithmeticException
+ERR	ArithmeticException
+ERR	ArithmeticException
+ERR	ArithmeticException
+ERR	ArithmeticException
+ERR	IllegalArgumentException
+ERR	IllegalArgumentException
+OK	4.9E-324
+OK	4.9E-324
+OK	3.4028235E38

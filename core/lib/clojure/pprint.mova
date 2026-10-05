@@ -1,0 +1,139 @@
+;; clojure.pprint for mova: `pprint`, `write`, `pp` and the margin vars.
+;;
+;; A mova-authored pretty printer that follows the layout rules of Clojure's
+;; `simple-dispatch`: a list, vector, set or map that fits in the right margin
+;; prints flat; otherwise every separator of that block breaks ("linear"
+;; newlines) and the elements line up under the first one. A map entry is a
+;; block too, so a long value moves under its key. Covered: `*print-length*`,
+;; `*print-level*`, `*print-right-margin*`, and the `write` options below.
+;; Not covered: `cl-format`, `code-dispatch`, `with-pprint-dispatch`, fill and
+;; miser newlines (simple dispatch uses none), `*print-lines*`, radix/base,
+;; `pprint-logical-block` and friends, namespace-map `#:a{}` splitting.
+(ns clojure.pprint)
+
+(def ^:dynamic *print-right-margin* 72)
+(def ^:dynamic *print-miser-width* 40)
+(def ^:dynamic *print-lines* nil)
+(def ^:dynamic *print-pprint-dispatch* nil)
+
+(defn- spaces [n] (apply str (repeat n \space)))
+
+(defn- limit-items [items]
+  (let [n *print-length*]
+    (if (and n (> (count items) n))
+      (conj (vec (take n items)) {:raw "..."})
+      items)))
+
+;; [prefix suffix flat-sep break-sep items] for a collection that prints as a
+;; block, else nil.
+(defn- parts [x level]
+  (cond
+    (and (map? x) (not (record? x)) (seq x))
+    ["{" "}" ", " "," (limit-items (mapv (fn [e] {:kv [(key e) (val e)]}) x))]
+    (and (vector? x) (seq x))
+    ["[" "]" " " "" (limit-items (mapv (fn [v] {:v v}) x))]
+    (and (set? x) (seq x))
+    ["#{" "}" " " "" (limit-items (mapv (fn [v] {:v v}) x))]
+    (and (seq? x) (seq x))
+    ["(" ")" " " "" (limit-items (mapv (fn [v] {:v v}) (if *print-length* (take (inc *print-length*) x) x)))]
+    :else nil))
+
+(defn- too-deep? [x level]
+  (and *print-level* (>= level *print-level*)
+       (or (and (map? x) (not (record? x))) (vector? x) (set? x) (seq? x))
+       (seq x)))
+
+(defn- flat [node level]
+  (cond
+    (:raw node) (:raw node)
+    (:kv node) (if (and *print-level* (>= level *print-level*))
+                 "#"
+                 (let [[k v] (:kv node)]
+                   (str (flat {:v k} (inc level)) " " (flat {:v v} (inc level)))))
+    :else
+    (let [x (:v node)]
+      (cond
+        (too-deep? x level) "#"
+        :else
+        (if-let [[pre suf fsep _ items] (parts x level)]
+          (str pre
+               (apply str (interpose fsep (map #(flat % (inc level)) items)))
+               suf)
+          (pr-str x))))))
+
+(defn- render [node col trail level]
+  (let [f (flat node level)]
+    (if (<= (+ col (count f) trail) *print-right-margin*)
+      f
+      (cond
+        (:kv node)
+        (let [[k v] (:kv node)]
+          (str (render {:v k} col 1 (inc level)) " \n" (spaces col)
+               (render {:v v} col trail (inc level))))
+        (:raw node) f
+        :else
+        (let [x (:v node)]
+          (if-let [[pre suf _ bsep items] (when-not (too-deep? x level) (parts x level))]
+            (let [c (+ col (count pre))
+                  n (count items)]
+              (str pre
+                   (apply str
+                          (map-indexed
+                           (fn [i it]
+                             (str (when (pos? i) (str bsep "\n" (spaces c)))
+                                  (render it c
+                                          (if (= i (dec n)) (+ trail (count suf)) (count bsep))
+                                          (inc level))))
+                           items))
+                   suf))
+            f))))))
+
+(defn- trim-line-ends [s]
+  (clojure.string/replace s #" +\n" "\n"))
+
+(defn- pp-string [x] (trim-line-ends (render {:v x} 0 0 0)))
+
+(defn- write-to [w s]
+  (binding [*out* w] (print s) (flush)))
+
+(defn- var-bindings [opts]
+  (let [m {:length #'clojure.core/*print-length*
+           :level #'clojure.core/*print-level*
+           :readably #'clojure.core/*print-readably*
+           :meta #'clojure.core/*print-meta*
+           :dup #'clojure.core/*print-dup*
+           :right-margin #'clojure.pprint/*print-right-margin*
+           :miser-width #'clojure.pprint/*print-miser-width*}]
+    (into {} (keep (fn [[k v]] (when (contains? opts k) [v (get opts k)]))) m)))
+
+(defn write
+  "Write an object subject to the current bindings of the printer control
+  variables. Options (`:stream`, `:pretty`, `:length`, `:level`,
+  `:right-margin`, `:miser-width`, `:readably`, `:meta`, `:dup`) bind the
+  matching vars. With `:stream` nil the text is returned; `true` (the default)
+  prints to `*out*`; any other value is a writer."
+  [x & {:as opts}]
+  (let [b (var-bindings opts)
+        stream (get opts :stream true)
+        pretty? (get opts :pretty true)]
+    (push-thread-bindings b)
+    (let [s (try (if pretty? (pp-string x) (pr-str x))
+                 (finally (pop-thread-bindings)))]
+      (cond
+        (nil? stream) s
+        (true? stream) (do (write-to *out* s) nil)
+        (false? stream) s
+        :else (do (write-to stream s) nil)))))
+
+(defn pprint
+  "Pretty print object to the optional output writer. If the writer is not
+  provided, print the object to the currently bound value of `*out*`."
+  ([object] (pprint object *out*))
+  ([object writer]
+   (write-to writer (str (pp-string object) "\n"))
+   nil))
+
+(defn pp
+  "A convenience macro that pretty prints the last thing output (`*1`)."
+  []
+  (pprint *1))

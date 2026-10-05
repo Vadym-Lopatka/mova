@@ -1,0 +1,548 @@
+cljs.core * {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+cljs.core *' {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+cljs.core + {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+cljs.core +' {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+cljs.core - {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+cljs.core -' {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+cljs.core / {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+cljs.core < {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+cljs.core <= {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+cljs.core = {:varargs {:ret :boolean}}
+cljs.core == {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+cljs.core > {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+cljs.core >= {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+cljs.core aclone {1 {:args [:array], :ret :array}}
+cljs.core aget {2 {:args [:array :any], :ret :any}, 3 {:args [:array :any :any], :ret :any}, :varargs {:min-arity 2, :args [:array :any {:op :rest, :spec :any}], :ret :any}}
+cljs.core alength {1 {:args [:array], :ret :int}}
+cljs.core any? {1 {:ret :boolean}}
+cljs.core apply {:varargs {:args [:ifn {:op :rest, :spec :any, :last :seqable}], :ret :any}}
+cljs.core aset {3 {:args [:array :any :any], :ret :any}, 4 {:args [:array :any :any :any], :ret :any}, :varargs {:min-arity 3, :args [:array :any {:op :rest, :spec :any} :any], :ret :any}}
+cljs.core assoc {3 {:args [:nilable/associative :any :any]}, :varargs {:min-arity 3, :args [:nilable/associative :any :any {:op :rest, :spec [:any :any]}]}}
+cljs.core assoc-in {3 {:args [:nilable/associative :sequential :any], :ret :associative}}
+cljs.core associative? {1 {:ret :boolean}}
+cljs.core bases {1 {:args [#{:fn :class}], :ret :seq}}
+cljs.core boolean {1 {:ret :boolean}}
+cljs.core boolean? {1 {:ret :boolean}}
+cljs.core butlast {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core byte {1 {:args [#{:number :byte :char}], :ret :byte}}
+cljs.core bytes? {1 {:ret :boolean}}
+cljs.core char {1 {:args [#{:int :char}], :ret :char}}
+cljs.core char? {1 {:ret :boolean}}
+cljs.core chunked-seq? {1 {:ret :boolean}}
+cljs.core class {1 {:args [:any], :ret :nilable/class}}
+cljs.core class? {1 {:ret :boolean}}
+cljs.core coll? {1 {:ret :boolean}}
+cljs.core comp {0 {:ret :fn}, :varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :fn}}
+cljs.core compare {2 {:ret :number}}
+cljs.core complement {1 {:args [:ifn], :ret :fn}}
+cljs.core concat {:varargs {:args [{:op :rest, :spec :seqable}], :ret :seq}}
+cljs.core conj {0 {:args [:nilable/coll], :ret :coll}, :varargs {:args [:nilable/coll {:op :rest, :spec :any}], :ret :coll}}
+cljs.core cons {2 {:args [:any :seqable]}}
+cljs.core constantly {1 {:ret :fn}}
+cljs.core contains? {2 {:args [#{:associative :string :nil :set} :any], :ret :boolean}}
+cljs.core count {1 {:args [:seqable], :ret :number}}
+cljs.core counted? {1 {:ret :boolean}}
+cljs.core cycle {1 {:args [:seqable], :ret :seq}}
+cljs.core dec {1 {:args [:number], :ret :number}}
+cljs.core dec' {1 {:args [:number], :ret :number}}
+cljs.core decimal? {1 {:ret :boolean}}
+cljs.core dedupe {0 {:args [], :ret :transducer}, 1 {:args [:seqable], :ret :seq}}
+cljs.core delay? {1 {:ret :boolean}}
+cljs.core denominator {1 {:args [:ratio], :ret :number}}
+cljs.core deref {1 {:args [:ideref], :ret :any}}
+cljs.core dissoc {:varargs {:args [:nilable/map {:op :rest, :spec :any}], :ret :nilable/map}}
+cljs.core distinct {0 {:args [], :ret :transducer}, 1 {:args [:seqable], :ret :seq}}
+cljs.core double {1 {:args [:number], :ret :double}}
+cljs.core double? {1 {:ret :boolean}}
+cljs.core drop {1 {:args [:nat-int], :ret :transducer}, 2 {:args [:nat-int :seqable], :ret :seq}}
+cljs.core drop-last {1 {:args [:seqable], :ret :seq}, 2 {:args [:nat-int :seqable], :ret :seq}}
+cljs.core drop-while {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core empty? {1 {:args [:seqable], :ret :boolean}}
+cljs.core even? {:varargs {:args [:number], :ret :boolean}}
+cljs.core every-pred {:varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :ifn}}
+cljs.core every? {2 {:args [:ifn :seqable], :ret :boolean}}
+cljs.core ex-info {2 {:args [:nilable/string :nilable/map], :ret :throwable}, 3 {:args [:nilable/string :nilable/map :any], :ret :throwable}}
+cljs.core false? {1 {:ret :boolean}}
+cljs.core ffirst {1 {:args [:seqable], :ret :any}}
+cljs.core filter {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core filterv {2 {:args [:ifn :seqable], :ret :vector}}
+cljs.core find {2 {:args [:nilable/associative :any]}}
+cljs.core first {1 {:args [:seqable], :ret :any}}
+cljs.core flatten {1 {:args [:nilable/sequential], :ret :sequential}}
+cljs.core float {1 {:args [:number], :ret :float}}
+cljs.core float? {1 {:ret :boolean}}
+cljs.core fn {:varargs {:ret :fn}}
+cljs.core fn? {1 {:ret :boolean}}
+cljs.core fnext {1 {:args [:seqable], :ret :any}}
+cljs.core fnil {2 {:args [:ifn :any], :ret :ifn}, 3 {:args [:ifn :any :any], :ret :ifn}, 4 {:args [:ifn :any :any :any], :ret :ifn}}
+cljs.core for {2 {:ret :seq}}
+cljs.core format {:varargs {:args [:string {:op :rest, :spec :any}], :ret :string}}
+cljs.core frequencies {1 {:args [:seqable], :ret :map}}
+cljs.core future {:varargs {:ret :future}}
+cljs.core future-call {1 {:args [:ifn], :ret :future}}
+cljs.core future-cancel {1 {:args [:future], :ret :boolean}}
+cljs.core future-cancelled? {1 {:args [:future], :ret :boolean}}
+cljs.core future-done? {1 {:args [:future], :ret :boolean}}
+cljs.core future? {1 {:ret :boolean}}
+cljs.core get {2 {:args [#{:string :array :nil :set :ilookup :map} :any]}, 3 {:args [#{:string :array :nil :set :ilookup :map} :any :any]}}
+cljs.core get-in {2 {:args [#{:string :array :nil :set :ilookup :map} :sequential], :ret :any}, 3 {:args [#{:string :array :nil :set :ilookup :map} :sequential :any], :ret :any}}
+cljs.core group-by {2 {:args [:ifn :seqable], :ret :map}}
+cljs.core hash-map {:varargs {:args [{:op :rest, :spec [:any :any]}], :ret :map}}
+cljs.core hash-set {:varargs {:ret :set}}
+cljs.core ident? {1 {:ret :boolean}}
+cljs.core identical? {2 {:ret :boolean}}
+cljs.core identity {1 {:args [:any]}}
+cljs.core ifn? {1 {:ret :boolean}}
+cljs.core inc {1 {:args [:number], :ret :number}}
+cljs.core inc' {1 {:args [:number], :ret :number}}
+cljs.core indexed? {1 {:ret :boolean}}
+cljs.core inst-ms {1 {:args [:inst], :ret :long}}
+cljs.core inst-ms* {1 {:args [:inst], :ret :long}}
+cljs.core inst? {1 {:ret :boolean}}
+cljs.core instance? {2 {:args [#{:fn :class} :any], :ret :boolean}}
+cljs.core int {1 {:args [#{:number :char}], :ret :int}}
+cljs.core int? {1 {:ret :boolean}}
+cljs.core integer? {1 {:ret :boolean}}
+cljs.core interpose {1 {:args [:any], :ret :transducer}, 2 {:args [:any :seqable], :ret :seq}}
+cljs.core into {0 {:args [], :ret :coll}, 1 {:args [:coll]}, 2 {:args [:coll :seqable]}, 3 {:args [:coll :transducer :seqable]}}
+cljs.core iterate {2 {:args [:ifn :any], :ret :seq}}
+cljs.core juxt {:varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :ifn}}
+cljs.core keep {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core keep-indexed {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core keys {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core keyword {1 {:args [#{:symbol :string :keyword}], :ret :keyword}, 2 {:args [#{:nilable/string :symbol :keyword} #{:symbol :string :keyword}], :ret :keyword}}
+cljs.core keyword? {1 {:ret :boolean}}
+cljs.core last {1 {:args [:seqable], :ret :any}}
+cljs.core lazy-seq {:varargs {:ret :seq}}
+cljs.core list {:varargs {:ret :list}}
+cljs.core list* {:varargs {:args [{:op :rest, :spec :any, :last :seqable}], :ret :list}}
+cljs.core list? {1 {:ret :boolean}}
+cljs.core long {1 {:args [:number], :ret :long}}
+cljs.core make-array {2 {:args [:class :int], :ret :array}, :varargs {:min-arity 2, :args [:class :int {:op :rest, :spec :int}], :ret :array}}
+cljs.core map {1 {:args [:ifn], :ret :transducer}, :varargs {:args [:ifn :seqable [{:op :rest, :spec :seqable}]], :ret :seq}}
+cljs.core map-entry? {1 {:ret :boolean}}
+cljs.core map-indexed {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core map? {1 {:ret :boolean}}
+cljs.core mapcat {1 {:args [:ifn], :ret :transducer}, :varargs {:args [:ifn :seqable [{:op :rest, :spec :seqable}]], :ret :seq}}
+cljs.core mapv {:varargs {:args [:ifn :seqable {:op :rest, :spec :seqable}], :ret :vector}}
+cljs.core max {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+cljs.core max-key {:varargs {:args [:ifn :any {:op :rest, :spec :any}], :ret :any}}
+cljs.core merge {:varargs {:args [{:op :rest, :spec :seqable}], :ret :nilable/map}}
+cljs.core merge-with {:varargs {:args [:ifn {:op :rest, :spec :seqable}], :ret :nilable/map}}
+cljs.core meta {1 {:ret :nilable/map}}
+cljs.core min {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+cljs.core min-key {:varargs {:args [:ifn :any {:op :rest, :spec :any}], :ret :any}}
+cljs.core namespace {1 {:ret #{:string :nil}}}
+cljs.core nat-int? {1 {:ret :boolean}}
+cljs.core neg-int? {1 {:ret :boolean}}
+cljs.core neg? {:varargs {:args [:number], :ret :boolean}}
+cljs.core next {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core nfirst {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core nil? {1 {:ret :boolean}}
+cljs.core nnext {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core not {1 {:ret :boolean}}
+cljs.core not-any? {2 {:args [:ifn :seqable], :ret :boolean}}
+cljs.core not-every? {2 {:args [:ifn :seqable], :ret :boolean}}
+cljs.core not= {:varargs {:ret :boolean}}
+cljs.core nth {2 {:args [:seqable :int], :ret :any}, 3 {:args [:seqable :int :any], :ret :any}}
+cljs.core number? {1 {:ret :boolean}}
+cljs.core numerator {1 {:args [:ratio], :ret :number}}
+cljs.core odd? {:varargs {:args [:number], :ret :boolean}}
+cljs.core parse-boolean {1 {:args [:string], :ret :nilable/boolean}}
+cljs.core parse-double {1 {:args [:string], :ret :nilable/double}}
+cljs.core parse-long {1 {:args [:string], :ret :nilable/long}}
+cljs.core parse-uuid {1 {:args [:string]}}
+cljs.core partial {:varargs {:args [:ifn {:op :rest, :spec :any}], :ret :fn}}
+cljs.core partition {2 {:args [:int :seqable], :ret :seq}, 3 {:args [:int :int :seqable], :ret :seq}, 4 {:args [:int :int :seqable :seqable], :ret :seq}}
+cljs.core partition-all {1 {:args [:int], :ret :transducer}, 2 {:args [:int :seqable], :ret :seq}, 3 {:args [:int :int :seqable], :ret :seq}}
+cljs.core partition-by {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core peek {1 {:args [:stack], :ret :any}}
+cljs.core pmap {:varargs {:args [:ifn :seqable [{:op :rest, :spec :seqable}]], :ret :seq}}
+cljs.core pop {1 {:args [:stack], :ret :stack}}
+cljs.core pos-int? {1 {:ret :boolean}}
+cljs.core pos? {:varargs {:args [:number], :ret :boolean}}
+cljs.core qualified-ident? {1 {:ret :boolean}}
+cljs.core qualified-keyword? {1 {:ret :boolean}}
+cljs.core qualified-symbol? {1 {:ret :boolean}}
+cljs.core quot {2 {:args [:number :number], :ret :number}}
+cljs.core range {0 {:ret :seq}, 1 {:args [:number], :ret :seq}, 2 {:args [:number :number], :ret :seq}, 3 {:args [:number :number :number], :ret :seq}}
+cljs.core ratio? {1 {:ret :boolean}}
+cljs.core rational? {1 {:ret :boolean}}
+cljs.core rationalize {1 {:args [:number], :ret :number}}
+cljs.core re-find {1 {:args [:any], :ret #{:string :vector :nil}}, 2 {:args [:regex :string], :ret #{:string :vector :nil}}}
+cljs.core re-matches {2 {:args [:regex :string], :ret #{:string :vector :nil}}}
+cljs.core re-pattern {1 {:args [#{:string :regex}], :ret :regex}}
+cljs.core re-seq {2 {:args [:regex :string], :ret #{:nil :seq}}}
+cljs.core reader-conditional? {1 {:ret :boolean}}
+cljs.core reduce {2 {:args [:ifn :seqable], :ret :any}, 3 {:args [:ifn :any :seqable], :ret :any}}
+cljs.core reduced? {1 {:ret :boolean}}
+cljs.core rem {2 {:args [:number :number], :ret :number}}
+cljs.core remove {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core repeat {1 {:args [:any], :ret :seq}, 2 {:args [:nat-int :any]}}
+cljs.core repeatedly {1 {:args [:ifn], :ret :seq}, 2 {:args [:nat-int :ifn], :ret :seq}}
+cljs.core reset! {2 {:args [:atom :any], :ret :any}}
+cljs.core rest {1 {:args [:seqable], :ret :seq}}
+cljs.core reverse {1 {:args [:seqable]}}
+cljs.core reversible? {1 {:ret :boolean}}
+cljs.core rseq {1 {:args [#{:vector :sorted-map}], :ret :nilable/seq}}
+cljs.core second {1 {:args [:seqable], :ret :any}}
+cljs.core select-keys {2 {:args [:nilable/associative :seqable], :ret :map}}
+cljs.core seq {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core seq? {1 {:ret :boolean}}
+cljs.core seqable? {1 {:ret :boolean}}
+cljs.core sequential? {1 {:ret :boolean}}
+cljs.core set? {1 {:ret :boolean}}
+cljs.core short {1 {:args [:number], :ret :short}}
+cljs.core shuffle {1 {:args [:coll], :ret :coll}}
+cljs.core simple-ident? {1 {:ret :boolean}}
+cljs.core simple-keyword? {1 {:ret :boolean}}
+cljs.core simple-symbol? {1 {:ret :boolean}}
+cljs.core some {2 {:args [:ifn :seqable], :ret :any}}
+cljs.core some-fn {:varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :ifn}}
+cljs.core some? {1 {:ret :boolean}}
+cljs.core sorted-map {:varargs {:ret :sorted-map}}
+cljs.core sorted-map-by {:varargs {:args [:ifn {:op :rest, :spec [:any :any]}], :ret :sorted-map}}
+cljs.core sorted-set {:varargs {:ret :sorted-set}}
+cljs.core sorted-set-by {:varargs {:args [:ifn {:op :rest, :spec :any}], :ret :sorted-set}}
+cljs.core sorted? {1 {:ret :boolean}}
+cljs.core special-symbol? {1 {:ret :boolean}}
+cljs.core split-at {2 {:args [:nat-int :seqable], :ret :vector}}
+cljs.core split-with {2 {:args [:ifn :seqable], :ret :vector}}
+cljs.core str {:varargs {:args [{:op :rest, :spec :any}], :ret :string}}
+cljs.core string? {1 {:ret :boolean}}
+cljs.core subs {2 {:args [:string :nat-int], :ret :string}, 3 {:args [:string :nat-int :nat-int], :ret :string}}
+cljs.core subvec {2 {:args [:vector :nat-int], :ret :vector}, 3 {:args [:vector :nat-int :nat-int], :ret :vector}}
+cljs.core supers {1 {:args [#{:fn :class}], :ret :nilable/set}}
+cljs.core swap! {:varargs {:args [:atom :ifn [{:op :rest, :spec :any}]], :ret :any}}
+cljs.core symbol {1 {:args [#{:symbol :string :var :keyword}], :ret :symbol}, 2 {:args [:nilable/string :string], :ret :symbol}}
+cljs.core symbol? {1 {:ret :boolean}}
+cljs.core tagged-literal? {1 {:ret :boolean}}
+cljs.core take {1 {:args [:nat-int], :ret :transducer}, 2 {:args [:nat-int :seqable], :ret :seq}}
+cljs.core take-last {2 {:args [:nat-int :seqable], :ret :seq}}
+cljs.core take-nth {1 {:args [:int], :ret :transducer}, 2 {:args [:int :seqable], :ret :seq}}
+cljs.core take-while {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+cljs.core throw {1 {:args [:any]}}
+cljs.core to-array {1 {:args [:nilable/coll], :ret :array}}
+cljs.core tree-seq {3 {:args [:ifn :ifn :any], :ret :seq}}
+cljs.core true? {1 {:ret :boolean}}
+cljs.core unchecked-add {2 {:args [:number :number], :ret :number}}
+cljs.core unchecked-add-int {2 {:args [:int :int], :ret :int}}
+cljs.core unchecked-dec {1 {:args [:number], :ret :number}}
+cljs.core unchecked-dec-int {1 {:args [:int], :ret :int}}
+cljs.core unchecked-divide-int {2 {:args [:int :int], :ret :int}}
+cljs.core unchecked-inc {1 {:args [:number], :ret :number}}
+cljs.core unchecked-inc-int {1 {:args [:int], :ret :int}}
+cljs.core unchecked-multiply {2 {:args [:number :number], :ret :number}}
+cljs.core unchecked-multiply-int {2 {:args [:int :int], :ret :int}}
+cljs.core unchecked-negate {1 {:args [:number], :ret :number}}
+cljs.core unchecked-negate-int {1 {:args [:int], :ret :int}}
+cljs.core unchecked-remainder-int {2 {:args [:int :int], :ret :int}}
+cljs.core unchecked-subtract {2 {:args [:number :number], :ret :number}}
+cljs.core unchecked-subtract-int {2 {:args [:int :int], :ret :int}}
+cljs.core update {:varargs {:args [:nilable/associative :any :ifn {:op :rest, :spec :any}], :ret :associative}}
+cljs.core update-in {:varargs {:args [:nilable/associative :sequential :ifn {:op :rest, :spec :any}], :ret :associative}}
+cljs.core uri? {1 {:ret :boolean}}
+cljs.core uuid? {1 {:ret :boolean}}
+cljs.core vals {1 {:args [:seqable], :ret #{:nil :seq}}}
+cljs.core var? {1 {:ret :boolean}}
+cljs.core vec {1 {:ret :vector}}
+cljs.core vector {:varargs {:ret :vector}}
+cljs.core volatile? {1 {:ret :boolean}}
+cljs.core with-meta {1 {:args [:any]}}
+cljs.core zero? {:varargs {:args [:number], :ret :boolean}}
+cljs.core zipmap {2 {:args [:seqable :seqable], :ret :map}}
+clojure.core * {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+clojure.core *' {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+clojure.core + {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+clojure.core +' {:varargs {:args [{:op :rest, :spec :number}], :ret :number}}
+clojure.core - {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+clojure.core -' {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+clojure.core / {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+clojure.core < {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+clojure.core <= {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+clojure.core = {:varargs {:ret :boolean}}
+clojure.core == {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+clojure.core > {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+clojure.core >= {:varargs {:args [{:op :rest, :spec :number}], :ret :boolean}}
+clojure.core aclone {1 {:args [:array], :ret :array}}
+clojure.core aget {2 {:args [:array :any], :ret :any}, 3 {:args [:array :any :any], :ret :any}, :varargs {:min-arity 2, :args [:array :any {:op :rest, :spec :any}], :ret :any}}
+clojure.core alength {1 {:args [:array], :ret :int}}
+clojure.core any? {1 {:ret :boolean}}
+clojure.core apply {:varargs {:args [:ifn {:op :rest, :spec :any, :last :seqable}], :ret :any}}
+clojure.core aset {3 {:args [:array :any :any], :ret :any}, 4 {:args [:array :any :any :any], :ret :any}, :varargs {:min-arity 3, :args [:array :any {:op :rest, :spec :any} :any], :ret :any}}
+clojure.core assoc {3 {:args [:nilable/associative :any :any]}, :varargs {:min-arity 3, :args [:nilable/associative :any :any {:op :rest, :spec [:any :any]}]}}
+clojure.core assoc-in {3 {:args [:nilable/associative :sequential :any], :ret :associative}}
+clojure.core associative? {1 {:ret :boolean}}
+clojure.core bases {1 {:args [:class], :ret :seq}}
+clojure.core boolean {1 {:ret :boolean}}
+clojure.core boolean? {1 {:ret :boolean}}
+clojure.core butlast {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core byte {1 {:args [#{:number :byte :char}], :ret :byte}}
+clojure.core bytes? {1 {:ret :boolean}}
+clojure.core cast {2 {:args [:class :any], :ret :any}}
+clojure.core char {1 {:args [#{:int :char}], :ret :char}}
+clojure.core char? {1 {:ret :boolean}}
+clojure.core chunked-seq? {1 {:ret :boolean}}
+clojure.core class {1 {:args [:any], :ret :nilable/class}}
+clojure.core class? {1 {:ret :boolean}}
+clojure.core coll? {1 {:ret :boolean}}
+clojure.core comp {0 {:ret :fn}, :varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :fn}}
+clojure.core compare {2 {:ret :number}}
+clojure.core complement {1 {:args [:ifn], :ret :fn}}
+clojure.core concat {:varargs {:args [{:op :rest, :spec :seqable}], :ret :seq}}
+clojure.core conj {0 {:args [:nilable/coll], :ret :coll}, :varargs {:args [:nilable/coll {:op :rest, :spec :any}], :ret :coll}}
+clojure.core cons {2 {:args [:any :seqable]}}
+clojure.core constantly {1 {:ret :fn}}
+clojure.core contains? {2 {:args [#{:associative :string :nil :set} :any], :ret :boolean}}
+clojure.core count {1 {:args [:seqable], :ret :number}}
+clojure.core counted? {1 {:ret :boolean}}
+clojure.core cycle {1 {:args [:seqable], :ret :seq}}
+clojure.core dec {1 {:args [:number], :ret :number}}
+clojure.core dec' {1 {:args [:number], :ret :number}}
+clojure.core decimal? {1 {:ret :boolean}}
+clojure.core dedupe {0 {:args [], :ret :transducer}, 1 {:args [:seqable], :ret :seq}}
+clojure.core delay? {1 {:ret :boolean}}
+clojure.core denominator {1 {:args [:ratio], :ret :number}}
+clojure.core deref {1 {:args [:ideref], :ret :any}}
+clojure.core dissoc {:varargs {:args [:nilable/map {:op :rest, :spec :any}], :ret :nilable/map}}
+clojure.core distinct {0 {:args [], :ret :transducer}, 1 {:args [:seqable], :ret :seq}}
+clojure.core double {1 {:args [:number], :ret :double}}
+clojure.core double? {1 {:ret :boolean}}
+clojure.core drop {1 {:args [:nat-int], :ret :transducer}, 2 {:args [:nat-int :seqable], :ret :seq}}
+clojure.core drop-last {1 {:args [:seqable], :ret :seq}, 2 {:args [:nat-int :seqable], :ret :seq}}
+clojure.core drop-while {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core empty? {1 {:args [:seqable], :ret :boolean}}
+clojure.core even? {:varargs {:args [:number], :ret :boolean}}
+clojure.core every-pred {:varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :ifn}}
+clojure.core every? {2 {:args [:ifn :seqable], :ret :boolean}}
+clojure.core ex-info {2 {:args [:nilable/string :nilable/map], :ret :throwable}, 3 {:args [:nilable/string :nilable/map :any], :ret :throwable}}
+clojure.core false? {1 {:ret :boolean}}
+clojure.core ffirst {1 {:args [:seqable], :ret :any}}
+clojure.core filter {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core filterv {2 {:args [:ifn :seqable], :ret :vector}}
+clojure.core find {2 {:args [:nilable/associative :any]}}
+clojure.core first {1 {:args [:seqable], :ret :any}}
+clojure.core flatten {1 {:args [:nilable/sequential], :ret :sequential}}
+clojure.core float {1 {:args [:number], :ret :float}}
+clojure.core float? {1 {:ret :boolean}}
+clojure.core fn {:varargs {:ret :fn}}
+clojure.core fn? {1 {:ret :boolean}}
+clojure.core fnext {1 {:args [:seqable], :ret :any}}
+clojure.core fnil {2 {:args [:ifn :any], :ret :ifn}, 3 {:args [:ifn :any :any], :ret :ifn}, 4 {:args [:ifn :any :any :any], :ret :ifn}}
+clojure.core for {2 {:ret :seq}}
+clojure.core format {:varargs {:args [:string {:op :rest, :spec :any}], :ret :string}}
+clojure.core frequencies {1 {:args [:seqable], :ret :map}}
+clojure.core future {:varargs {:ret :future}}
+clojure.core future-call {1 {:args [:ifn], :ret :future}}
+clojure.core future-cancel {1 {:args [:future], :ret :boolean}}
+clojure.core future-cancelled? {1 {:args [:future], :ret :boolean}}
+clojure.core future-done? {1 {:args [:future], :ret :boolean}}
+clojure.core future? {1 {:ret :boolean}}
+clojure.core get {2 {:args [#{:string :array :nil :set :ilookup :map} :any]}, 3 {:args [#{:string :array :nil :set :ilookup :map} :any :any]}}
+clojure.core get-in {2 {:args [#{:string :array :nil :set :ilookup :map} :sequential], :ret :any}, 3 {:args [#{:string :array :nil :set :ilookup :map} :sequential :any], :ret :any}}
+clojure.core group-by {2 {:args [:ifn :seqable], :ret :map}}
+clojure.core hash-map {:varargs {:args [{:op :rest, :spec [:any :any]}], :ret :map}}
+clojure.core hash-set {:varargs {:ret :set}}
+clojure.core ident? {1 {:ret :boolean}}
+clojure.core identical? {2 {:ret :boolean}}
+clojure.core identity {1 {:args [:any]}}
+clojure.core ifn? {1 {:ret :boolean}}
+clojure.core inc {1 {:args [:number], :ret :number}}
+clojure.core inc' {1 {:args [:number], :ret :number}}
+clojure.core indexed? {1 {:ret :boolean}}
+clojure.core inst-ms {1 {:args [:inst], :ret :long}}
+clojure.core inst-ms* {1 {:args [:inst], :ret :long}}
+clojure.core inst? {1 {:ret :boolean}}
+clojure.core instance? {2 {:args [:class :any], :ret :boolean}}
+clojure.core int {1 {:args [#{:number :char}], :ret :int}}
+clojure.core int? {1 {:ret :boolean}}
+clojure.core integer? {1 {:ret :boolean}}
+clojure.core interpose {1 {:args [:any], :ret :transducer}, 2 {:args [:any :seqable], :ret :seq}}
+clojure.core into {0 {:args [], :ret :coll}, 1 {:args [:coll]}, 2 {:args [:coll :seqable]}, 3 {:args [:coll :transducer :seqable]}}
+clojure.core iterate {2 {:args [:ifn :any], :ret :seq}}
+clojure.core juxt {:varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :ifn}}
+clojure.core keep {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core keep-indexed {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core keys {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core keyword {1 {:args [#{:symbol :string :keyword}], :ret :keyword}, 2 {:args [:nilable/string :string], :ret :keyword}}
+clojure.core keyword? {1 {:ret :boolean}}
+clojure.core last {1 {:args [:seqable], :ret :any}}
+clojure.core lazy-seq {:varargs {:ret :seq}}
+clojure.core list {:varargs {:ret :list}}
+clojure.core list* {:varargs {:args [{:op :rest, :spec :any, :last :seqable}], :ret :list}}
+clojure.core list? {1 {:ret :boolean}}
+clojure.core long {1 {:args [:number], :ret :long}}
+clojure.core make-array {2 {:args [:class :int], :ret :array}, :varargs {:min-arity 2, :args [:class :int {:op :rest, :spec :int}], :ret :array}}
+clojure.core map {1 {:args [:ifn], :ret :transducer}, :varargs {:args [:ifn :seqable [{:op :rest, :spec :seqable}]], :ret :seq}}
+clojure.core map-entry? {1 {:ret :boolean}}
+clojure.core map-indexed {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core map? {1 {:ret :boolean}}
+clojure.core mapcat {1 {:args [:ifn], :ret :transducer}, :varargs {:args [:ifn :seqable [{:op :rest, :spec :seqable}]], :ret :seq}}
+clojure.core mapv {:varargs {:args [:ifn :seqable {:op :rest, :spec :seqable}], :ret :vector}}
+clojure.core max {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+clojure.core max-key {:varargs {:args [:ifn :any {:op :rest, :spec :any}], :ret :any}}
+clojure.core merge {:varargs {:args [{:op :rest, :spec :seqable}], :ret :nilable/map}}
+clojure.core merge-with {:varargs {:args [:ifn {:op :rest, :spec :seqable}], :ret :nilable/map}}
+clojure.core meta {1 {:ret :nilable/map}}
+clojure.core min {:varargs {:args [:number {:op :rest, :spec :number}], :ret :number}}
+clojure.core min-key {:varargs {:args [:ifn :any {:op :rest, :spec :any}], :ret :any}}
+clojure.core namespace {1 {:ret #{:string :nil}}}
+clojure.core nat-int? {1 {:ret :boolean}}
+clojure.core neg-int? {1 {:ret :boolean}}
+clojure.core neg? {:varargs {:args [:number], :ret :boolean}}
+clojure.core next {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core nfirst {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core nil? {1 {:ret :boolean}}
+clojure.core nnext {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core not {1 {:ret :boolean}}
+clojure.core not-any? {2 {:args [:ifn :seqable], :ret :boolean}}
+clojure.core not-every? {2 {:args [:ifn :seqable], :ret :boolean}}
+clojure.core not= {:varargs {:ret :boolean}}
+clojure.core nth {2 {:args [:seqable :int], :ret :any}, 3 {:args [:seqable :int :any], :ret :any}}
+clojure.core number? {1 {:ret :boolean}}
+clojure.core numerator {1 {:args [:ratio], :ret :number}}
+clojure.core odd? {:varargs {:args [:number], :ret :boolean}}
+clojure.core parse-boolean {1 {:args [:string], :ret :nilable/boolean}}
+clojure.core parse-double {1 {:args [:string], :ret :nilable/double}}
+clojure.core parse-long {1 {:args [:string], :ret :nilable/long}}
+clojure.core parse-uuid {1 {:args [:string]}}
+clojure.core partial {:varargs {:args [:ifn {:op :rest, :spec :any}], :ret :fn}}
+clojure.core partition {2 {:args [:int :seqable], :ret :seq}, 3 {:args [:int :int :seqable], :ret :seq}, 4 {:args [:int :int :seqable :seqable], :ret :seq}}
+clojure.core partition-all {1 {:args [:int], :ret :transducer}, 2 {:args [:int :seqable], :ret :seq}, 3 {:args [:int :int :seqable], :ret :seq}}
+clojure.core partition-by {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core peek {1 {:args [:stack], :ret :any}}
+clojure.core pmap {:varargs {:args [:ifn :seqable [{:op :rest, :spec :seqable}]], :ret :seq}}
+clojure.core pop {1 {:args [:stack], :ret :stack}}
+clojure.core pos-int? {1 {:ret :boolean}}
+clojure.core pos? {:varargs {:args [:number], :ret :boolean}}
+clojure.core qualified-ident? {1 {:ret :boolean}}
+clojure.core qualified-keyword? {1 {:ret :boolean}}
+clojure.core qualified-symbol? {1 {:ret :boolean}}
+clojure.core quot {2 {:args [:number :number], :ret :number}}
+clojure.core range {0 {:ret :seq}, 1 {:args [:number], :ret :seq}, 2 {:args [:number :number], :ret :seq}, 3 {:args [:number :number :number], :ret :seq}}
+clojure.core ratio? {1 {:ret :boolean}}
+clojure.core rational? {1 {:ret :boolean}}
+clojure.core rationalize {1 {:args [:number], :ret :number}}
+clojure.core re-find {1 {:args [:any], :ret #{:string :vector :nil}}, 2 {:args [:regex :string], :ret #{:string :vector :nil}}}
+clojure.core re-matches {2 {:args [:regex :string], :ret #{:string :vector :nil}}}
+clojure.core re-pattern {1 {:args [#{:string :regex}], :ret :regex}}
+clojure.core re-seq {2 {:args [:regex :string], :ret #{:nil :seq}}}
+clojure.core reader-conditional? {1 {:ret :boolean}}
+clojure.core reduce {2 {:args [:ifn :seqable], :ret :any}, 3 {:args [:ifn :any :seqable], :ret :any}}
+clojure.core reduced? {1 {:ret :boolean}}
+clojure.core rem {2 {:args [:number :number], :ret :number}}
+clojure.core remove {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core repeat {1 {:args [:any], :ret :seq}, 2 {:args [:nat-int :any]}}
+clojure.core repeatedly {1 {:args [:ifn], :ret :seq}, 2 {:args [:nat-int :ifn], :ret :seq}}
+clojure.core reset! {2 {:args [:atom :any], :ret :any}}
+clojure.core rest {1 {:args [:seqable], :ret :seq}}
+clojure.core reverse {1 {:args [:seqable]}}
+clojure.core reversible? {1 {:ret :boolean}}
+clojure.core rseq {1 {:args [#{:vector :sorted-map}], :ret :nilable/seq}}
+clojure.core second {1 {:args [:seqable], :ret :any}}
+clojure.core select-keys {2 {:args [:nilable/associative :seqable], :ret :map}}
+clojure.core seq {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core seq? {1 {:ret :boolean}}
+clojure.core seqable? {1 {:ret :boolean}}
+clojure.core sequential? {1 {:ret :boolean}}
+clojure.core set? {1 {:ret :boolean}}
+clojure.core short {1 {:args [:number], :ret :short}}
+clojure.core shuffle {1 {:args [:coll], :ret :coll}}
+clojure.core simple-ident? {1 {:ret :boolean}}
+clojure.core simple-keyword? {1 {:ret :boolean}}
+clojure.core simple-symbol? {1 {:ret :boolean}}
+clojure.core some {2 {:args [:ifn :seqable], :ret :any}}
+clojure.core some-fn {:varargs {:args [:ifn {:op :rest, :spec :ifn}], :ret :ifn}}
+clojure.core some? {1 {:ret :boolean}}
+clojure.core sorted-map {:varargs {:ret :sorted-map}}
+clojure.core sorted-map-by {:varargs {:args [:ifn {:op :rest, :spec [:any :any]}], :ret :sorted-map}}
+clojure.core sorted-set {:varargs {:ret :sorted-set}}
+clojure.core sorted-set-by {:varargs {:args [:ifn {:op :rest, :spec :any}], :ret :sorted-set}}
+clojure.core sorted? {1 {:ret :boolean}}
+clojure.core special-symbol? {1 {:ret :boolean}}
+clojure.core split-at {2 {:args [:nat-int :seqable], :ret :vector}}
+clojure.core split-with {2 {:args [:ifn :seqable], :ret :vector}}
+clojure.core str {:varargs {:args [{:op :rest, :spec :any}], :ret :string}}
+clojure.core string? {1 {:ret :boolean}}
+clojure.core subs {2 {:args [:string :nat-int], :ret :string}, 3 {:args [:string :nat-int :nat-int], :ret :string}}
+clojure.core subvec {2 {:args [:vector :nat-int], :ret :vector}, 3 {:args [:vector :nat-int :nat-int], :ret :vector}}
+clojure.core supers {1 {:args [:class], :ret :nilable/set}}
+clojure.core swap! {:varargs {:args [:atom :ifn [{:op :rest, :spec :any}]], :ret :any}}
+clojure.core symbol {1 {:args [#{:symbol :string :var :keyword}], :ret :symbol}, 2 {:args [:nilable/string :string], :ret :symbol}}
+clojure.core symbol? {1 {:ret :boolean}}
+clojure.core tagged-literal? {1 {:ret :boolean}}
+clojure.core take {1 {:args [:nat-int], :ret :transducer}, 2 {:args [:nat-int :seqable], :ret :seq}}
+clojure.core take-last {2 {:args [:nat-int :seqable], :ret :seq}}
+clojure.core take-nth {1 {:args [:int], :ret :transducer}, 2 {:args [:int :seqable], :ret :seq}}
+clojure.core take-while {1 {:args [:ifn], :ret :transducer}, 2 {:args [:ifn :seqable], :ret :seq}}
+clojure.core throw {1 {:args [:throwable]}}
+clojure.core to-array {1 {:args [:nilable/coll], :ret :array}}
+clojure.core tree-seq {3 {:args [:ifn :ifn :any], :ret :seq}}
+clojure.core true? {1 {:ret :boolean}}
+clojure.core unchecked-add {2 {:args [:number :number], :ret :number}}
+clojure.core unchecked-add-int {2 {:args [:int :int], :ret :int}}
+clojure.core unchecked-dec {1 {:args [:number], :ret :number}}
+clojure.core unchecked-dec-int {1 {:args [:int], :ret :int}}
+clojure.core unchecked-divide-int {2 {:args [:int :int], :ret :int}}
+clojure.core unchecked-inc {1 {:args [:number], :ret :number}}
+clojure.core unchecked-inc-int {1 {:args [:int], :ret :int}}
+clojure.core unchecked-multiply {2 {:args [:number :number], :ret :number}}
+clojure.core unchecked-multiply-int {2 {:args [:int :int], :ret :int}}
+clojure.core unchecked-negate {1 {:args [:number], :ret :number}}
+clojure.core unchecked-negate-int {1 {:args [:int], :ret :int}}
+clojure.core unchecked-remainder-int {2 {:args [:int :int], :ret :int}}
+clojure.core unchecked-subtract {2 {:args [:number :number], :ret :number}}
+clojure.core unchecked-subtract-int {2 {:args [:int :int], :ret :int}}
+clojure.core update {:varargs {:args [:nilable/associative :any :ifn {:op :rest, :spec :any}], :ret :associative}}
+clojure.core update-in {:varargs {:args [:nilable/associative :sequential :ifn {:op :rest, :spec :any}], :ret :associative}}
+clojure.core uri? {1 {:ret :boolean}}
+clojure.core uuid? {1 {:ret :boolean}}
+clojure.core vals {1 {:args [:seqable], :ret #{:nil :seq}}}
+clojure.core var? {1 {:ret :boolean}}
+clojure.core vec {1 {:ret :vector}}
+clojure.core vector {:varargs {:ret :vector}}
+clojure.core volatile? {1 {:ret :boolean}}
+clojure.core with-meta {1 {:args [:any]}}
+clojure.core zero? {:varargs {:args [:number], :ret :boolean}}
+clojure.core zipmap {2 {:args [:seqable :seqable], :ret :map}}
+clojure.set difference {:varargs {:args [:nilable/set {:op :rest, :spec :nilable/set}], :ret :nilable/set}}
+clojure.set index {2 {:args [:seqable :seqable], :ret :map}}
+clojure.set intersection {:varargs {:args [:nilable/set {:op :rest, :spec :nilable/set}], :ret :nilable/set}}
+clojure.set join {2 {:args [:seqable :seqable], :ret :set}, 3 {:args [:seqable :seqable :nilable/map], :ret :set}}
+clojure.set map-invert {2 {:args [:seqable], :ret :map}}
+clojure.set project {2 {:args [:seqable :seqable], :ret :set}}
+clojure.set rename {2 {:args [:seqable :nilable/map], :ret :set}}
+clojure.set rename-keys {2 {:args [:nilable/map :nilable/map], :ret :nilable/map}}
+clojure.set select {2 {:args [:ifn :nilable/set], :ret :nilable/set}}
+clojure.set subset? {2 {:args [:nilable/set :nilable/set], :ret :boolean}}
+clojure.set superset? {2 {:args [:nilable/set :nilable/set], :ret :boolean}}
+clojure.set union {:varargs {:min-arity 0, :args [{:op :rest, :spec :nilable/set}], :ret :nilable/set}}
+clojure.string ends-with? {2 {:args [:char-sequence :string], :ret :boolean}}
+clojure.string includes? {2 {:args [:char-sequence :char-sequence], :ret :boolean}}
+clojure.string join {1 {:args [:seqable], :ret :string}, 2 {:args [:any :seqable], :ret :string}}
+clojure.string replace {3 {:args [:char-sequence #{:string :regex :char} #{:ifn :string :char}], :ret :string}}
+clojure.string starts-with? {2 {:args [:char-sequence :string], :ret :boolean}}
+clojure.test are {:varargs {:ret :boolean}}
+clojure.test compose-fixtures {2 {:args [:ifn :ifn], :ret :ifn}}
+clojure.test deftest {:varargs {:ret :var}}
+clojure.test deftest- {:varargs {:ret :var}}
+clojure.test do-report {1 {:args [:map], :ret :any}}
+clojure.test function? {1 {:ret :boolean}}
+clojure.test get-possibly-unbound-var {1 {:args [:var], :ret :nilable/var}}
+clojure.test is {1 {:args [:any]}, 2 {:args [:any :any]}}
+clojure.test join-fixtures {1 {:args [:seqable], :ret :ifn}}
+clojure.test report {1 {:args [:map], :ret :any}}
+clojure.test run-all-tests {0 {:ret :map}, 1 {:args [:any], :ret :map}}
+clojure.test run-tests {0 {:ret :map}, :varargs {:args [{:op :rest, :spec :symbol}], :ret :map}}
+clojure.test set-test {:varargs {:ret :map}}
+clojure.test successful? {1 {:args [:map], :ret :boolean}}
+clojure.test test-all-vars {1 {:args [:symbol], :ret :nil}}
+clojure.test test-ns {1 {:args [:symbol], :ret :map}}
+clojure.test test-var {1 {:args [:var], :ret :any}}
+clojure.test test-vars {1 {:args [:seqable], :ret :nil}}
+clojure.test testing-contexts-str {0 {:ret :string}}
+clojure.test testing-vars-str {1 {:args [:map], :ret :string}}
+clojure.test thrown-with-msg? {:varargs {:ret :throwable}}
+clojure.test thrown? {:varargs {:ret :throwable}}
+clojure.test use-fixtures {:varargs {:args [{:op :rest, :spec :ifn}], :ret :map}}
+clojure.test with-test {:varargs {:ret :var}}

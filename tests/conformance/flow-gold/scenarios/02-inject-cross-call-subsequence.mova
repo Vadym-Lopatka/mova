@@ -1,0 +1,41 @@
+;;RUNS 5
+;; scenario 02: two inject calls into the SAME in-port, batch A = 50 evens,
+;; batch B = 50 odds. Invariants checked: multiset equality of the drained
+;; set; A's relative order preserved; B's relative order preserved.
+;; Interleaving between A and B is deliberately UNASSERTED -- this pins the
+;; true shared contract: FIFO within a call, nothing guaranteed across
+;; calls (VERIFIED in both sources: gold impl.clj:190-197 independent
+;; FutureTask per call on the pooled :io executor; mova flow.rs:3055-3110
+;; independent OS thread per call). See FINDINGS.md item 1.
+
+(def out-ch (chan 300))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:s {:proc (flow/process sink-step)}}
+          :conns []}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(def batch-a (vec (range 0 100 2)))
+(def batch-b (vec (range 1 100 2)))
+(def fut-a (flow/inject fl [:s :in] batch-a))
+(def fut-b (flow/inject fl [:s :in] batch-b))
+(deref fut-a 5000 :timed-out)
+(deref fut-b 5000 :timed-out)
+
+(def result (deref (future (vec (repeatedly 100 #(<!! out-ch)))) 10000 :timed-out))
+(def evens-seen (vec (filter even? result)))
+(def odds-seen (vec (filter odd? result)))
+
+(println "RESULT sorted-multiset" (pr-str (vec (sort result))))
+(println (if (= (vec (sort result)) (vec (range 100))) "PASS multiset" "FAIL multiset"))
+(println (if (= evens-seen batch-a) "PASS a-order" "FAIL a-order"))
+(println (if (= odds-seen batch-b) "PASS b-order" "FAIL b-order"))
+
+(flow/stop fl)

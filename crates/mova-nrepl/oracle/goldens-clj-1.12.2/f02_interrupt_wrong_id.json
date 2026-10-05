@@ -1,0 +1,78 @@
+{
+"scenario": "f02_interrupt_wrong_id",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done",
+"interrupt-id-mismatch",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done",
+"interrupted"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (InterruptedException) at java.lang.Thread/sleepNanos0 (Thread.java:-2).\nsleep interrupted\n",
+"id": "1",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.InterruptedException",
+"id": "1",
+"root-ex": "class java.lang.InterruptedException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

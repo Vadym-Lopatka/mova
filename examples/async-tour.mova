@@ -1,0 +1,79 @@
+;; async-tour.mova -- core.async + concurrency showcase: a go-loop
+;; producer/consumer over a channel, fan-in from two producers via
+;; `alts!!`, a timeout-select "slow service" pattern, and future/promise
+;; coordination. Every `go`/`go-loop`/`future` here is a REAL OS thread
+;; (v0.2's documented tradeoff -- see core/async.mova's module doc), and
+;; every channel/future/promise op below is the real blocking primitive,
+;; not a simulation. Output is deterministic: every race uses a wide
+;; (10x+) margin between "fast" and "slow" sides, and the tour always
+;; blocks on every channel/future it opens before moving on.
+;;
+;;   ./target/release/mova examples/async-tour.mova
+
+(println "-- producer/consumer over a channel --")
+;; A go-loop producer pushes 0..9 onto a buffered channel; a go-loop
+;; consumer sums them off the other end. `<!!`-ing each stage's own result
+;; channel is what makes this example's printed output deterministic even
+;; though the two loops run on independent threads.
+(let [ch (chan 10)
+      producer (go-loop [i 0]
+                 (if (< i 10)
+                   (do (>! ch i) (recur (inc i)))
+                   (close! ch)))
+      consumer (go-loop [acc 0]
+                 (let [v (<! ch)]
+                   (if (nil? v) acc (recur (+ acc v)))))]
+  (<!! producer)
+  (println "  sum of 0..9 =" (<!! consumer)))
+
+(println)
+(println "-- fan-in: two producers race into alts!! --")
+;; `fast` gets a value after 10ms, `slow` after 100ms -- a 10x margin, so
+;; `alts!!` deterministically reports `fast` first regardless of scheduling
+;; jitter on a loaded machine.
+(let [fast (chan 1)
+      slow (chan 1)]
+  (future (sleep-ms 10) (>!! fast :fast-result))
+  (future (sleep-ms 100) (>!! slow :slow-result))
+  (let [[v ch] (alts!! [fast slow])]
+    (println "  first to respond:" v (str "(via the fast channel? " (= ch fast) ")")))
+  (println "  slow channel eventually delivers:" (<!! slow)))
+
+(println)
+(println "-- timeout select: the \"slow service\" pattern --")
+;; A classic core.async idiom: race a service's response channel against a
+;; `timeout` channel, and fall back once the budget runs out. `alts!!`
+;; resolves to `[val chan]`; a `timeout` channel's only event is closing,
+;; so it always yields `nil` -- the same `nil` a closed/drained channel
+;; would, and never confusable with a genuine service result here since
+;; `:service-result` is never `nil`.
+(defn call-slow-service [delay-ms]
+  (let [ch (chan 1)]
+    (future (sleep-ms delay-ms) (>!! ch :service-result))
+    ch))
+
+(defn call-with-budget [delay-ms budget-ms]
+  (let [[v _] (alts!! [(call-slow-service delay-ms) (timeout budget-ms)])]
+    (if (nil? v) :timed-out :ok)))
+
+(println "  service answers in   5ms, budget 100ms ->" (call-with-budget 5 100))
+(println "  service answers in 200ms, budget  20ms ->" (call-with-budget 200 20))
+
+(println)
+(println "-- futures + promise coordination --")
+;; `f1`/`f2` do independent work in parallel; a third future `deliver`s a
+;; `promise` once both are done, and the main thread waits on the promise
+;; rather than re-deriving the sum itself.
+(let [f1 (future (sleep-ms 20) (* 6 7))
+      f2 (future (sleep-ms 20) (apply + (range 1 11)))
+      total (promise)]
+  (future (deliver total (+ @f1 @f2)))
+  (println "  6 * 7          =" @f1)
+  (println "  sum of 1..10   =" @f2)
+  (println "  delivered total =" (deref total 1000 :never-delivered)))
+
+(println)
+(println "-- summary --")
+(println "  producer/consumer, alts!!-based fan-in, a timeout-select, and")
+(println "  future/promise coordination all ran on real threads against")
+(println "  real channel/future/promise semantics -- nothing simulated.")

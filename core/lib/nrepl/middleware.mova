@@ -1,0 +1,170 @@
+(ns nrepl.middleware
+  "Middleware descriptor infrastructure: `set-descriptor!` declares middleware
+  metadata (dependencies, handled ops, documentation), and
+  `linearize-middleware-stack` orders middleware by `:requires` / `:expects`.
+  Ported from nREPL 1.8.0. `wrap-describe` differs: the native server answers
+  `describe`; this one merges what the Mova-level middleware adds (ops,
+  middleware names, `:describe-fn` aux data) into that reply."
+  (:refer-clojure :exclude [comparator])
+  (:require
+   [nrepl.misc :as misc]
+   [nrepl.transport :as t :refer [safe-handle]]))
+
+;; Registering dynvars that are used to configure middleware. This lives here
+;; and not in nrepl.middleware.session to avoid circular dependencies.
+
+(def ^:private per-session-dynvars
+  "Set of dynamic variables that always have to be established for a new session
+  to their initial values."
+  (atom #{}))
+
+(defn- var-name
+  [v]
+  (subs (str v) 2))
+
+(defn set-descriptor!
+  "Sets the given [descriptor] map as the ::descriptor metadata on the
+  provided [middleware-var], after assoc'ing in the var's fully-qualified name
+  as the descriptor's \"implemented-by\" value. The value of `:session-dynvars`
+  should be a set of dynamic variables that the middleware expects to be made
+  rebindable for each new session."
+  [middleware-var descriptor]
+  (let [descriptor (assoc descriptor
+                          :implemented-by (-> middleware-var var-name symbol))]
+    (swap! per-session-dynvars into (:session-dynvars descriptor))
+    (alter-meta! middleware-var assoc ::descriptor descriptor)))
+
+(defn- merge-describe
+  "Merges what the middleware stack adds into the native `describe` reply."
+  [reply {:keys [verbose?] :as msg} middleware]
+  (let [descriptors (mapv (comp ::descriptor meta) middleware)
+        handles (apply merge (map :handles descriptors))
+        added (if verbose? handles (zipmap (keys handles) (repeat {})))
+        aux (reduce
+             (fn [aux {:keys [describe-fn]}]
+               (cond-> aux
+                 describe-fn (merge (describe-fn msg))))
+             nil descriptors)]
+    (cond-> (assoc reply
+                   ;; native ops win: they carry the documentation of the built-in ops
+                   :ops (merge added (:ops reply))
+                   :middleware (mapv str middleware))
+      aux (update :aux merge aux))))
+
+(defn- describe-transport [transport msg middleware]
+  (reify t/Transport
+    (recv [_] (t/recv transport))
+    (recv [_ timeout] (t/recv transport timeout))
+    (send [this resp]
+      (t/send transport (if (= (:op msg) "describe") (merge-describe resp msg middleware) resp))
+      this)))
+
+(defn wrap-describe
+  "Special middleware that accepts the list of all other middleware (except
+  self) and answers `describe`: the native server builds the reply, this adds
+  the Mova-level middleware to it."
+  [h middleware]
+  (let [middleware+self (cons #'wrap-describe middleware)]
+    (fn [msg]
+      (if (= "describe" (:op msg))
+        (h (assoc msg :transport (describe-transport (:transport msg) msg middleware+self)))
+        (h msg)))))
+
+(set-descriptor! #'wrap-describe
+                 {:handles {"describe" {}}})
+
+(defn- comparator
+  [{a-requires :requires a-expects :expects a-handles :handles}
+   {b-requires :requires b-expects :expects b-handles :handles}]
+  (let [intersect? (fn [set1 set2] (some (set set1) set2))]
+    (cond (intersect? a-requires b-handles) -1
+          (intersect? a-expects b-handles) 1
+          (intersect? b-requires a-handles) 1
+          (intersect? b-expects a-handles) -1
+          :else 0)))
+
+(defn- extended-descriptors
+  "This function serves two purposes:
+  - Scan through middlewares' dependencies and add those that are mentioned in
+  `:requires` or `:expects`, but not included explicitly. This is done for
+  compatibility, but will be removed in the future.
+  - Return descriptor for each middleware."
+  [middlewares]
+  (let [mware-set (set middlewares)]
+    (->> (for [m middlewares
+               :let [{:keys [expects requires] :as desc} (::descriptor (meta m))]]
+           (do (when (nil? desc)
+                 (misc/log :warning "No nREPL middleware descriptor in metadata of" m
+                           ", see nrepl.middleware/set-descriptor!"))
+               (let [deps (concat expects requires)
+                     missing-deps (for [dep deps
+                                        :when (and (var? dep) (not (mware-set dep)))]
+                                    (do (misc/log :warning (format "Middleware %s is required by %s but is not present in middleware list." dep m))
+                                        dep))]
+                 ;; TODO: stop adding missing deps in future versions.
+                 (concat [m] missing-deps))))
+         (apply concat)
+         distinct
+         (mapv (fn [m]
+                 (let [desc (::descriptor (meta m))]
+                   (-> desc
+                       ;; Conj the middleware Var itself to `:handles` to support direct
+                       ;; reference to middlewares dependencies in `:expects`/`:requires`.
+                       (update :handles #(set (conj (keys %) m)))
+                       (assoc :implemented-by m))))))))
+
+(defn- topologically-sort
+  "Topologically sorts the given middleware descriptors according to
+  expects/requires rules with the added heuristic that any middlewares that have
+  no dependencies will be sorted toward the end."
+  [stack]
+  (let [stack (vec stack)
+        ;; using indexes into the above vector as the vertices in the
+        ;; graph algorithm, will translate back into middlewares at
+        ;; the end.
+        vertices (range (count stack))
+        edges (for [i1 vertices
+                    i2 (range i1)
+                    :let [x (comparator (stack i1) (stack i2))]
+                    :when (not= 0 x)]
+                (if (neg? x) [i1 i2] [i2 i1]))
+        connected (into #{} cat edges)
+        ;; the trivial vertices have no connections, and we pull them
+        ;; out here so we can make sure they get put on the end
+        trivial-vertices (remove connected vertices)]
+    (loop [sorted-vertices []
+           remaining-edges edges
+           remaining-vertices (filter connected vertices)]
+      (if (seq remaining-vertices)
+        (let [non-initials (->> remaining-edges
+                                (map second)
+                                (set))
+              next-vertex (->> remaining-vertices
+                               (remove non-initials)
+                               (first))]
+          (if next-vertex
+            (recur (conj sorted-vertices next-vertex)
+                   (remove #((set %) next-vertex) remaining-edges)
+                   (remove #{next-vertex} remaining-vertices))
+            ;; Cycle detected! Have to actually assemble a cycle so we
+            ;; can throw a useful error.
+            (let [start (first remaining-vertices)
+                  step (into {} remaining-edges)
+                  cycle (->> (iterate step start)
+                             (rest)
+                             (take-while (complement #{start}))
+                             (cons start))
+                  data {:cycle (map stack cycle)}]
+              (throw (ex-info
+                      "Unable to satisfy nREPL middleware ordering requirements!"
+                      data)))))
+        (map stack (concat sorted-vertices trivial-vertices))))))
+
+(defn linearize-middleware-stack
+  "Given a list of middleware vars, sort them topologically, so that least
+  dependent middleware come FIRST and ones dependent on come LAST. The returned
+  order lends itself to being composed as-is into the final handler."
+  [middleware-vars]
+  (->> (extended-descriptors middleware-vars)
+       topologically-sort
+       (map :implemented-by)))

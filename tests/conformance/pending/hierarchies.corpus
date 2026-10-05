@@ -1,0 +1,14 @@
+;; hierarchies.corpus -- derive/underive/parents/ancestors/descendants/
+;; make-hierarchy gap corpus. Most of S4's measured semantics conform now
+;; and were promoted to tests/conformance/corpus/hierarchies.corpus /
+;; multimethods.corpus. `::`-derived keywords printing as `:user/foo` now
+;; conforms too (C3d -- the reader's auto-resolved-keyword gap that used
+;; to make any form whose printed RESULT embeds one un-promotable is
+;; fixed; see tests/conformance/corpus/hierarchies.corpus for the three
+;; forms that moved there). What's left here is the one OTHER, unrelated
+;; gap: `def`'s own return value (see multimethods.corpus's header comment
+;; for that one).
+;;
+;; a custom hierarchy (make-hierarchy + derive) is isolated from the
+;; global one; 3-arity isa? reads from it
+(def customhier123 (derive (make-hierarchy) ::hx2 ::hy2))

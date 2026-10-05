@@ -1,0 +1,147 @@
+{
+ "name": "d01_print",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(zipmap (range 12) (range 12))",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(zipmap (range 12) (range 12))",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint",
+    "nrepl.middleware.print/options": {
+     "right-margin": 20
+    }
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "18",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "clojure.pprint/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "clojure.core/prn"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "clojure.core/pr-str"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "no.such/fn"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pr"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/options": {
+     "length": 3
+    },
+    "nrepl.middleware.print/print": "nrepl.util.print/pr"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "{:a \"x\"}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "clojure.core/print"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "{:a 1}",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "clojure.core/str"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(range 30)",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint",
+    "nrepl.middleware.print/options": {
+     "length": 5
+    }
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "(println \"o\") 1",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "17",
+    "code": "(range 10) (range 5)",
+    "session": "$s1",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint",
+    "nrepl.middleware.print/options": {
+     "length": 2
+    }
+   }
+  }
+ ]
+}

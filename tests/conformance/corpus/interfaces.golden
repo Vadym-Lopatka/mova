@@ -1,0 +1,48 @@
+OK	user.IFoo
+OK	user.IBar
+OK	user.IFoo
+OK	java.lang.Class
+OK	true
+OK	true
+OK	false
+OK	user.T1
+OK	:defined
+OK	15
+OK	[10 1 2]
+OK	true
+OK	false
+OK	user.T1
+OK	user.T2
+OK	false
+OK	true
+OK	[:bar :z]
+OK	java.util.Map$Entry
+OK	java.lang.Class
+OK	user.MapEntry1
+OK	:defined
+OK	#user.MapEntry1{:k :a, :v 1}
+OK	:a
+OK	1
+OK	true
+OK	true
+OK	:a
+OK	1
+OK	true
+OK	false
+OK	user.Plain1
+OK	false
+OK	IfaceProto1
+OK	user.Both1
+OK	[:proto 7]
+OK	7
+OK	[:val 7]
+OK	true
+OK	true
+OK	user.TestRecord1
+OK	#user.TestRecord1{:a 1, :b 2}
+OK	#user.TestRecord1{:a 1, :b 2, :c 4}
+OK	true
+OK	(:a :b :c)
+OK	3
+OK	#user.TestRecord1{:a 1, :b 2}
+OK	9

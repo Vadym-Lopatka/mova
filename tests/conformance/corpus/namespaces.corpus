@@ -1,0 +1,25 @@
+;; namespaces.corpus -- C3f: promoted out of tests/conformance/pending/
+;; namespaces.corpus. `(use 'clojure.set)` used to diverge (mova had no
+;; callable `use` at all -- only the `(ns ... (:use ...))` clause path
+;; existed); C3f adds a real `use` native (mirroring `require`'s own
+;; plain-function shape), so this form now conforms with real Clojure
+;; 1.13.0-alpha6. One `Interp`/`clojure` process for this file, same
+;; session model as every other corpus file (see conformance_test.rs's
+;; module doc).
+(use 'clojure.set)
+
+;; W3b: promoted out of tests/conformance/pending/namespaces.corpus.
+;; `(resolve 'inc)` used to diverge on a bare-name `Value::Var`'s print
+;; (mova printed `#'inc`, real Clojure `#'clojure.core/inc` -- see
+;; `src/printer.rs`'s `Value::Var` arm, which now qualifies a
+;; `clojure.core`-interned cell's bare symbol). Self-contained, needs no
+;; prior `def` in this session.
+(resolve 'inc)
+
+;; W-ADX (wishlist #11): promoted out of tests/conformance/pending/
+;; namespaces.corpus. `load-string` did not exist at all before this
+;; session ("Unable to resolve symbol: load-string"); the new builtin
+;; (`src/builtins/reflect.rs`) sequentially reads and evaluates every
+;; form in the string and returns the last one's value, matching real
+;; Clojure exactly for this row.
+(load-string "(+ 1 2)")

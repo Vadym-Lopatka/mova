@@ -1,0 +1,568 @@
+;; tests/clojure-suite/ORACLE-ASSERTIONS.edn
+;;
+;; ============================================================
+;; THIS FILE IS THE DENOMINATOR OF THIS PROJECT'S NORTH STAR METRIC.
+;; ============================================================
+;;
+;; CONFORMANCE-GUARANTEE.md defines mova's headline compatibility number
+;; as "the percentage of assertions in Clojure 1.13.0-alpha6's own
+;; test/clojure/test_clojure/ suite that pass when run under mova". The
+;; NUMERATOR (assertions mova actually passed) lives in
+;; tests/clojure-suite/scoreboard.edn. The DENOMINATOR -- how many
+;; assertions each vendored file actually contains, a fact about the
+;; test file itself, independent of what mova currently does -- lives
+;; HERE, and only here. Deriving the denominator from mova's own run
+;; (as scoreboard.edn alone used to do) makes the headline number
+;; NON-MONOTONE: fixing a bug that unblocks a file injects that file's
+;; failing assertions into the denominator and the number can go DOWN
+;; even though mova got strictly better. This file breaks that by being
+;; a fixed, mova-independent ground truth.
+;;
+;; Regenerate with:      bash tools/oracle-census.sh
+;; (needs the Clojure CLI + JDK 21 on PATH, network access the first
+;; time to resolve org.clojure/test.check + org.clojure/test.generative
+;; from Maven Central, and tools/bootstrap-oracle.sh's pinned real
+;; Clojure 1.13.0-alpha6 oracle -- run tools/bootstrap-oracle.sh first
+;; if .oracle/ does not exist yet. Takes several minutes: every one of
+;; the ~48 vendored files is run TWICE, each time in its own fresh JVM
+;; process, under a wall-clock timeout.)
+;;
+;; HOW THE NUMBERS ARE PRODUCED: each vendored file under
+;; tests/clojure-suite/vendor/ is required and run via real
+;; clojure.test/run-tests -- NOT mova, NOT the mova-test-shim, NOT a
+;; grep over `(is ...)`/`(are ...)` text (grepping badly undercounts:
+;; `are` expands to N assertions per form, and `is` forms inside
+;; loops/doseq execute many times each). clojure.test's own
+;; *report-counters* after run-tests -- :pass + :fail + :error -- is
+;; the executed-assertion count; :test is the deftest count. Real
+;; Clojure's own pass/fail/error breakdown is recorded per file too:
+;; if real Clojure itself fails or errors on an assertion, mova failing
+;; it later is not mova's bug.
+;;
+;; The classpath (built by tools/oracle-census.sh) includes the pinned
+;; upstream test/ tree so a file's own :requires of companion
+;; namespaces resolve (e.g. protocols.clj's protocols/examples.clj
+;; subdirectory companions), org.clojure/test.check and
+;; org.clojure/test.generative at the exact versions the pinned
+;; commit's own pom.xml declares, the suite's compiled Java test
+;; fixtures (test/java/**), and a small fixed preamble
+;; (clojure.test-helper, clojure.set, clojure.pprint -- see
+;; tools/oracle-census.clj's own module doc for exactly why) that
+;; mirrors what upstream's own batch runner has already loaded as a
+;; side effect by the time any one file runs.
+;;
+;; STALENESS WARNING (the failure mode this file is most exposed to):
+;; this artifact's :assertions/:deftests totals are a fact about the
+;; vendored file SET at the moment this census was run. If a file is
+;; later added to, removed from, or edited within
+;; tests/clojure-suite/vendor/ and this census is NOT re-run, the
+;; committed totals below silently stop matching the actual vendored
+;; set -- and because the denominator staying the SAME while mova's
+;; numerator changes is exactly what makes the headline percentage
+;; look better without mova improving, a stale census is a flattering
+;; lie, not just an inaccuracy. The `:vendor-fingerprint` key below
+;; (SHA-256 of tests/clojure-suite/MANIFEST.sha256 itself, plus the
+;; vendored file count and sorted basenames, computed fresh by
+;; tools/oracle-census.sh from the CURRENT vendor/ directory every
+;; time this file is regenerated) exists so staleness can be checked
+;; CHEAPLY, without re-running this ~44-minute census:
+;; tools/generate-compat-report.bb compares this fingerprint against
+;; a freshly-computed one on every report run and FAILS its
+;; guarantee-check row (with a visible STALE marker next to the
+;; headline denominator) on any mismatch. That freshness gate runs on
+;; EVERY tools/conformance-report.sh pass; re-running this census
+;; itself stays a deliberate, occasional, manual command -- see
+;; tools/oracle-census.sh's own module doc for why those two things
+;; are deliberately kept separate. An artifact from before this key
+;; existed has no `:vendor-fingerprint` at all; the freshness gate
+;; renders that as NOT MEASURED (never :pass) and tells the reader to
+;; re-run tools/oracle-census.sh.
+;;
+;; WHAT :load-error MEANS: a file real Clojure itself cannot load even
+;; with all of the above gets :status :load-error, :assertions and
+;; :deftests nil, and is EXCLUDED from :totals -- but it is still
+;; listed below with the verbatim cause-chain reason, and :totals
+;; carries both :files-counted and :files-total so the shortfall is
+;; visible arithmetic, never a silently shifted denominator. A file
+;; whose count MOVED between this census's own two independent runs is
+;; flagged :nondeterministic true with both counts in its :note.
+;;
+;; TAMPERING WARNING: this file must ONLY ever be produced by running
+;; tools/oracle-census.sh end to end. Hand-editing any number in here
+;; changes the project's headline compatibility percentage without
+;; changing anything real about mova or about the suite. If a number
+;; here looks wrong, the fix is to fix tools/oracle-census.clj's
+;; counting logic (or its classpath/preamble) and regenerate -- never
+;; to hand-edit this file.
+;;
+{:oracle-version "1.13.0-alpha6",
+ :upstream-commit "15c821d7e7df241c8f9fed42fbc51b09c65b67d9",
+ :generated-by "tools/oracle-census.sh",
+ :jdk "21",
+ :vendor-fingerprint
+ {:manifest-sha256
+  "978ad340f739a8ec562bf7ed75e901c6e9fd0fe8d9289d55ee8ea2ecd94e5ee8",
+  :vendored-count 51,
+  :vendored-files
+  ["api.clj"
+   "atoms.clj"
+   "clojure_set.clj"
+   "clojure_walk.clj"
+   "clojure_zip.clj"
+   "control.clj"
+   "data_structures.clj"
+   "data.clj"
+   "def.clj"
+   "delays.clj"
+   "edn.clj"
+   "errors.clj"
+   "evaluation.clj"
+   "fn.clj"
+   "for.clj"
+   "generators.clj"
+   "instr.clj"
+   "keywords.clj"
+   "logic.clj"
+   "macros.clj"
+   "math.clj"
+   "multi_spec.clj"
+   "multimethods.clj"
+   "ns_libs_load_later.clj"
+   "ns_libs.clj"
+   "numbers.clj"
+   "other_functions.clj"
+   "parallel.clj"
+   "parse.clj"
+   "predicates.clj"
+   "printer.clj"
+   "protocols_examples.clj"
+   "protocols_more_examples.clj"
+   "protocols.clj"
+   "refs.clj"
+   "repl_example.clj"
+   "repl.clj"
+   "rt.clj"
+   "run_single_test.clj"
+   "sequences.clj"
+   "spec.clj"
+   "special.clj"
+   "string.clj"
+   "test_fixtures.clj"
+   "test.clj"
+   "transducers.clj"
+   "transients.clj"
+   "try_catch.clj"
+   "vars.clj"
+   "vectors.clj"
+   "volatiles.clj"]},
+ :files
+ {"api.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "atoms.clj"
+  {:status :ok,
+   :assertions 23,
+   :deftests 5,
+   :clojure-pass 23,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "clojure_set.clj"
+  {:status :ok,
+   :assertions 111,
+   :deftests 12,
+   :clojure-pass 111,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "clojure_walk.clj"
+  {:status :ok,
+   :assertions 30,
+   :deftests 8,
+   :clojure-pass 30,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "clojure_zip.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "control.clj"
+  {:status :ok,
+   :assertions 213,
+   :deftests 15,
+   :clojure-pass 213,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "data.clj"
+  {:status :ok,
+   :assertions 17,
+   :deftests 1,
+   :clojure-pass 17,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "data_structures.clj"
+  {:status :ok,
+   :assertions 2017,
+   :deftests 39,
+   :clojure-pass 2017,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "def.clj"
+  {:status :ok,
+   :assertions 11,
+   :deftests 4,
+   :clojure-pass 11,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "delays.clj"
+  {:status :ok,
+   :assertions 25,
+   :deftests 5,
+   :clojure-pass 25,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "edn.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "errors.clj"
+  {:status :ok,
+   :assertions 29,
+   :deftests 7,
+   :clojure-pass 29,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "evaluation.clj"
+  {:status :ok,
+   :assertions 52,
+   :deftests 7,
+   :clojure-pass 52,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "fn.clj"
+  {:status :ok,
+   :assertions 8,
+   :deftests 1,
+   :clojure-pass 8,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "for.clj"
+  {:status :ok,
+   :assertions 51,
+   :deftests 17,
+   :clojure-pass 51,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "generators.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "instr.clj"
+  {:status :ok,
+   :assertions 52,
+   :deftests 1,
+   :clojure-pass 52,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "keywords.clj"
+  {:status :ok,
+   :assertions 11,
+   :deftests 2,
+   :clojure-pass 11,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "logic.clj"
+  {:status :ok,
+   :assertions 124,
+   :deftests 6,
+   :clojure-pass 124,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "macros.clj"
+  {:status :ok,
+   :assertions 36,
+   :deftests 10,
+   :clojure-pass 36,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "math.clj"
+  {:status :ok,
+   :assertions 262,
+   :deftests 41,
+   :clojure-pass 262,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "multi_spec.clj"
+  {:status :ok,
+   :assertions 4,
+   :deftests 1,
+   :clojure-pass 4,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "multimethods.clj"
+  {:status :ok,
+   :assertions 129,
+   :deftests 11,
+   :clojure-pass 129,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "ns_libs.clj"
+  {:status :ok,
+   :assertions 31,
+   :deftests 10,
+   :clojure-pass 31,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "ns_libs_load_later.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "numbers.clj"
+  {:status :ok,
+   :assertions 2812,
+   :deftests 44,
+   :clojure-pass 2812,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "other_functions.clj"
+  {:status :ok,
+   :assertions 261,
+   :deftests 15,
+   :clojure-pass 261,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "parallel.clj"
+  {:status :ok,
+   :assertions 2,
+   :deftests 2,
+   :clojure-pass 2,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "parse.clj"
+  {:status :ok,
+   :assertions 54,
+   :deftests 6,
+   :clojure-pass 54,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "predicates.clj"
+  {:status :ok,
+   :assertions 1085,
+   :deftests 4,
+   :clojure-pass 1085,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "printer.clj"
+  {:status :ok,
+   :assertions 74,
+   :deftests 13,
+   :clojure-pass 74,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "protocols.clj"
+  {:status :ok,
+   :assertions 196,
+   :deftests 23,
+   :clojure-pass 196,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "protocols_examples.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "protocols_more_examples.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "refs.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "repl.clj"
+  {:status :ok,
+   :assertions 22,
+   :deftests 7,
+   :clojure-pass 22,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "repl_example.clj"
+  {:status :ok,
+   :assertions 0,
+   :deftests 0,
+   :clojure-pass 0,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "rt.clj"
+  {:status :ok,
+   :assertions 30,
+   :deftests 4,
+   :clojure-pass 30,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "run_single_test.clj"
+  {:status :ok,
+   :assertions 5,
+   :deftests 3,
+   :clojure-pass 5,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "sequences.clj"
+  {:status :ok,
+   :assertions 1148,
+   :deftests 73,
+   :clojure-pass 1148,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "spec.clj"
+  {:status :ok,
+   :assertions 118,
+   :deftests 11,
+   :clojure-pass 118,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "special.clj"
+  {:status :ok,
+   :assertions 39,
+   :deftests 16,
+   :clojure-pass 39,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "string.clj"
+  {:status :ok,
+   :assertions 133,
+   :deftests 23,
+   :clojure-pass 133,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "test.clj"
+  {:status :ok,
+   :assertions 58,
+   :deftests 14,
+   :clojure-pass 58,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "test_fixtures.clj"
+  {:status :ok,
+   :assertions 8,
+   :deftests 6,
+   :clojure-pass 8,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "transducers.clj"
+  {:status :ok,
+   :assertions 108,
+   :deftests 19,
+   :clojure-pass 108,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "transients.clj"
+  {:status :ok,
+   :assertions 33,
+   :deftests 8,
+   :clojure-pass 33,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "try_catch.clj"
+  {:status :ok,
+   :assertions 5,
+   :deftests 2,
+   :clojure-pass 5,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "vars.clj"
+  {:status :ok,
+   :assertions 25,
+   :deftests 9,
+   :clojure-pass 25,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "vectors.clj"
+  {:status :ok,
+   :assertions 1583,
+   :deftests 17,
+   :clojure-pass 1583,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""},
+  "volatiles.clj"
+  {:status :ok,
+   :assertions 10,
+   :deftests 2,
+   :clojure-pass 10,
+   :clojure-fail 0,
+   :clojure-error 0,
+   :note ""}},
+ :totals
+ {:files-total 51, :files-counted 51, :assertions 11045, :deftests 524}}

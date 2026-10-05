@@ -1,0 +1,55 @@
+OK	true
+OK	false
+OK	true
+OK	true
+OK	false
+OK	true
+OK	false
+OK	"POW"
+OK	"pow"
+OK	""
+OK	"padded"
+OK	5
+OK	0
+OK	true
+OK	false
+OK	"hello"
+OK	true
+OK	"abcd"
+OK	"x"
+OK	\h
+OK	\o
+OK	java.lang.Character
+OK	:threw
+OK	:threw
+OK	"llo"
+OK	"hello"
+OK	"el"
+OK	""
+OK	:threw
+OK	:threw
+OK	-1
+OK	2
+OK	0
+OK	4
+OK	-1
+OK	:threw
+OK	2
+OK	4
+OK	-1
+OK	1
+OK	"bbb"
+OK	"a-b-c"
+OK	"no-match"
+OK	[]
+OK	["a" "b" "c"]
+OK	["a" "b,c"]
+OK	["a" "b" "" "c"]
+OK	["a" "b" "" "c" ""]
+OK	["a" "b" "c"]
+OK	java.lang.String/1
+OK	("a" "b" "c")
+OK	"clojure.core$foo"
+OK	:threw
+OK	:threw
+OK	:threw

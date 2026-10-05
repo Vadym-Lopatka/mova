@@ -1,0 +1,220 @@
+{
+ "name": "h01_load_file",
+ "doc": "load-file uses file content from the message",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "load-file",
+    "id": "1",
+    "session": "$s1",
+    "file": "(ns lf.a)\n(defn f [] 1)\n(f)",
+    "file-name": "a.clj",
+    "file-path": "$TMP/a.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(lf.a/f)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(select-keys (meta #'lf.a/f) [:file :line])",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(str *ns*)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "5",
+    "session": "$s1",
+    "file": "(ns lf.b)\n(def x 1)\n(/ 1 0)\n(def y 2)",
+    "file-name": "b.clj",
+    "file-path": "$TMP/b.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "lf.b/x",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(resolve 'lf.b/y)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "8",
+    "session": "$s1",
+    "file": "(+ 1 2)"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "9",
+    "session": "$s1",
+    "file": "(+ 1 2)",
+    "file-name": "only-name.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "10",
+    "session": "$s1",
+    "file": "(println \"in-file\") (+ 1 2)",
+    "file-path": "/x/y/only-path.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "11",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "12",
+    "session": "$s1",
+    "file": "(+ 1"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "13",
+    "session": "$s1",
+    "file": "(ns lf.c)\n(def v (foo-unresolved))",
+    "file-name": "c.clj",
+    "file-path": "$TMP/c.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "14",
+    "session": "$s1",
+    "file": "(def lfv 1)\n(def lfw 2)\n(map #(select-keys (meta %) [:file :line :column]) [#'lfv #'lfw])",
+    "file-name": "d.clj",
+    "file-path": "/p/d.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "(map #(select-keys (meta %) [:file :line :column]) [#'lfv #'lfw])",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "16",
+    "session": "$s1",
+    "file": "1 2 3",
+    "file-name": "e.clj",
+    "file-path": "e.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "17",
+    "session": "$s1",
+    "file": "(+ 1 2)",
+    "file-name": "f.clj",
+    "file-path": "f.clj",
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "18",
+    "session": "$s1",
+    "file": "(+ 1 2)",
+    "file-name": "g.clj",
+    "file-path": "g.clj",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "19",
+    "session": "$s1",
+    "file": "(str *ns*)",
+    "file-name": "h.clj",
+    "file-path": "h.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "20",
+    "session": "$s1",
+    "file": "(in-ns 'lf.inns)",
+    "file-name": "i.clj",
+    "file-path": "i.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "21",
+    "code": "(str *ns*)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "22",
+    "file": "(+ 1 2)",
+    "file-name": "j.clj",
+    "file-path": "j.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "load-file",
+    "id": "23",
+    "session": "$s1",
+    "file": "(ns lf.m)(def [1)",
+    "file-name": "k.clj",
+    "file-path": "k.clj"
+   }
+  }
+ ],
+ "files": {
+  "a.clj": "(ns lf.a)\n(defn f [] 1)\n(f)"
+ }
+}

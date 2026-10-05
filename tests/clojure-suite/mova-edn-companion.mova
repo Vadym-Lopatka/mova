@@ -1,0 +1,123 @@
+;; mova-edn-companion.mova -- a minimal `clojure.edn` workalike, written in
+;; mova itself, so vendored Clojure test files that `(:require [clojure.edn
+;; :as edn])` can load and run under mova.
+;;
+;; THIS IS TEST INFRASTRUCTURE, NOT PART OF THE SHIPPED LANGUAGE -- same
+;; status as mova-test-shim.mova/mova-test-helper-shim.mova/mova-stacktrace-
+;; companion.mova (see those files' own headers), and wired in by
+;; tools/clojure-suite-run.bb the same way: `materialize-companion-clojure-
+;; edn` (see that fn's own comment) writes this source, verbatim, as `(ns
+;; clojure.edn)` plus this body, to `<scratch>/clojure/edn.mova` -- a real,
+;; `require`-able module on mova's module path -- so `edn.clj`'s
+;; `(:require [clojure.edn :as edn])` resolves instead of failing with
+;; "could not locate namespace clojure.edn". Not spliced into anything (no
+;; `clojure.test` shim names referenced) -- plain self-contained module,
+;; same shape as `mova-stacktrace-companion.mova`.
+;;
+;; ONLY VENDORED CONSUMER at the time this was written
+;; (`tests/clojure-suite/vendor/edn.clj`, confirmed by `grep -rn 'edn/'
+;; vendor/` across all 51 vendored files): one call site,
+;; `(-> o pr-str edn/read-string)`, inside two `defspec` generative-test
+;; forms. `defspec` (`clojure.test.generative`) defines a var but the mova
+;; `clojure.test` shim never calls it -- unlike `deftest`, nothing in this
+;; suite's runner invokes a `defspec` var, so those two forms compile and
+;; register but their bodies never execute (measured: 0 assertions ever run
+;; from `edn.clj`, before or after this companion). This companion's job is
+;; therefore honest-completeness, not score: a drop-in Clojure needs a real
+;; `clojure.edn` namespace to exist and `require` cleanly, independent of
+;; whether the one file that needs it happens to contribute assertions.
+;;
+;; API SURFACE IMPLEMENTED: `read-string` (1- and 2-arity, matching real
+;; `clojure.edn`'s own arities). `read` (stream-based, `*in*`-defaulting) is
+;; DELIBERATELY NOT implemented -- mova has no `*in*`/`PushbackReader`/
+;; `java.io.Reader` abstraction anywhere in the codebase (confirmed by
+;; grep), so there is no substrate to read a "stream" from at all, and no
+;; vendored file calls `edn/read`. Per this codebase's own interop
+;; principle (Rust-native semantics, JVM emulation only as deep as the
+;; suite demands -- see `mova-stacktrace-companion.mova`'s header for the
+;; same call on a different namespace), building stream plumbing nobody
+;; exercises would be scope creep, not completeness.
+;;
+;; IMPLEMENTATION: a thin wrapper over mova's OWN `read-string` builtin
+;; (`clojure.core/read-string`, `src/builtins/reflect.rs`), not a from-
+;; scratch edn reader -- mova's reader already reads reader-conditional-
+;; free Clojure data (bare `read-string`, without `{:read-cond :allow}`,
+;; is exactly the mode edn needs: no `#?`/`#?@` dispatch), so re-deriving a
+;; second, independent edn-only reader on top would duplicate the real one
+;; for no measured benefit. `clojure.core/read-string` (fully qualified) is
+;; used rather than the bare name because this namespace's own `read-string`
+;; def below would otherwise shadow it for itself, recursing forever --
+;; confirmed empirically (`(ns clojure.probe1) (defn read-string [s]
+;; (clojure.core/read-string s)) ...` resolves the qualified call straight
+;; through to the builtin even though the bare name is locally shadowed).
+;;
+;; MEASURED DIVERGENCES FROM REAL `clojure.edn` (oracle: 1.13.0-alpha6 via
+;; `.oracle/deps`, transcript in `compat/edn-oracle-transcript.txt` --
+;; every one of these is mova's underlying `read-string` being the FULL
+;; Clojure reader, not a real restricted edn reader, so this wrapper
+;; inherits all of them; recorded here for the deviations ledger, not
+;; edited into DEVIATIONS.md by this file):
+;;
+;;   1. UNKNOWN TAGGED LITERALS: real `clojure.edn/read-string` on `#foo/bar
+;;      300` (any tag not `#inst`/`#uuid` and not covered by a `:readers`/
+;;      `:default` opt) throws `RuntimeException: No reader function for
+;;      tag foo/bar`. mova's `read-string` passes the tag's payload
+;;      through unchanged (`#foo/bar 300` => `300`) -- confirmed against a
+;;      live mova build. This is the one divergence that would matter for
+;;      `edn.clj`'s own `types-that-should-not-roundtrip` defspec (which
+;;      expects `edn/read-string` to THROW on a non-ednable print-dup
+;;      form), but as noted above that defspec's body never executes under
+;;      this suite's runner, so it isn't exercised in practice.
+;;   2. `#inst`: real edn reads it as a `java.util.Date`. mova's reader
+;;      discards the `#inst` tag and returns the payload literally (`#inst
+;;      "2020"` => the STRING `"2020"`, not a date/instant value) -- mova
+;;      has no `java.util.Date`-equivalent value type to construct here
+;;      (confirmed: no `Value::Date`/`Value::Instant` variant, only
+;;      `Value::Inst` which is the UNRELATED record/deftype-instance
+;;      representation -- see `src/value.rs`).
+;;   3. NON-EDN CLOJURE READER SYNTAX real edn REJECTS but mova's
+;;      `read-string` happily reads (all confirmed against a live mova
+;;      build): `#"..."` regex literals (real edn: "No dispatch macro for
+;;      \""), `#(...)` fn literals (real edn: "No dispatch macro for
+;;      \("), `::kw` auto-resolved keywords (real edn: "Invalid token:
+;;      ::kw" -- edn has no reader-time `*ns*` to resolve against), `#=`
+;;      reader-eval forms (real edn: "No dispatch macro for ="). mova's
+;;      `read-string` is the one, full Clojure reader (by design -- see
+;;      `src/reader.rs`), so this wrapper is necessarily a permissive
+;;      SUPERSET of real edn's grammar, never a stricter subset.
+;;   4. `:readers`/`:default` OPTS: real `clojure.edn/read-string`'s opts
+;;      map accepts `:readers` (a tag->fn map consulted before throwing)
+;;      and `:default` (a catch-all tag handler). mova's `read-string`
+;;      opts map only understands `:read-cond` (S5, unrelated to edn) --
+;;      passing `:readers`/`:default` here is silently a no-op, matching
+;;      "ignored, not wired up" rather than pretending to honor them.
+;;   5. `:eof` OPT: implemented on a best-effort basis, NOT via true
+;;      reader-level EOF detection (mova's `read-string` has no way to
+;;      distinguish "reached end of input" from "read a literal `nil`" in
+;;      its return value -- both are `Value::Nil`). This wrapper instead
+;;      treats a `blank?` input string (nil, empty, or all-whitespace) as
+;;      EOF and returns the `:eof` opt's value (defaulting to `nil`,
+;;      matching real edn's own default) in that case, delegating to the
+;;      real reader otherwise. Measured to match real edn on every case
+;;      the oracle transcript covers (empty string, whitespace-only,
+;;      custom `:eof` value) but would diverge on an EOF that real edn
+;;      reaches only after skipping a `;`-comment-only input (e.g. `(read-
+;;      string {:eof :EOF} "; just a comment")`) -- not itself blank, so
+;;      this wrapper would call through to `clojure.core/read-string` and
+;;      get real `nil` back instead of the `:eof` value. No vendored file
+;;      exercises this corner (edn.clj never passes an opts map at all),
+;;      recorded here rather than silently glossed over.
+
+(defn read-string
+  "Reads one object from the string `s`. Real `clojure.edn/read-string`,
+  restated for mova's reader -- see this file's own header for exactly
+  where the two diverge and why. `opts` (2-arity) is a map that may
+  include `:eof` (value to return when `s` carries no readable form;
+  defaults to `nil`, matching real edn) -- `:readers`/`:default` are
+  accepted (silently ignored) for signature parity, not honored."
+  ([s] (read-string {:eof nil} s))
+  ([opts s]
+   (when-not (nil? s)
+     (if (blank? s)
+       (:eof opts)
+       (clojure.core/read-string s)))))

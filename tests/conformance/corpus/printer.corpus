@@ -1,0 +1,64 @@
+;; printer.corpus -- printer-layer forms that already conform between
+;; real Clojure and mova (candidates mined while building the
+;; tests/conformance/pending/printer.corpus gap ledger).
+
+(pr-str -0.0)
+(pr-str 100000.0)
+(pr-str 1000000.0)
+(pr-str \newline)
+(pr-str \tab)
+(pr-str "tab\tnewline\n")
+(pr-str "quote\"backslash\\")
+(= 1.0 (read-string (pr-str 1.0)))
+(= "a\nb" (read-string (pr-str "a\nb")))
+(= :a/b (read-string (pr-str :a/b)))
+(= \a (read-string (pr-str \a)))
+(= [1 2 3] (read-string (pr-str [1 2 3])))
+(= 1e10 (read-string (pr-str 1e10)))
+(pr-str #"a.b")
+(str #"a.b")
+(pr-str (list))
+(pr-str [])
+(pr-str {})
+;; Promoted from pending/printer.corpus (M1: conforms as of the
+;; reader-literals + S12 Java float printing change).
+(pr-str 1e10)
+(pr-str 1e-10)
+(pr-str 1e300)
+(pr-str 1.23456789e20)
+(pr-str (/ 0.0 0.0))
+(pr-str (/ 1.0 0.0))
+(pr-str (/ -1.0 0.0))
+(pr-str 10000000.0)
+;; M1 bignum-literal battery -- ratio/BigInt/BigDecimal reader syntax,
+;; print round-trip, and =/lookup bridging (arithmetic itself is M5).
+(pr-str 1/3)
+(str 1/3)
+(pr-str 7N)
+(str 7N)
+(pr-str 1.5M)
+(pr-str 1.50M)
+(str 1.5M)
+(pr-str 1e3M)
+(pr-str 0.00M)
+(pr-str 12345678901234567890N)
+(pr-str [1/3 7N 1.5M])
+(str [1/3 7N 1.5M])
+(str ["a"])
+
+;; W3b: promoted out of tests/conformance/pending/printer.corpus. A
+;; `Value::Var` interned in `clojure.core` carries a BARE symbol (no
+;; namespace -- that's how bare-name lookup in `CORE_NS` works), so
+;; printing it used to skip the `clojure.core/` prefix entirely (`#'+`
+;; where real Clojure prints `#'clojure.core/+`). `src/printer.rs`'s
+;; `Value::Var` arm now special-cases a bare-symbol cell.
+(pr-str (var +))
+(pr-str #'+)
+
+;; promoted from pending: control-char names, \b/\f escapes, *print-namespace-maps* default, Double/MIN_VALUE
+(pr-str \backspace)
+(pr-str \formfeed)
+(pr-str (str \backspace))
+(pr-str (str \formfeed))
+(pr-str {:foo/a 1})
+(pr-str 5e-324)

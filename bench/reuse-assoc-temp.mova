@@ -1,0 +1,35 @@
+;; reuse-assoc-temp.mova -- Perceus-lite phase 1 (v0.5) A/B shape: the case
+;; the consuming calling convention is actually FOR.
+;;
+;; Every receiver here except the outermost is a TEMPORARY that nothing but
+;; the args vector holds at the moment `assoc` runs:
+;;
+;;   - `(assoc m :a 1 :b 2 :c 3 :d 4)` -- after the first pair, `assoc`'s
+;;     own accumulator is a value only this native frame can see, so pairs
+;;     2..4 mutate in place regardless of what the caller does with `m`;
+;;   - `(assoc (assoc (assoc ...)))` -- each inner call's RESULT is a
+;;     temporary consumed by the enclosing call.
+;;
+;; Contrast reuse-assoc-{8,100,10000}.mova, where the receiver is a live
+;; closure binding and phase 1 can only take a shared handle. The gap
+;; between the two files is precisely the headroom phase 2 (last-use
+;; analysis) has to go after.
+;;
+;;   ./target/release/mova bench/reuse-assoc-temp.mova
+
+(def R 200000)
+(def base {:k 0})
+(def t0 (time-ms))
+(def checksum
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r)
+             (+ acc
+                ;; 4 assoc ops, 3 of them on a sole-owned temporary
+                (count (assoc base :a 1 :b 2 :c 3 :d 4))
+                ;; 4 more, 3 of them on a sole-owned temporary
+                (count (assoc (assoc (assoc (assoc base :a 1) :b 2) :c 3) :d 4))))
+      acc)))
+(def elapsed (max 1 (- (time-ms) t0)))
+(def ops (* 8 R))
+(println "reuse-assoc-temp" ops elapsed (quot (* ops 1000) elapsed))

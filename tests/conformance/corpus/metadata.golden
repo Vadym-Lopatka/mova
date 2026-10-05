@@ -1,0 +1,44 @@
+OK	{:a 1}
+OK	{:a 1}
+OK	{:a 1}
+OK	{:doc "x"}
+OK	{:doc "y"}
+OK	{:a 1, :b 2}
+OK	true
+OK	true
+OK	{:a 1}
+OK	{:a 1}
+OK	{:a 1}
+OK	{:a 1}
+OK	{:a 1}
+OK	{:m 1}
+OK	nil
+OK	nil
+OK	nil
+OK	nil
+OK	nil
+OK	true
+OK	"hi"
+OK	"^{:a 1} [1 2]"
+OK	{:tag :x}
+OK	{:tag :x}
+OK	{:tag :x}
+OK	{:tag :x}
+OK	{:tag :x}
+OK	nil
+OK	nil
+OK	nil
+OK	"^{:foo true} [1 2]"
+OK	{:foo true}
+OK	{:a 1, :b 2}
+OK	"hi"
+OK	{:a 1}
+OK	{:a 1, :b 2}
+OK	{:bar true, :foo true}
+OK	{:foo true}
+OK	{:foo true}
+OK	false
+OK	true
+OK	{:foo :bar}
+OK	true
+OK	true

@@ -1,0 +1,72 @@
+;; strings.corpus -- str/pr-str/name/keyword/symbol/subs, clojure.string-ish
+;; join/upper-case/lower-case/trim/starts-with?/ends-with?/includes?/
+;; replace. One session.
+;;
+;; NOTE: `clojure.string/split` is deliberately NOT exercised here: real
+;; Clojure's `split` takes a `java.util.regex.Pattern` (`#","`), while
+;; mova's `split` takes a plain string separator (documented deviation,
+;; see builtins/strings.rs -- no regex engine in v0). Neither a `#"..."`
+;; literal (mova's reader doesn't support regex literals) nor a plain
+;; string (real Clojure's `split` throws a `ClassCastException`) is valid
+;; source for *both* dialects, so there is no single corpus form that could
+;; even be read the same way in both -- this is a syntax-level gap, not a
+;; value mismatch, so it doesn't fit DEVIATIONS.md's "differing output"
+;; table either. `split`'s own behavior is covered non-differentially by
+;; tests/stdlib_test.rs. Bare (non-namespaced) `split`/`join`/`upper-case`/
+;; etc. are similarly skipped: they're an mova-only convenience alias
+;; (also covered by stdlib_test.rs) with no bare equivalent in real
+;; Clojure at all (only `clojure.string/`-qualified there).
+(str "a" "b" "c")
+(str "a" 1 "b")
+(str 1 2 3)
+(str)
+(str nil)
+(str "x" nil "y")
+(str :a)
+(str :ns/a)
+(str 'sym)
+(str true false)
+(str 1.5)
+(pr-str "hello")
+(pr-str [1 2 3])
+(pr-str {:a 1})
+(pr-str :a)
+(pr-str 'sym)
+(pr-str nil)
+(pr-str "with \"quotes\"")
+(pr-str "tab\tnewline\n")
+(name :foo)
+(name :ns/foo)
+(name 'sym)
+(name "already-a-string")
+(keyword "foo")
+(keyword "ns" "foo")
+(= (keyword "foo") :foo)
+(symbol "foo")
+(symbol "ns" "foo")
+(= (symbol "foo") 'foo)
+(subs "hello world" 0 5)
+(subs "hello world" 6)
+(subs "hello" 0 0)
+(subs "hello" 5)
+(clojure.string/join "," ["a" "b" "c"])
+(clojure.string/join ["a" "b" "c"])
+(clojure.string/join "-" [1 2 3])
+(clojure.string/upper-case "hello")
+(clojure.string/lower-case "HELLO")
+(clojure.string/trim "  padded  ")
+(clojure.string/starts-with? "hello" "he")
+(clojure.string/starts-with? "hello" "lo")
+(clojure.string/ends-with? "hello" "lo")
+(clojure.string/ends-with? "hello" "he")
+(clojure.string/includes? "hello" "ell")
+(clojure.string/includes? "hello" "xyz")
+(clojure.string/replace "banana" "a" "o")
+(clojure.string/replace "hello world" "world" "there")
+(count "hello")
+(count "")
+(clojure.string/join "," ["p" "q"])
+(str (count (subs "abcdef" 1 4)))
+(= (str "a" "b") "ab")
+(str (clojure.string/upper-case (str "he" "llo")))
+(str (name :a) "-" (name :b))

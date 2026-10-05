@@ -1,0 +1,9 @@
+OK	"Assert failed: false"
+OK	"Assert failed: (= 1 2)"
+OK	"Assert failed: custom message\nfalse"
+OK	"Assert failed: oops\n(> 1 2)"
+OK	nil
+OK	nil
+OK	true
+OK	true
+OK	false

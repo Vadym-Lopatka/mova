@@ -1,0 +1,69 @@
+;; flow-gen-sink.mova -- mova port of a jank-based async benchmark's bench/bench_app.jank.template
+;; topology (see a jank-based async benchmark's bench/BENCHMARKS.md +
+;; bench_app.jank.template): a 2-proc flow `gen ->[out|in]-> sink` where
+;; `gen` has NO wired :ins at all -- its message source is a `future`-spawned
+;; OS thread that blocking-puts N integers onto a buffer-1024 channel wired
+;; in at :init time via `:clojure.core.async.flow/in-ports {:tick tick}`
+;; (exactly jank's mechanism: an external in-port fed by a background
+;; producer thread, not `flow/inject`). `sink` counts messages and delivers
+;; a promise on the Nth. W=0: no per-message compute (this file). See
+;; flow-gen-sink-w2000.mova for the WORK=2000 LCG-burn variant.
+;;
+;; Deliberately simplified vs the jank template: no per-message latency
+;; histogram (nanosecond timestamps + 1us buckets) and no {:seq :t} payload
+;; map -- only saturated throughput is measured here, matching this bench's
+;; "<name> <msgs> <ms> <msg/s>" convention (see bench/run.sh). Message count
+;; N matches jank's W=0 scenario (`bench/run_bench_v3.sh`'s SCENARIOS: "0
+;; 200000 20000") exactly; unlike jank's harness, no WARMUP window is
+;; excluded from the timed region (mova is a tree-walking interpreter with
+;; no JIT warm-up phase to exclude -- see bench/RESULTS-vs-jank.md for the
+;; methodology note).
+;;
+;;   ./target/release/mova bench/flow-gen-sink.mova
+
+(def N 200000)
+(def done (promise))
+
+(def gen
+  (flow/map->step
+   {:describe (fn [] {:outs {:out {}}})
+    :init (fn [{:keys [n]}]
+            (let [tick (chan 1024)
+                  running (atom true)]
+              (future
+                (loop [i 0]
+                  (when (and @running (< i n))
+                    (>!! tick i)
+                    (recur (inc i)))))
+              {:running running
+               :tick tick
+               :clojure.core.async.flow/in-ports {:tick tick}}))
+    :transition (fn [s t]
+                  (when (= t :clojure.core.async.flow/stop)
+                    (reset! (:running s) false)
+                    (close! (:tick s)))
+                  s)
+    :transform (fn [s _ msg] [s {:out [msg]}])}))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}}})
+    :init (fn [_] {:c 0})
+    :transform (fn [{:keys [c]} _ msg]
+                 (let [c2 (inc c)]
+                   (when (= c2 N) (deliver done c2))
+                   [{:c c2} {}]))}))
+
+(def fl (flow/create-flow
+         {:procs {:gen {:proc (flow/process gen) :args {:n N}}
+                  :sink {:proc (flow/process sink)}}
+          :conns [[[:gen :out] [:sink :in]]]}))
+
+(def t0 (time-ms))
+(flow/start fl)
+(flow/resume fl)
+(deref done)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-gen-sink" N elapsed rate)
+(flow/stop fl)

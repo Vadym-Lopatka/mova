@@ -1,0 +1,37 @@
+;; Mova-level stand-in for the built-in nREPL middleware of the same name: the real
+;; work is native. It carries the descriptor so user middleware can order itself
+;; against it (`:requires` / `:expects`, var or op name) and `describe` lists it.
+(ns nrepl.middleware.print
+  (:refer-clojure :exclude [print])
+  (:require [nrepl.middleware :refer [set-descriptor!]]))
+
+(def ^:dynamic *print-fn*
+  "Function to use for printing: `(f value writer)`. Native printing reads the
+  request keys and the session's value of this var."
+  nil)
+
+(def ^:dynamic *stream?* false)
+(def ^:dynamic *buffer-size* 1024)
+(def ^:dynamic *quota* nil)
+
+(def configuration-keys
+  [::print-fn ::stream? ::buffer-size ::quota ::keys])
+
+(defn wrap-print
+  "Native; this wrapper passes every message on."
+  [h]
+  h)
+
+(set-descriptor! #'wrap-print {:requires #{"clone"}
+                               :expects #{}
+                               :handles {}
+                               :session-dynvars #{#'*print-fn* #'*stream?*
+                                                  #'*buffer-size* #'*quota*}})
+
+(def wrap-print-optional-arguments
+  {"nrepl.middleware.print/print" "A fully-qualified symbol naming a var whose function to use for printing. Must point to a function with signature [value writer options]."
+   "nrepl.middleware.print/options" "A map of options that will be passed to the print function. Only used if `print` is also provided."
+   "nrepl.middleware.print/stream?" "If truthy, the printing function will be called once with the stream for each value."
+   "nrepl.middleware.print/buffer-size" "The size of the buffer to use when streaming results. Defaults to 1024."
+   "nrepl.middleware.print/quota" "A hard limit on the number of bytes printed for each value."
+   "nrepl.middleware.print/keys" "A seq of keys in the response whose values should be printed."})

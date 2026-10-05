@@ -1,0 +1,880 @@
+;; shim-selftest.mova -- exercises tests/clojure-suite/mova-test-shim.mova
+;; against itself. Run as:
+;;   cat tests/clojure-suite/mova-test-shim.mova tests/clojure-suite/shim-selftest.mova \
+;;     | target/release/mova -e "$(cat -)"
+;; or simply paste this file after the shim in one mova invocation -- mova
+;; has no multi-file load, so the shim's definitions must already be in
+;; scope before this file's forms run.
+;;
+;; Covers: a straightforwardly passing test, a failing `=` (both sides
+;; reported), an unexpected throw (=> :error, not :fail), `are` template
+;; expansion, nested `testing` context strings, and `thrown?` (both the
+;; throws-as-expected and the fails-to-throw cases). Also a deftest whose
+;; BODY blows up outside of any `is`, to prove that still yields a
+;; #RESULT line instead of crashing the whole run.
+;;
+;; This first block is #RESULT-line output meant for a human to eyeball --
+;; it was the whole selftest before the mechanical harness below existed.
+;; It is still useful as a smoke test / visible log, but it does NOT by
+;; itself catch a regression: nothing here fails the run if e.g. `is`'s
+;; handling of `(= a b c)` silently regresses back to only checking the
+;; first two operands. The MECHANICAL part -- the part that actually
+;; fails loudly on a regression -- is the "mechanical self-checks" section
+;; further down, which inspects the shim's own atoms (ts-t-status et al)
+;; instead of relying on a human reading printed text.
+
+(deftest passing-test
+  (is (= 4 (+ 2 2)))
+  (is true)
+  (is (= 1 1) "one is one"))
+
+(deftest failing-eq-test
+  (is (= 4 (+ 2 3)) "arithmetic should hold"))
+
+(deftest unexpected-throw-test
+  (is (= 1 1))
+  (is (= 1 (/ 1 0))))
+
+(deftest are-test
+  (are [x y] (= x y)
+    4 (+ 2 2)
+    9 (* 3 3)
+    "ab" (str "a" "b")))
+
+(deftest are-with-a-failure-test
+  (are [x y] (= x y)
+    4 (+ 2 2)
+    100 (+ 2 2)))
+
+(deftest nested-testing-test
+  (testing "outer"
+    (testing "inner"
+      (is (= 1 2)))))
+
+;; C3g NOTE: `SomeException` (a deliberately fake, non-existent class
+;; name) used to appear all over this file's `thrown?`/`thrown-with-msg?`/
+;; `thrown-with-cause-msg?`/`fails-with-cause?` probes precisely BECAUSE
+;; `catch` was class-blind -- it proved the class token was never checked
+;; at all. Now that `catch` is typed (`eval::special_forms::
+;; catch_class_matches`), a fake class genuinely does not match anything,
+;; so every occurrence below that expects a CATCH (as opposed to a
+;; did-not-throw check, which never reaches a catch clause at all) has
+;; been swapped for a real class that actually matches what the body
+;; throws -- otherwise these probes would themselves start reporting
+;; :error and this file would stop proving what it claims to.
+(deftest thrown-test
+  (is (thrown? ArithmeticException (/ 1 0)))
+  (is (thrown? Exception (throw (ex-info "boom" {})))))
+
+(deftest thrown-did-not-throw-test
+  (is (thrown? ArithmeticException (+ 1 1))))
+
+(deftest thrown-with-msg-test
+  (is (thrown-with-msg? ArithmeticException #"Divide" (/ 1 0))))
+
+;; thrown-with-cause-msg? / fails-with-cause? -- C3g: now class-checked
+;; against the exception actually caught (mova has no cause chain to walk
+;; separately, see mova-test-shim.mova's own updated comment on this
+;; branch); message-checked via `ex-message` when accessible (true for
+;; ex-info), message-blind pass-on-any-throw-of-the-matched-class
+;; otherwise (true for e.g. a division by zero, where ex-message returns
+;; nil). `clojure.lang.ExceptionInfo` below is the REAL class `ex-info`
+;; produces (measured ancestry: extends `RuntimeException`) -- swapped in
+;; for the old fake `SomeException` so this probe actually reaches the
+;; message-check branch instead of erroring on a class mismatch.
+(deftest thrown-with-cause-msg-message-matches-test
+  (is (thrown-with-cause-msg? clojure.lang.ExceptionInfo #"boom"
+        (throw (ex-info "boom-message" {})))))
+
+(deftest fails-with-cause-message-blind-test
+  (is (fails-with-cause? ArithmeticException #"anything at all"
+        (/ 1 0))))
+
+(deftest body-blows-up-test
+  (is (= 1 1))
+  (throw "kaboom outside any is")
+  (is (= 2 2)))
+
+(run-tests)
+
+;; ==================== mechanical self-checks ====================
+;; Everything below inspects the shim's OWN internal atoms
+;; (ts-t-status/ts-t-assertions/ts-t-failures/ts-t-first-failure) after
+;; running a probe test, rather than asking a human to read a #RESULT
+;; line. This is what actually catches a regression: e.g. if `is`'s
+;; variadic `=` handling regresses back to comparing only the first two
+;; operands, `(is (= 1 1 2))` would go back to reporting :pass, and
+;; `sf-check` below would print a FAIL and flip the final verdict --
+;; a human eyeballing the printed #RESULT text above is not required.
+;;
+;; Deliberately NOT built out of `is`/`deftest`: using the shim's own
+;; `is` to check whether `is` itself is broken would be circular (a
+;; broken `is` could hide its own regression). `sf-check` is a plain
+;; `if` against a boolean, nothing more.
+;;
+;; Convention (new, since the shim itself has no pass/fail exit
+;; convention beyond its own #RESULT/#SUMMARY lines): this file prints
+;; one final line, `#SELFTEST {:status :pass|:fail ...}`, and calls
+;; `(System/exit 0)` on success or `(System/exit 1)` on any sf-check
+;; failure (confirmed against a live mova: `System/exit` sets the
+;; process exit code and short-circuits remaining forms) -- so a script
+;; wrapping this file can check $? instead of scraping output.
+
+(def sf-checks (atom 0))
+(def sf-failures (atom 0))
+
+(defn sf-check [desc ok?]
+  (swap! sf-checks inc)
+  (if ok?
+    (println (str "  ok   - " desc))
+    (do
+      (swap! sf-failures inc)
+      (println (str "  FAIL - " desc)))))
+
+;; Runs `thunk` exactly the way `run-tests` would run a registered
+;; deftest (via the shim's own `ts-run-one`), WITHOUT touching
+;; ts-registry, and returns the resulting per-test snapshot so callers
+;; can assert on it directly. `ts-run-one` also updates the ts-s-*
+;; SUMMARY atoms as a side effect (same as any real test) and prints its
+;; own #RESULT line for visibility; that pollution is harmless here
+;; because `run-tests` unconditionally resets all ts-s-* atoms at the
+;; start of its own run, and every probe below runs before the final
+;; #SUMMARY the top block already printed.
+(defn sf-probe [name thunk]
+  (ts-run-one name thunk)
+  {:status @ts-t-status
+   :assertions @ts-t-assertions
+   :failures @ts-t-failures
+   :first-failure @ts-t-first-failure})
+
+(println "")
+(println "mechanical self-checks:")
+
+;; ---- Bug 1 regression guard: variadic `=` ----
+
+;; (is (= 1 1 2)) MUST fail. Before the fix, `is` only looked at
+;; operands 1 and 2 (`(= 1 1)`), silently reported :pass, and never
+;; examined the trailing `2` at all -- a false pass. This is the single
+;; most important check in this file.
+(let [r (sf-probe "sf-variadic-eq-should-fail" (fn [] (is (= 1 1 2))))]
+  (sf-check "(is (= 1 1 2)) has status :fail, not :pass"
+            (= (:status r) :fail))
+  (sf-check "(is (= 1 1 2)) recorded exactly 1 assertion, 1 failure"
+            (and (= (:assertions r) 1) (= (:failures r) 1))))
+
+;; (is (= 1 1 1)) and (is (= 1)) must both pass -- the "all equal" and
+;; the degenerate 1-operand cases (real Clojure: `(= x)` is `true`).
+(let [r (sf-probe "sf-variadic-eq-all-equal" (fn [] (is (= 1 1 1))))]
+  (sf-check "(is (= 1 1 1)) passes" (= (:status r) :pass)))
+
+(let [r (sf-probe "sf-variadic-eq-single-operand" (fn [] (is (= 1))))]
+  (sf-check "(is (= 1)) passes (1-operand `=` is true, per Clojure)"
+            (= (:status r) :pass)))
+
+;; (is (=)) -- 0 operands -- must not crash the SHIM (no macroexpand-time
+;; index error); a runtime arity error from `=` itself, caught by is's
+;; own try/catch and reported as :error, is the correct, honest outcome.
+(let [r (sf-probe "sf-variadic-eq-zero-operands" (fn [] (is (=))))]
+  (sf-check "(is (=)) does not crash the shim -- reports :error, not a
+   hard failure of the whole run"
+            (= (:status r) :error)))
+
+;; Each operand of a variadic `=` must be evaluated EXACTLY ONCE, both on
+;; the passing path and the failing path (a naive fix could re-evaluate
+;; operands a second time while building the failure message).
+(def sf-eval-count-pass (atom 0))
+(defn sf-bump-pass [] (swap! sf-eval-count-pass inc) 7)
+(let [_ (sf-probe "sf-variadic-eq-eval-once-pass"
+                   (fn [] (is (= (sf-bump-pass) (sf-bump-pass) (sf-bump-pass)))))]
+  (sf-check "each operand of a passing variadic `=` is evaluated exactly once (3 operands -> counter 3)"
+            (= @sf-eval-count-pass 3)))
+
+(def sf-eval-count-fail (atom 0))
+(defn sf-bump-fail [] (swap! sf-eval-count-fail inc))
+(let [_ (sf-probe "sf-variadic-eq-eval-once-fail"
+                   (fn [] (is (= (sf-bump-fail) (sf-bump-fail) (sf-bump-fail)))))]
+  ;; sf-bump-fail returns the post-increment counter value each call, so
+  ;; three DIFFERENT calls (1, 2, 3) are naturally unequal -> this `is`
+  ;; fails, exercising the failure-message-building code path too.
+  (sf-check "each operand of a FAILING variadic `=` is still evaluated exactly once (3 operands -> counter 3, not 6)"
+            (= @sf-eval-count-fail 3)))
+
+;; ---- Bug 2 regression guard: `are` map/set template substitution ----
+
+;; A template with a map literal: `x` must be substituted inside {:k x}.
+(let [r (sf-probe "sf-are-map-template"
+                   (fn [] (are [x] (= {:k x} {:k 99}) 99)))]
+  (sf-check "`are` substitutes into a map-literal template"
+            (= (:status r) :pass))
+  (sf-check "`are` map-template probe ran exactly 1 assertion"
+            (= (:assertions r) 1)))
+
+;; A template with a set literal: `x` must be substituted inside #{x}.
+(let [r (sf-probe "sf-are-set-template"
+                   (fn [] (are [x] (= #{x :tag} #{99 :tag}) 99)))]
+  (sf-check "`are` substitutes into a set-literal template"
+            (= (:status r) :pass))
+  (sf-check "`are` set-template probe ran exactly 1 assertion"
+            (= (:assertions r) 1)))
+
+;; A template map/set substitution that SHOULD fail, to prove the walk
+;; isn't just returning "always equal" by accident.
+(let [r (sf-probe "sf-are-map-template-mismatch"
+                   (fn [] (are [x] (= {:k x} {:k 1}) 99)))]
+  (sf-check "`are` map-template substitution genuinely compares (mismatch -> :fail, not :pass)"
+            (= (:status r) :fail)))
+
+;; ---- nested `testing` context still works (don't break what's there) ----
+
+(let [r (sf-probe "sf-nested-testing"
+                   (fn [] (testing "outer" (testing "inner" (is (= 1 2))))))]
+  (sf-check "nested `testing` still fails the inner assertion"
+            (= (:status r) :fail))
+  (sf-check "nested `testing` context string prefixes :first-failure with \"outer inner: \""
+            (clojure.string/includes? (:first-failure r) "outer inner: ")))
+
+;; ---- C3g: `thrown?` is now class-aware ----
+;; `catch` supports multiple typed clauses now
+;; (`eval::special_forms::catch_class_matches`), and `thrown?`'s expansion
+;; splices its `C` argument straight into `(catch ~klass e# ...)` (see
+;; mova-test-shim.mova's own updated comment on this branch). These three
+;; checks are the mechanical guard for that: a matching class passes, a
+;; non-matching class propagates as :error (never a false :pass -- this is
+;; the whole point of the upgrade), and a body that never throws at all
+;; still fails the same way it always did.
+
+(let [r (sf-probe "sf-thrown-right-class-passes"
+                   (fn [] (is (thrown? ArithmeticException (/ 1 0)))))]
+  (sf-check "thrown?: a throw of the DOCUMENTED class passes"
+            (= (:status r) :pass)))
+
+(let [r (sf-probe "sf-thrown-wrong-class-errors"
+                   (fn [] (is (thrown? IllegalStateException (/ 1 0)))))]
+  (sf-check "thrown?: a throw of the WRONG class propagates as :error, not a false :pass"
+            (= (:status r) :error)))
+
+(let [r (sf-probe "sf-thrown-did-not-throw-still-fails"
+                   (fn [] (is (thrown? ArithmeticException (+ 1 1)))))]
+  (sf-check "thrown?: a body that does not throw at all still fails"
+            (= (:status r) :fail)))
+
+;; A raw multi-clause `try` (no `is`/shim macro involved at all): the
+;; FIRST matching clause wins, in source order, even when a later clause
+;; would also match -- exercises the engine's own catch-clause dispatch
+;; directly, not just through the shim.
+(sf-check "a raw multi-clause `try` dispatches to the FIRST matching clause, in order"
+          (= :specific
+             (try
+               (/ 1 0)
+               (catch ArithmeticException _ :specific)
+               (catch Exception _ :generic))))
+
+(sf-check "a raw multi-clause `try` falls through a non-matching earlier clause to a later matching one"
+          (= :generic
+             (try
+               (throw (ex-info "x" {}))
+               (catch ArithmeticException _ :specific)
+               (catch Exception _ :generic))))
+
+(sf-check "a raw multi-clause `try` re-propagates when NO clause matches"
+          (= :propagated
+             (try
+               (try
+                 (/ 1 0)
+                 (catch IllegalStateException _ :unreached))
+               (catch ArithmeticException _ :propagated))))
+
+;; ---- thrown-with-cause-msg? / fails-with-cause? (C3g: class-checked
+;; against the exception actually caught -- mova has no separate cause
+;; chain to walk, see mova-test-shim.mova's own comment -- message-checked
+;; if accessible) ----
+;;
+;; C3g NOTE: every check below that expects to reach a catch clause used
+;; to name the deliberately-fake `SomeException`, precisely to prove the
+;; class token was never checked. Now that `catch` is typed, a fake class
+;; genuinely would not match and these probes would themselves error
+;; instead of exercising the message-check logic they exist to guard --
+;; each has been swapped to a REAL class matching what its body actually
+;; throws (`clojure.lang.ExceptionInfo`/`Exception` for an `ex-info` throw,
+;; `ArithmeticException` for a division by zero). The did-not-throw check
+;; at the bottom is UNCHANGED: its body never throws at all, so no catch
+;; clause is ever consulted and the class token is still irrelevant there.
+
+;; Message accessible (ex-info) and matches `re` -> real pass, not a guess.
+(let [r (sf-probe "sf-cause-msg-matches"
+                   (fn [] (is (thrown-with-cause-msg? clojure.lang.ExceptionInfo #"boom"
+                                (throw (ex-info "boom-message" {}))))))]
+  (sf-check "thrown-with-cause-msg?: matching ex-info message passes"
+            (= (:status r) :pass)))
+
+;; Message accessible (ex-info) but does NOT match `re` -> real fail, not
+;; a free pass -- proves the regex is genuinely being checked when a
+;; message is available, not just rubber-stamped.
+(let [r (sf-probe "sf-cause-msg-mismatch"
+                   (fn [] (is (fails-with-cause? Exception #"nope, does not appear"
+                                (throw (ex-info "boom-message" {}))))))]
+  (sf-check "fails-with-cause?: non-matching ex-info message fails (not a free pass)"
+            (= (:status r) :fail)))
+
+;; W4-veneer (task 5): a division-by-zero's message is NO LONGER
+;; inaccessible -- `core.mova`'s `ex-message` now also reads `:message`
+;; off mova's own internal-error catch-bound map shape (`eval::
+;; special_forms::error_to_info_map`'s `{:type :error/<kind>, :message
+;; "..."}`), so `(ex-message (catch-bound-value-of (/ 1 0)))` is now the
+;; real `"Divide by zero"`, not `nil`. This probe used to be this file's
+;; example of the message-blind fallback (a nonsense regex passing
+;; because the message was unreachable); now the same nonsense regex
+;; genuinely does NOT match the real message, so it genuinely fails --
+;; the regex is checked for real here too, closing this probe's own
+;; former blind spot. (No replacement message-blind example is given:
+;; every internal `RjError` a typed `catch` can bind now carries a real
+;; message through this same path; the only values `ex-message` still
+;; cannot see are ones neither `ex-info`-shaped nor `Value::Inst`
+;; `Throwable`s -- e.g. a bare `(throw "some string")` -- which a
+;; class-typed `catch` here does not even match in the first place, so
+;; `thrown-with-msg?`/`fails-with-cause?` cannot reach that gap through a
+;; matched class at all.)
+(let [r (sf-probe "sf-cause-msg-now-real"
+                   (fn [] (is (fails-with-cause? ArithmeticException #"anything at all"
+                                (/ 1 0)))))]
+  (sf-check "fails-with-cause?: divide-by-zero message now real, nonsense regex genuinely fails (was: message-blind fallback)"
+            (= (:status r) :fail)))
+
+;; Body does not throw at all -> fails, same as thrown?'s did-not-throw path.
+;; No catch clause is ever consulted here, so the (still fake) class token
+;; is genuinely irrelevant -- left as `SomeException` deliberately, to
+;; prove exactly that.
+(let [r (sf-probe "sf-cause-msg-did-not-throw"
+                   (fn [] (is (thrown-with-cause-msg? SomeException #"whatever"
+                                (+ 1 1)))))]
+  (sf-check "thrown-with-cause-msg?: body that does not throw fails"
+            (= (:status r) :fail)))
+
+;; C3g NEW: a WRONG-class typed catch now genuinely does not match --
+;; `expr` throws an `ArithmeticException`-shaped error, but the clause
+;; only accepts `IllegalStateException` (a real class name, never thrown
+;; by this body), so the exception propagates past the (now class-gated)
+;; catch and is reported :error, not a false :pass. This is the flip side
+;; of every "message accessible and matches" check above, and the reason
+;; a `thrown-with-msg?`/`thrown-with-cause-msg?`/`fails-with-cause?` pass
+;; is now honest evidence of the documented class, not just "something
+;; was thrown".
+(let [r (sf-probe "sf-cause-msg-wrong-class-errors"
+                   (fn [] (is (thrown-with-cause-msg? IllegalStateException #"whatever"
+                                (/ 1 0)))))]
+  (sf-check "thrown-with-cause-msg?: a throw of the WRONG class propagates as :error, not a false :pass"
+            (= (:status r) :error)))
+;; ---- fixtures: `declare`+`binding`, `use-fixtures`, `test-vars` ----
+;; Added alongside compat/s3-fixtures (use-fixtures support for
+;; test_fixtures.clj). Covers the pieces that file actually exercises:
+;; `declare` producing a real, `binding`-able global; `:each` fixture
+;; composition order (first-listed outermost -- measured against real
+;; Clojure 1.13.0-alpha6, see mova-test-shim.mova's `ts-join-fixtures`
+;; comment); `use-fixtures` REPLACING rather than appending on a repeat
+;; call; and `test-vars` reporting `:begin-test-var`/`:pass`/`:end-test-var`
+;; through the rebindable `report` var for a registered test while
+;; skipping :each fixtures entirely for a var that was never
+;; `deftest`-registered.
+
+;; `declare` interns a genuinely UNBOUND var (JVM-exact since W-DECL --
+;; compat/w-decl-*-oracle-transcript.txt) and `binding` installs a value
+;; straight onto it; the shim no longer shadows `declare` at all. Reading
+;; the var outside any binding is an error in mova (the JVM returns a
+;; Var$Unbound sentinel instead -- mova's disclosed stricter divergence,
+;; pinned by eval::tests::def_without_value_leaves_the_var_genuinely_unbound).
+(declare ^:dynamic sf-declared-var)
+(sf-check "`declare`d name is unbound before any `binding` (read throws)"
+          (try (do sf-declared-var false) (catch Exception e true)))
+(binding [sf-declared-var 42]
+  (sf-check "`binding` on a `declare`d (unbound) name installs its value"
+            (= sf-declared-var 42)))
+(sf-check "`binding` restores unboundness after its dynamic extent ends"
+          (try (do sf-declared-var false) (catch Exception e true)))
+
+;; `:each` fixture composition order: first-listed fixture is OUTERMOST.
+(def sf-fixture-order (atom []))
+(defn sf-fx-a [f] (swap! sf-fixture-order conj :a-pre) (f) (swap! sf-fixture-order conj :a-post))
+(defn sf-fx-b [f] (swap! sf-fixture-order conj :b-pre) (f) (swap! sf-fixture-order conj :b-post))
+
+(use-fixtures :each sf-fx-a sf-fx-b)
+(let [r (sf-probe "sf-fixture-order" (fn [] (swap! sf-fixture-order conj :body) (is true)))]
+  (sf-check "`use-fixtures :each` composes with the first-listed fixture OUTERMOST"
+            (= @sf-fixture-order [:a-pre :b-pre :body :b-post :a-post]))
+  (sf-check "a fixture-wrapped probe still records its own assertion"
+            (and (= (:status r) :pass) (= (:assertions r) 1))))
+
+;; `use-fixtures` REPLACES the current :each list on a repeat call rather
+;; than appending -- measured directly from test_fixtures.clj's own
+;; `use-fixtures-replaces` deftest (two identical `use-fixtures :each`
+;; calls in a row, fixture still only runs once per test).
+(def sf-fixture-hits (atom 0))
+(defn sf-fx-counter [f] (swap! sf-fixture-hits inc) (f))
+(use-fixtures :each sf-fx-counter)
+(use-fixtures :each sf-fx-counter)
+(sf-probe "sf-fixture-replace" (fn [] (is true)))
+(sf-check "`use-fixtures` REPLACES the :each list on a repeat call (ran once, not twice)"
+          (= @sf-fixture-hits 1))
+
+;; `test-vars`: begin/pass/pass/end reported IN ORDER, through the
+;; rebindable `report` var, for a REGISTERED test; :each fixtures skipped
+;; entirely for a var that was never `deftest`-registered (mirrors real
+;; clojure.test's `(:test (meta v))` guard -- see
+;; `a-var-lacking-test-meta-should-not-trigger-fixtures` in
+;; test_fixtures.clj, the oracle assertion this whole feature exists for).
+(use-fixtures :each) ;; clear fixtures left over from the two checks above
+
+(deftest sf-tv-target (is true) (is true))
+(defn sf-tv-not-a-test [])
+
+(let [reported (atom [])]
+  (binding [report (fn [m] (swap! reported conj (:type m)))]
+    (test-vars [(var sf-tv-target)]))
+  (sf-check "`test-vars` on a registered test reports [:begin-test-var :pass :pass :end-test-var]"
+            (= @reported [:begin-test-var :pass :pass :end-test-var])))
+
+(def sf-tv-side-effects (atom 0))
+(defn sf-tv-fixture [f] (swap! sf-tv-side-effects inc) (f))
+(use-fixtures :each sf-tv-fixture)
+(test-vars [(var sf-tv-not-a-test)])
+(sf-check "`test-vars` on a var lacking `deftest` registration does not run :each fixtures"
+          (= @sf-tv-side-effects 0))
+(use-fixtures :each) ;; tidy: leave no fixtures registered behind this file
+
+;; ---- S5: `*err*` / `run-test` (singular) ----
+;; `with-err-string-writer` itself lives in mova-test-helper-shim.mova.
+;; W4-SHIM (2026-08-21): tools/check-shim-selftest.sh now concatenates
+;; that file too (shim + helper-shim + this file, matching what every
+;; real vendored file actually gets spliced with), so `with-err-string-
+;; writer`/`with-err-print-writer` ARE genuinely in scope here -- these
+;; particular checks still exercise `*err*`/`ts-err-write` directly with
+;; the same one-line pattern those macros expand to, kept that way since
+;; they predate the helper shim's inclusion and there is no need to
+;; churn a passing check; see the dedicated `with-err-print-writer`
+;; section further below for a check that goes through the macro itself.
+
+(defn sf-not-a-test [])
+
+;; Unresolvable symbol: `run-test` must return `nil` AND write a message
+;; naming the symbol, namespace-QUALIFIED (mova's syntax-quote does not
+;; auto-qualify on its own -- see SHIM-LIMITS.md's "`*err*` / `run-test`
+;; (S5)" section -- so this is `run-test` doing the qualifying itself,
+;; not free from the reader), to `*err*`.
+(let [w (atom "")
+      result (binding [*err* w]
+               (run-test sf-totally-unresolvable-symbol-xyz))]
+  (sf-check "`run-test` on an unresolvable symbol returns nil"
+            (nil? result))
+  (sf-check "`run-test` on an unresolvable symbol writes a qualified \"Unable to resolve .../name to a test function.\" message to *err*"
+            (and (clojure.string/includes? @w "/sf-totally-unresolvable-symbol-xyz to a test function.")
+                 (clojure.string/includes? @w "Unable to resolve"))))
+
+;; Resolvable but not `deftest`-registered: same `nil` return, different
+;; message shape.
+(let [w (atom "")
+      result (binding [*err* w]
+               (run-test sf-not-a-test))]
+  (sf-check "`run-test` on a resolvable-but-not-a-test symbol returns nil"
+            (nil? result))
+  (sf-check "`run-test` on a resolvable-but-not-a-test symbol writes a qualified \".../name is not a test.\" message to *err*"
+            (clojure.string/includes? @w "/sf-not-a-test is not a test.")))
+
+;; A real, registered test: `run-test` must return real clojure.test's own
+;; `run-test-var` summary SHAPE (`{:test 1 :pass P :fail F :error E :type
+;; :summary}`), isolated from (not corrupting) whatever `ts-t-*`/`ts-s-*`
+;; state is live around the call -- mirrors `test-vars`'s own isolation,
+;; checked here by asserting the OUTER probe's own assertion count is
+;; unaffected by the nested `run-test` call inside it.
+(deftest sf-rt-target
+  (is true)
+  (is true)
+  (is false))
+
+(let [r (sf-probe "sf-run-test-singular"
+                   (fn []
+                     (let [summary (run-test sf-rt-target)]
+                       (is (= {:test 1 :pass 2 :fail 1 :error 0 :type :summary} summary)))))]
+  (sf-check "`run-test` on a real registered test returns the real run-test-var summary shape"
+            (and (= (:status r) :pass) (= (:assertions r) 1)))
+  (sf-check "a nested `run-test` call does not leak its OWN pass/fail counts into the calling test's assertion count"
+            (= (:assertions r) 1)))
+
+;; ---- W4-SHIM: `run-test` (singular) now applies `:once` fixtures too ----
+;; Before this fix, `ts-run-test-single`'s `:else` branch called
+;; `ts-run-test-var-summary` directly, which only ever wraps with
+;; `@ts-each-fixtures` (via `ts-invoke-test`) -- `:once` fixtures were
+;; NEVER applied by singular `run-test`, regardless of namespace. This is
+;; exactly what broke `run_single_test.clj`'s `can-run-test-with-fixtures`
+;; deftest (`(run-test tf/can-use-once-fixtures)`, whose two assertions
+;; need `fixture-a`/`fixture-b` -- BOTH `:once` fixtures -- to have run
+;; first); SHIM-LIMITS.md's old "`*err*` / `run-test` (S5)" section
+;; documented this as an out-of-scope "next blocker".
+;;
+;; What this harness can and cannot prove: `shim-selftest.mova` is one
+;; flat, `ns`-less file (module doc at the top), so there is no SECOND
+;; namespace here to exercise the cross-namespace half of the real fix
+;; (`ts-cross-ns-fixtures`'s `ns-resolve` reaching into a DIFFERENT
+;; namespace's `ts-once-fixtures` atom) -- that half is exercised for
+;; real by `run_single_test.clj` against the live vendored suite (see
+;; tests/clojure-suite/scoreboard.edn's `run_single_test.clj` row). What
+;; IS proven here, honestly: `ts-cross-ns-fixtures`'s actual `ns-resolve`
+;; + double-`deref` mechanics run for real (this namespace resolves
+;; itself the same way `ns-resolve` would resolve any namespace), and the
+;; core regression this fix targets -- `:once` fixtures being applied AT
+;; ALL by singular `run-test` -- is caught for real: before the fix,
+;; `sf-rt-once-log` would stay `[:once-pre]` (the fixture never gets to
+;; run its post-body half because the whole fixture never wraps the call)
+;; -- actually stays `[]` entirely, since the fixture wrapper itself never
+;; runs -- after the fix it is `[:once-pre :once-post]`.
+(def sf-rt-once-log (atom []))
+(defn sf-rt-once-fx [f]
+  (swap! sf-rt-once-log conj :once-pre)
+  (f)
+  (swap! sf-rt-once-log conj :once-post))
+(use-fixtures :once sf-rt-once-fx)
+(deftest sf-rt-once-target
+  (is (= [:once-pre] @sf-rt-once-log)))
+(run-test sf-rt-once-target)
+(sf-check "`run-test` (singular) applies `:once` fixtures registered in the test's own namespace"
+          (= @sf-rt-once-log [:once-pre :once-post]))
+(use-fixtures :once) ;; tidy: leave no :once fixtures registered behind this file
+
+;; ==================== W4-SHIM: with-err-print-writer ====================
+;; Closes def.clj's `non-dynamic-warnings` deftest ("Unable to resolve
+;; symbol: with-err-print-writer"). Measured against the oracle
+;; (test_helper.clj:99 vs :109): the only difference from `with-err-
+;; string-writer` is which java.io Writer class wraps `*err*` -- neither
+;; is observable through this shim's own atom-based `*err*` (see that
+;; macro's own doc in mova-test-helper-shim.mova), so both macros are
+;; expected to behave identically here.
+(let [r (with-err-print-writer (println "should not reach real stdout, only *err*"))]
+  ;; `with-err-print-writer` with a body that writes NOTHING to `*err*`
+  ;; (mova has no real `*err*` a bare `println` writes through -- module
+  ;; header) must return an EMPTY string, matching def.clj's own "no
+  ;; warning for **" shape (`empty?` on the result).
+  (sf-check "`with-err-print-writer` resolves and returns a string for a body that writes nothing to shim *err*"
+            (and (string? r) (= r ""))))
+
+(let [r (with-err-print-writer (ts-err-write "captured!"))]
+  (sf-check "`with-err-print-writer` captures a real `ts-err-write` call the same way `with-err-string-writer` does"
+            (= r "captured!")))
+
+;; ==================== W4-SHIM: non-dynamic earmuff warning ====================
+;; The Rust-side half of def.clj's `non-dynamic-warnings` deftest:
+;; `Interp::warn_if_non_dynamic_earmuff` (src/eval/special_forms.rs),
+;; transcribed from `.oracle/clojure-src/.../Compiler.java`'s
+;; `DefExpr.Parser.parse` -- `!isDynamic && name.startsWith("*") &&
+;; name.endsWith("*") && name.length() > 2` warns to `*err*`. Every check
+;; below deliberately goes through `eval-in-temp-ns` (not a direct `def`),
+;; the exact combination def.clj's own deftest uses -- this is LOAD-
+;; BEARING, not incidental: a direct, same-namespace `(with-err-print-
+;; writer (def *x* 1))` (no `eval-in-temp-ns`) already worked before this
+;; session and would NOT have caught the real bug found while building
+;; this feature: `eval-in-temp-ns` switches to a freshly gensym'd
+;; namespace the shim was never spliced into, and `write_shim_err`'s
+;; original namespace-QUALIFIED `*err*` lookup went silently empty inside
+;; it (measured directly: the warning text vanished from `with-err-print-
+;; writer`'s capture) even though the dynamic `binding` itself was still
+;; correctly live on the original cell. Fixed by
+;; `Env::find_var_cells_named` (src/env.rs) -- see that fn's own doc for
+;; the full measured before/after. Every check here exercises that fixed
+;; path for real, not just the warning-text rule.
+(let [r (with-err-print-writer (eval-in-temp-ns (def *sf-earmuffed* 1)))]
+  (sf-check "`(def *sf-earmuffed* 1)` (earmuffed, non-dynamic, length > 2) warns to *err*, EVEN THOUGH the def runs inside eval-in-temp-ns's own isolated namespace"
+            (not (clojure.string/blank? r))))
+
+(let [r (with-err-print-writer (eval-in-temp-ns (def ^:dynamic *sf-earmuffed-dyn* 1)))]
+  (sf-check "`(def ^:dynamic *sf-earmuffed-dyn* 1)` does NOT warn (explicitly marked dynamic)"
+            (clojure.string/blank? r)))
+
+(let [r (with-err-print-writer (eval-in-temp-ns (def ** (fn [a b] (* a b)))))]
+  (sf-check "`(def ** ...)` (earmuffed shape but length 2, not > 2) does NOT warn -- the exact def.clj row"
+            (clojure.string/blank? r)))
+
+(let [r (with-err-print-writer (eval-in-temp-ns (def sf-plain-name 1)))]
+  (sf-check "`(def sf-plain-name 1)` (no earmuffs at all) does NOT warn"
+            (clojure.string/blank? r)))
+
+;; ==================== S7: assert-expr / do-report / report-as-multimethod ====================
+;; Guards the seam that unblocked sequences.clj (1148 oracle assertions)
+;; and let transducers.clj get past test.check's load-time reporting
+;; setup: a real `assert-expr` multimethod, a real `do-report`, and
+;; `report` being a genuine `defmulti` rather than a plain fn.
+
+;; `report` MUST be a multimethod, not a plain fn. Vendored test.check's
+;; clojure/test/check/clojure_test.cljc gates its whole reporting setup
+;; on exactly this at LOAD time -- `(if-not (instance? clojure.lang.MultiFn
+;; ct/report) (binding [*out* *err*] ...) (defmethod ct/report ...))` --
+;; and the warning branch it takes for a plain fn dies on bare `*err*`,
+;; which mova has no interpreter-level binding for. If this check ever
+;; goes red, sequences.clj and transducers.clj go back to :blocked.
+(sf-check "`report` is a real multimethod (test.check's load-time `instance? clojure.lang.MultiFn` gate)"
+          (instance? clojure.lang.MultiFn report))
+
+;; MEASURED assumption the vendored `check-results` path depends on:
+;; `(.getStackTrace (Thread/currentThread))` returns a degenerate EMPTY
+;; thing under mova. `file-and-line*` therefore takes its `(if (seq
+;; stacktrace) ... {:file nil :line nil})` else-branch, and
+;; `test-context-stacktrace`'s `drop-while` never calls its predicate --
+;; which is the ONLY reason that predicate's `.getClassName` interop
+;; (which mova does not have) is never reached. The throwing predicate
+;; below turns "drop-while called it after all" into a hard failure
+;; rather than a silent one.
+(sf-check "(.getStackTrace (Thread/currentThread)) degrades to an empty seq -- vendored file-and-line* takes its {:file nil :line nil} branch"
+          (nil? (seq (.getStackTrace (Thread/currentThread)))))
+(sf-check "drop-while over that degenerate stacktrace never calls its predicate (so .getClassName interop is never reached)"
+          (nil? (seq (drop-while (fn [x] (throw "drop-while predicate must never be called on an empty stacktrace"))
+                                 (.getStackTrace (Thread/currentThread))))))
+
+;; A custom `assert-expr` method, registered on a NAMESPACE-QUALIFIED
+;; dispatch symbol -- the exact shape vendored test.check uses
+;; (`(defmethod t/assert-expr 'clojure.test.check.clojure-test/check?
+;; [_ form] ...)`), returning an expansion that calls `do-report` with
+;; REAL clojure.test report maps rather than this shim's own
+;; `{:type ... :detail ...}` shape.
+(defmethod assert-expr 'sf.custom/check? [msg form]
+  `(let [m# ~(nth form 1)]
+     (if (:pass? m#)
+       (do-report {:type :pass :message ~msg})
+       (do-report {:type :fail :message ~msg :expected {:result true} :actual m#}))))
+
+(let [r (sf-probe "sf-assert-expr-custom-pass"
+                   (fn [] (is (sf.custom/check? {:pass? true}))))]
+  (sf-check "a custom `assert-expr` method's :pass report routes to the shim's pass counter"
+            (= (:status r) :pass))
+  (sf-check "a custom `assert-expr` method records exactly 1 assertion"
+            (= (:assertions r) 1)))
+
+(let [r (sf-probe "sf-assert-expr-custom-fail"
+                   (fn [] (is (sf.custom/check? {:pass? false :sf-marker 4242}))))]
+  (sf-check "a custom `assert-expr` method's :fail report routes to the shim's fail counter (NOT a free pass)"
+            (= (:status r) :fail))
+  (sf-check "a custom `assert-expr` :fail carries its :expected/:actual into the reported detail"
+            (and (clojure.string/includes? (:first-failure r) "{:result true}")
+                 (clojure.string/includes? (:first-failure r) "4242"))))
+
+;; No method registered for this head -> `is` must NOT route through
+;; assert-expr at all; it keeps its own generic truthy branch, whose
+;; failure prose says "expected truthy" (assert-expr's :default method
+;; would say "expected: ... actual: ..." instead, so the string is what
+;; proves which branch ran).
+(defn sf-plain-pred [x] x)
+
+(let [r (sf-probe "sf-assert-expr-no-method-truthy-pass"
+                   (fn [] (is (sf-plain-pred 1))))]
+  (sf-check "a head with NO assert-expr method still passes via the generic truthy branch"
+            (= (:status r) :pass)))
+
+(let [r (sf-probe "sf-assert-expr-no-method-truthy-fail"
+                   (fn [] (is (sf-plain-pred false))))]
+  (sf-check "a head with NO assert-expr method still fails via the generic truthy branch"
+            (= (:status r) :fail))
+  (sf-check "the generic branch (not assert-expr's :default) is the one that ran -- detail says \"expected truthy\""
+            (clojure.string/includes? (:first-failure r) "expected truthy")))
+
+(sf-check "`ts-custom-assert-expr?` is true only for a head with a NON-default method"
+          (and (ts-custom-assert-expr? '(sf.custom/check? {}))
+               (not (ts-custom-assert-expr? '(sf-plain-pred 1)))
+               (not (ts-custom-assert-expr? 'not-even-a-seq))))
+
+;; `do-report` called DIRECTLY with real clojure.test report maps (what a
+;; custom assert-expr method does).
+(let [r (sf-probe "sf-do-report-pass" (fn [] (do-report {:type :pass :message "m"})))]
+  (sf-check "`do-report` maps a real {:type :pass} report onto the pass counter"
+            (and (= (:status r) :pass) (= (:assertions r) 1))))
+
+(let [r (sf-probe "sf-do-report-fail"
+                   (fn [] (do-report {:type :fail :message "m" :expected {:result true} :actual {:x 1}})))]
+  (sf-check "`do-report` maps a real {:type :fail} report onto the fail counter"
+            (and (= (:status r) :fail) (= (:failures r) 1))))
+
+(let [r (sf-probe "sf-do-report-error" (fn [] (do-report {:type :error :message "m"})))]
+  (sf-check "`do-report` maps a real {:type :error} report onto the error counter"
+            (= (:status r) :error)))
+
+(let [seen (atom [])]
+  (binding [report (fn [m] (swap! seen conj (:type m)))]
+    (do-report {:type :begin-test-ns})
+    (do-report {:type :sf-unknown-report-type}))
+  (sf-check "`do-report` passes an unrecognized :type straight through to `report` (real clojure.test's behavior)"
+            (= @seen [:begin-test-ns :sf-unknown-report-type])))
+
+;; ==================== S7: `:message` in report maps ====================
+;; `msg` used to reach only the free-text `:detail` prose. vendor/test.clj
+;; DISPATCHES on it (its `custom-report` compares `(:message data)` to
+;; "Should fail"/"Should pass"/"Should error"), which is where all 58 of
+;; that file's oracle assertions come from.
+
+(let [seen (atom [])]
+  (binding [report (fn [m] (swap! seen conj [(:type m) (:message m)]))]
+    (is (= 1 1) "mpass")
+    (is (= 1 2) "mfail")
+    (is (thrown? SomeException (+ 1 1)) "mnothrow")
+    (is (throw "boom") "merror"))
+  (sf-check "`is` carries its `msg` VERBATIM as the report map's :message on the pass/fail/did-not-throw/error paths"
+            (= @seen [[:pass "mpass"] [:fail "mfail"] [:fail "mnothrow"] [:error "merror"]])))
+
+;; `msg` is an arbitrary runtime expression: it must be evaluated EXACTLY
+;; once, on the taken path only, and AFTER the form under test -- measured
+;; against real Clojure 1.13.0-alpha6, which reports a nested `(is ...)`
+;; used as another `is`'s msg BEFORE the outer assertion's own report.
+(def sf-msg-log (atom []))
+(defn sf-msg [tag] (swap! sf-msg-log conj tag) (str tag))
+
+(reset! sf-msg-log [])
+(sf-probe "sf-msg-once-pass" (fn [] (is (= 1 1) (sf-msg :pass-msg))))
+(sf-check "`msg` on a PASSING assertion is evaluated exactly once"
+          (= @sf-msg-log [:pass-msg]))
+
+(reset! sf-msg-log [])
+(sf-probe "sf-msg-once-fail" (fn [] (is (= 1 2) (sf-msg :fail-msg))))
+(sf-check "`msg` on a FAILING assertion is evaluated exactly once (the :detail prose and the map's :message share ONE evaluation)"
+          (= @sf-msg-log [:fail-msg]))
+
+(reset! sf-msg-log [])
+(sf-probe "sf-msg-after-form"
+           (fn [] (is (do (swap! sf-msg-log conj :form) false) (sf-msg :msg))))
+(sf-check "`msg` is evaluated AFTER the form under test, matching real clojure.test's order"
+          (= @sf-msg-log [:form :msg]))
+
+;; ==================== S7: thrown-with-msg? ====================
+;; Was an unconditional, LOUD :error that never even ran `expr`; then (S7)
+;; used the same class-blind, message-checked-if-accessible semantics as
+;; its `thrown-with-cause-msg?`/`fails-with-cause?` siblings. C3g: `catch`
+;; is now typed, so ALL of these are class-checked FIRST -- a wrong-class
+;; throw propagates as :error, never a false :pass -- and only the
+;; message-blind fallback (pass on ANY throw of the matched class where
+;; `ex-message` is nil) remains a disclosed approximation. The fake
+;; `SomeException` token every check below used to carry (to prove the
+;; class was never checked) has been swapped for a real class matching
+;; what each body actually throws, same reasoning as the
+;; `thrown-with-cause-msg?`/`fails-with-cause?` block above -- except
+;; `sf-twm-did-not-throw`, whose body never throws at all, so no catch
+;; clause is ever consulted and the class token stays irrelevant there.
+
+(let [r (sf-probe "sf-twm-message-matches"
+                   (fn [] (is (thrown-with-msg? clojure.lang.ExceptionInfo #"boom"
+                                (throw (ex-info "boom-message" {}))))))]
+  (sf-check "thrown-with-msg?: matching ex-info message passes"
+            (= (:status r) :pass)))
+
+(let [r (sf-probe "sf-twm-message-mismatch"
+                   (fn [] (is (thrown-with-msg? Exception #"nope, does not appear"
+                                (throw (ex-info "boom-message" {}))))))]
+  (sf-check "thrown-with-msg?: NON-matching ex-info message fails (the regex is genuinely checked, not rubber-stamped)"
+            (= (:status r) :fail))
+  (sf-check "thrown-with-msg? mismatch detail names the regex and the actual message"
+            (and (clojure.string/includes? (:first-failure r) "nope, does not appear")
+                 (clojure.string/includes? (:first-failure r) "boom-message"))))
+
+;; W4-veneer (task 5): same narrowing as `sf-cause-msg-now-real` above --
+;; see that check's doc for the full explanation. Was this file's
+;; `thrown-with-msg?` example of the message-blind fallback; a division
+;; by zero's message is real now, so the nonsense regex genuinely fails.
+(let [r (sf-probe "sf-twm-message-now-real"
+                   (fn [] (is (thrown-with-msg? ArithmeticException #"anything at all"
+                                (/ 1 0)))))]
+  (sf-check "thrown-with-msg?: divide-by-zero message now real, nonsense regex genuinely fails (was: message-blind fallback)"
+            (= (:status r) :fail)))
+
+;; C3g NEW: a WRONG-class typed catch propagates as :error, not a false
+;; :pass -- the direct counterpart of `sf-cause-msg-wrong-class-errors`
+;; above, for `thrown-with-msg?` specifically.
+(let [r (sf-probe "sf-twm-wrong-class-errors"
+                   (fn [] (is (thrown-with-msg? IllegalStateException #"anything at all"
+                                (/ 1 0)))))]
+  (sf-check "thrown-with-msg?: a throw of the WRONG class propagates as :error, not a false :pass"
+            (= (:status r) :error)))
+
+(let [r (sf-probe "sf-twm-did-not-throw"
+                   (fn [] (is (thrown-with-msg? SomeException #"whatever" (+ 1 1)))))]
+  (sf-check "thrown-with-msg?: body that does not throw FAILS (never a silent pass)"
+            (= (:status r) :fail))
+  (sf-check "thrown-with-msg? did-not-throw detail says so"
+            (clojure.string/includes? (:first-failure r) "did not throw")))
+
+;; ==================== W4C: ts-meta-tests / defspec accounting ====================
+;; `ts-meta-tests` walks `(ns-publics *ns*)` for vars carrying real `:test`
+;; metadata that were never `deftest`-registered -- `defspec`'s own shape,
+;; see that fn's doc in mova-test-shim.mova. This exercises it directly,
+;; with a mock var built the same way (own reader `^{...}` meta), rather
+;; than requiring the real vendored test.check library into this
+;; self-contained selftest file.
+
+;; A plain var with genuine `:test` metadata, NOT `deftest`-registered.
+;; Regression guard for the actual bug W4C found and fixed: the ORIGINAL
+;; exclusion check (`ts-registry-find`, which ALSO falls back to `(:test
+;; (meta v))`) treated ANY `:test`-meta-bearing var as "already covered",
+;; so `ts-meta-tests` returned `()` for EVERY var, always -- silently
+;; undoing its own entire purpose. `ts-registry-atom-find` (the same-
+;; namespace-ATOM-ONLY half) is the fix; this check would have caught the
+;; original bug directly (sabotage-verified: swapping `ts-registry-atom-
+;; find` back for `ts-registry-find` in `ts-meta-tests` turns this red,
+;; confirmed by hand -- restored immediately after).
+(defn ^{:test (fn [] nil)} sf-plain-meta-test [])
+
+(sf-check "a var with real :test metadata (not deftest-registered) is found by ts-meta-tests"
+          (some (fn [v] (= v (var sf-plain-meta-test))) (ts-meta-tests)))
+
+;; A mock `defspec`-shaped var: the SAME two marker keys real `defspec`
+;; attaches (`clojure_test.cljc`'s own `(vary-meta name assoc
+;; ::defspec true :test ...)`) -- `::clojure.test.check.clojure-test/
+;; defspec` plus `:test` -- with a 0-arg body returning a quick-check-
+;; shaped result map, and a deliberately POISONED `:test` fn: if
+;; `ts-meta-test-thunk` ever fell through to calling `(:test (meta v))`
+;; for a var it correctly recognized as a defspec (instead of calling the
+;; var directly and reading `:pass?`), this throws, and the probe below
+;; reports `:error` rather than `:pass` -- so this ALSO regression-guards
+;; the "route around assert-check's cross-namespace reporting mismatch"
+;; fix, not just the marker-detection half.
+(defn ^{:clojure.test.check.clojure-test/defspec true
+        :test (fn [] (throw (ex-info "ts-meta-test-thunk must never invoke a defspec var's raw :test fn" {})))}
+  sf-mock-defspec-pass
+  []
+  {:pass? true :result true :num-tests 1})
+
+(sf-check "ts-defspec-var? recognizes the real defspec marker key"
+          (ts-defspec-var? (var sf-mock-defspec-pass)))
+
+(let [r (sf-probe "sf-mock-defspec-pass" (ts-meta-test-thunk (var sf-mock-defspec-pass)))]
+  (sf-check "a passing mock defspec reports exactly 1 assertion, :pass (not the raw :test fn)"
+            (and (= (:status r) :pass) (= (:assertions r) 1))))
+
+(defn ^{:clojure.test.check.clojure-test/defspec true
+        :test (fn [] (throw (ex-info "ts-meta-test-thunk must never invoke a defspec var's raw :test fn" {})))}
+  sf-mock-defspec-fail
+  []
+  {:pass? false :result false :num-tests 1 :shrunk {:smallest [42]}})
+
+(let [r (sf-probe "sf-mock-defspec-fail" (ts-meta-test-thunk (var sf-mock-defspec-fail)))]
+  (sf-check "a failing mock defspec reports :fail, never a silent :pass"
+            (= (:status r) :fail)))
+
+;; ==================== S7: test-ns-hook ====================
+;; Real clojure.test's `test-ns` calls a namespace's own `test-ns-hook`
+;; INSTEAD of `test-all-vars`. vendor/test.clj's entire design is such a
+;; hook (it rebinds `report` to a `custom-report` that inverts
+;; deliberately-failing assertions); without hook support that file
+;; scored 11/58.
+;;
+;; Deliberately LAST in this file: defining `test-ns-hook` changes what
+;; `run-tests` does for the rest of the process, so nothing after this
+;; may depend on the normal run-the-whole-registry path.
+(def sf-hook-calls (atom 0))
+(defn test-ns-hook [] (swap! sf-hook-calls inc))
+
+(sf-check "`ts-ns-hook` resolves a namespace's own `test-ns-hook`"
+          (not (nil? (ts-ns-hook))))
+(run-tests)
+(sf-check "`run-tests` calls `test-ns-hook` INSTEAD of running the registry when one is defined"
+          (= @sf-hook-calls 1))
+
+;; ==================== verdict ====================
+
+(println "")
+(if (= @sf-failures 0)
+  (do
+    (println (str "#SELFTEST {:status :pass :checks " @sf-checks " :failures 0}"))
+    (System/exit 0))
+  (do
+    (println (str "#SELFTEST {:status :fail :checks " @sf-checks " :failures " @sf-failures "}"))
+    (System/exit 1)))

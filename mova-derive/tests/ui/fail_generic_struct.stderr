@@ -1,0 +1,5 @@
+error: #[derive(MovaStruct)] does not support generic type parameters (v1 restriction -- see mova-derive's crate docs' "Adversarial cases" section): every instantiation would need its own independently concrete, 'static field-type dispatch, which this macro cannot resolve at expansion time
+ --> tests/ui/fail_generic_struct.rs:8:14
+  |
+8 | struct Cache<V> {
+  |              ^

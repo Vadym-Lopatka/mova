@@ -1,0 +1,18 @@
+;; namespace.corpus -- S6 (assert/namespace/uuid batch): `namespace`, the
+;; companion of `name` (which already lives in a locked file -- see
+;; nsfns.rs's own doc comment for the ownership note and the exact
+;; `strings.rs:558`/`symbol_from_str` precedent this mirrors). Measured
+;; against 1.13.0-alpha6: keyword and symbol both split on ns/name;
+;; anything else (a plain string, a number) throws `ClassCastException`
+;; (real `namespace`'s body is literally `(.getNamespace ^clojure.lang.
+;; Named x)`), reproduced here as an ordinary type error -- message text
+;; is not conformance-scored, only occurrence/coarse kind.
+(namespace :a/b)
+(namespace :b)
+(namespace 'c/d)
+(namespace 'd)
+(namespace :long.dotted.ns/kw)
+(namespace 'a.b.c/x)
+(namespace "x")
+(namespace 5)
+(namespace nil)

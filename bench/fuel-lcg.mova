@@ -1,0 +1,62 @@
+;; fuel-lcg.mova -- hot numeric loop for the embedding-fuel overhead probe
+;; (embed/probe-fuel branch, `Interp::fuel`). ~1e8 iterations of a
+;; comparison-guarded tail `loop`/`recur` over a multiply+add body -- the
+;; exact shape `compile::resolve`'s NumLoop specialization targets, and the
+;; tightest inner loop mova has. If checking fuel is ever going to cost
+;; anything measurable, it is here.
+;;
+;; field1/W-EXPLAIN: this used to run a real LCG step (acc' = acc *
+;; 6364136223846793005 + 1442695040888963407, the same constants as
+;; flow-gen-sink-w2000.mova's `burn`), which overflows i64 on its very
+;; first iteration. Under v0.4 that silently promoted to `f64` (a
+;; documented deviation); the W4C compat campaign made mova's arithmetic
+;; oracle-exact instead, so an `i64` overflow now THROWS
+;; (ArithmeticException: long overflow), which this bench started doing on
+;; every run once that landed. There is no rem/mod/bitwise-and in the
+;; NumLoop grammar to re-bound a genuine multiplicative accumulator (see
+;; `ir::NumOp`/`NumBin` -- only +, -, *, and the fold variants), and any
+;; integer multiplier with magnitude > 1 diverges past i64::MAX within
+;; ~63 iterations regardless, so "a real LCG that also never overflows"
+;; is not an available shape.
+;;
+;; What's kept is the actual point of this bench -- a multiply-then-add
+;; NumLoop body, self-timed, at ~1e8 iterations -- via a multiplier of
+;; -1 instead: acc' = (acc * -1) + K, K = 1442695040888963407 (the
+;; original additive constant, kept as-is for continuity). That recurrence
+;; is a period-2 oscillation between `seed` and `K - seed`, bounded for
+;; ANY iteration count by construction (no growth step to overflow), while
+;; still exercising the Mul and Add register ops on every iteration. It is
+;; no longer a usable PRNG (2-cycle, not that `burn`'s original 64-bit-LCG
+;; low bits were being used as one either -- see the caveat this replaces)
+;; -- the point was always loop-dispatch/fuel-check overhead, never a
+;; bit-identical checksum.
+;;
+;; Self-timing, one output line, matching every other bench/*.mova's
+;; convention: "fuel-lcg <iterations> <ms> <iters/s>".
+;;
+;; Tier + fuel knobs, all read once per process (see src/main.rs/
+;; src/compile/mod.rs/src/compile/resolve.rs):
+;;   ./target/release/mova bench/fuel-lcg.mova                    # all tiers on, fuel off
+;;   MOVA_FUEL=999999999999 ./target/release/mova bench/fuel-lcg.mova   # fuel on, huge budget
+;;   MOVA_NO_NUMLOOP=1 ./target/release/mova bench/fuel-lcg.mova  # compiled tier, no NumLoop
+;;   MOVA_NO_COMPILE=1 ./target/release/mova bench/fuel-lcg.mova  # tree-walker only
+;;   MOVA_EXPLAIN=1 ./target/release/mova bench/fuel-lcg.mova     # dogfood: confirms NumLoop below
+;;
+;; FUEL_N=<n> overrides the iteration count (default 1e8) -- the
+;; tree-walker tier is ~2 orders of magnitude slower per iteration than
+;; compiled+NumLoop, so the A/B harness uses a smaller N there to keep each
+;; sample in the same few-second ballpark rather than literally running 1e8
+;; tree-walked iterations five times per condition.
+
+(def N (if-let [n (getenv "FUEL_N")] (parse-long n) 100000000))
+
+(defn burn [n seed]
+  (loop [i 0 acc seed]
+    (if (< i n)
+      (recur (inc i) (+ (* acc -1) 1442695040888963407))
+      acc)))
+
+(def t0 (time-ms))
+(def checksum (burn N 12345))
+(def elapsed (max 1 (- (time-ms) t0)))
+(println "fuel-lcg" N elapsed (quot (* N 1000) elapsed))

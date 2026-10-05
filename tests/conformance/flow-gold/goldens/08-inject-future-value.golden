@@ -1,0 +1,5 @@
+RESULT future? true
+RESULT deref-value nil
+PASS inject-future-resolves-nil
+PASS messages-still-delivered
+PASS inject-nonexistent-port-errors

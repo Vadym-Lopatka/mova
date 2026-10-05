@@ -1,0 +1,41 @@
+;;RUNS 5
+;; scenario 17: a 3-proc pipeline whose MIDDLE proc declares
+;; `{:workload :io}` (via the process-opts form, which upstream documents
+;; as overriding any describe-returned :workload -- flow.clj:264-269, and
+;; which mova honors identically). :workload dictates SCHEDULING only
+;; (upstream: which executor; mova since L3: OS thread vs task) and must
+;; have zero observable semantic effect: the mixed chain still delivers
+;; every message exactly once, in order, across both workload boundaries.
+;; This is the corpus's pin on design §3.1/§3.2 -- an :io proc mixed into
+;; a task chain keeps the same conformant behavior while (on mova) also
+;; keeping its OS thread and losing its transport-lane eligibility on the
+;; task-facing conns; none of that may be visible from inside the program.
+
+(def out-ch (chan 300))
+
+(def pass-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:a {:proc (flow/process pass-step)}
+                  :b {:proc (flow/process pass-step {:workload :io})}
+                  :s {:proc (flow/process sink-step)}}
+          :conns [[[:a :out] [:b :in]] [[:b :out] [:s :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(deref (flow/inject fl [:a :in] (range 200)) 10000 :timed-out)
+
+(def result (deref (future (vec (repeatedly 200 #(<!! out-ch)))) 15000 :timed-out))
+(println "RESULT count" (if (= result :timed-out) :timed-out (count result)))
+(println (if (= result (vec (range 200))) "PASS io-mix-lossless-order" "FAIL io-mix-lossless-order"))
+
+(flow/stop fl)

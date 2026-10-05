@@ -1,0 +1,17 @@
+;; reuse-conj-8.mova -- Perceus-lite phase 1 (v0.5) A/B shape: the vector
+;; twin of reuse-assoc-8.mova, crossing PVEC_SMALL_MAX (16) for N>16.
+;; Same control caveat: `v` is a live closure binding when `conj` runs.
+;;
+;;   ./target/release/mova bench/reuse-conj-8.mova
+
+(def N 8)
+(def R 200000)
+(def t0 (time-ms))
+(def checksum
+  (loop [r 0 acc 0]
+    (if (< r R)
+      (recur (inc r) (+ acc (count (reduce (fn [v i] (conj v i)) [] (range N)))))
+      acc)))
+(def elapsed (max 1 (- (time-ms) t0)))
+(def ops (* N R))
+(println "reuse-conj-8" ops elapsed (quot (* ops 1000) elapsed))

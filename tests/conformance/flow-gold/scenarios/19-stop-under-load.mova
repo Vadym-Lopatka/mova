@@ -1,0 +1,49 @@
+;;RUNS 5
+;;TIMEOUT-MS 30000
+;; scenario 19: `flow/stop` while the pipeline is FULL and mid-flight --
+;; a big inject into a chain whose tail is slow, so upstream procs are
+;; blocked on sends when stop lands. The invariant is pure lifecycle:
+;; stop RETURNS (control beats a blocked send on both sides -- upstream's
+;; `send-outputs` services control with :priority true inside its
+;; `alts!!`; mova's `send_with_control_priority` re-checks control on
+;; every blocked-send lap, and since L3/W1b its task arm parks on a
+;; doorbell rung by both room-freed AND control). On mova this is the
+;; blocked-send + done-cell shutdown path under real backpressure; a hang
+;; here is the harness timeout, not a printed FAIL. Counts received
+;; before stop are inherently racy and deliberately UNPRINTED (SPEC.md
+;; rule 4); the only outputs are deterministic lifecycle verdicts.
+
+(def out-ch (chan 10))
+
+(def pass-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def slow-sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (<!! (timeout 5)) (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:a {:proc (flow/process pass-step)}
+                  :b {:proc (flow/process pass-step)}
+                  :s {:proc (flow/process slow-sink-step)}}
+          :conns [[[:a :out] [:b :in]] [[:b :out] [:s :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+
+;; Big enough to keep every inter-proc buffer full for the whole scenario;
+;; NOT deref'd -- the inject is still in flight when stop lands, which is
+;; the point. (Its injector keeps writing until the target closes; both
+;; sides complete it once stop closes the chans.)
+(flow/inject fl [:a :in] (range 5000))
+
+;; Drain a few from the slow sink first so we KNOW the pipeline is flowing
+;; and full (a stop against a not-yet-started flood would pin nothing).
+(def primed (deref (future (vec (repeatedly 5 #(<!! out-ch)))) 15000 :timed-out))
+(println (if (= primed [0 1 2 3 4]) "PASS pipeline-flowing-before-stop" "FAIL pipeline-flowing-before-stop"))
+
+(flow/stop fl)
+(println "PASS stop-under-load-returned")

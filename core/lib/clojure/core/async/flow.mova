@@ -1,0 +1,127 @@
+;; clojure.core.async.flow -- mova's real home for the flow surface
+;; (DESIGN-flow-namespace.md Part 1). Embedded (`src/stdlib.rs`'s
+;; `embedded_modules()`), LAZILY require-able like any other library --
+;; the engine's own bootstrap reaches it through an ordinary internal
+;; `(require 'clojure.core.async.flow)` (see `eval::Interp::
+;; require_core_flow`), the SAME `require_ns` path a user's own require
+;; takes: same loaded memo, same cycle detection, same `*ns*` save/
+;; restore. There is no snowflake loader any more.
+;;
+;; Every `flow/`-prefixed native from `src/builtins/flow.rs` and
+;; `src/builtins/flow_steps.rs` (`create-flow`, `start`, `stop`, `ping`,
+;; `map->step*`, `step-passthrough`, ...) is interned DIRECTLY under this
+;; namespace (`reg_flow`) and is therefore already in scope here under its
+;; BARE name -- no `flow/` prefix needed inside this file, since we ARE
+;; `clojure.core.async.flow`. The `flow/...` spelling keeps working for
+;; every OTHER namespace too, via the engine-owned default alias
+;; (`ns.rs`'s `DEFAULT_ALIASES`, `"flow" -> "clojure.core.async.flow"`) --
+;; this file's own `(ns ...)` form is what makes that alias's TARGET a
+;; real, loadable namespace instead of a dangling name.
+;;
+;; The engine itself (src/builtins/flow.rs) is native Rust end to end --
+;; see FLOW-DESIGN.md. This file provides the small, purely data-shaping
+;; helpers upstream core.async.flow exposes at the Clojure level:
+;; `process` (wraps a step-fn + opts into the launcher shape the engine
+;; understands), `map->step` (builds a 4-arity step-fn from a
+;; `{:describe :init :transition :transform}` map), and `ping`/`ping-proc`
+;; (upstream's `& {:keys [timeout-ms]}` signature over natives that take
+;; the timeout positionally).
+(ns clojure.core.async.flow)
+
+(defn process
+  "Wraps a 4-arity step-fn `sf` (describe/init/transition/transform, see
+   FLOW-DESIGN.md's \"Step-fn contract\") plus opts (currently just
+   :workload, one of :mixed/:io/:compute) into the launcher value
+   `flow/create-flow`'s :procs map expects under :proc.
+
+   :workload precedence, matching upstream core.async.flow exactly: a
+   :workload supplied here in opts overrides any :workload returned by
+   `sf`'s :describe fn; if neither supplies one, the default is :mixed.
+   opts is stored as given (nil when :workload is absent) so the engine
+   -- which already calls :describe once per proc at `create-flow`
+   validation -- can see whether opts really said something or the
+   describe-map gets the last word.
+
+   :workload is FUNCTIONAL (L3): :mixed (the default) and :compute run the
+   proc as a task on mova's own runtime, many procs per OS thread, so a
+   proc-to-proc hop between two co-scheduled procs costs a scheduler switch
+   rather than a thread park. :io keeps the proc on its own dedicated OS
+   thread -- the escape hatch for a step that BLOCKS (sleeps, blocking IO,
+   a blocking native), which as a task would stall every other proc placed
+   on the same shard. Declare :io whenever the step can block.
+
+   The remaining deviation from upstream is what a workload maps ONTO:
+   mova has no executor pools and no :compute timeout -- see
+   FLOW-DESIGN.md's \"Workloads\" note. MOVA_FLOW_THREAD_PROCS=1 is the
+   kill switch: with it set every proc runs on its own OS thread again
+   regardless of :workload, which is the pre-L3 engine exactly.
+
+   DESIGN-flow-namespace.md Part 3 item 2: the returned map also carries
+   `:describe`, upstream's launcher shape -- a zero-arg fn that re-runs
+   `sf`'s own zero-arity (describe) call. Client code (e.g. a dangling-port
+   scan) reads a mounted proc's port list via `(:outs ((:describe
+   proc)))`; mova's pre-Part-3 `process` returned only
+   `{:mova.flow/step :mova.flow/workload}`, so that read crashed on nil."
+  ([sf] (process sf {}))
+  ([sf opts]
+   {:mova.flow/step sf
+    :mova.flow/workload (:workload opts)
+    :describe (fn [] (sf))}))
+
+;; map->step: builds a 4-arity step-fn from a map of
+;; :describe/:init/:transition/:transform fns, matching upstream's
+;; `map->step`. :describe and :transform are required; :init defaults to
+;; an empty-state initializer (ignoring the arg-map), :transition to an
+;; identity pass-through (state unchanged across resume/pause/stop).
+;;
+;; v0.3 / N1 (see NATIVE-STEP-DESIGN.md): this used to be a `defn` here,
+;; tree-walked/compiled like any other mova fn -- its 4-arity dispatch
+;; shell ran through a real interpreter call on EVERY flow message, for
+;; EVERY flow program (every one goes through `map->step`). It's now a
+;; native (`src/builtins/flow_steps.rs`'s `map->step*`, interned directly
+;; into this namespace) that performs the exact same validation
+;; (byte-identical `(throw ...)` error strings) and builds the exact same
+;; 4-arity shell, minus that one interpreted call per message. `process`
+;; (above) and every other part of the public API are unaffected -- this
+;; is purely an implementation swap.
+(def map->step map->step*)
+
+;; DESIGN-flow-namespace.md Part 3 item 1: upstream `ping`/`ping-proc` take
+;; `& {:keys [timeout-ms] :or {timeout-ms 1000}}`; mova's natives take the
+;; timeout POSITIONALLY (2nd/3rd arg). Both bridges hand-rolled this same
+;; unwrap before this file existed; folded in here so every caller,
+;; upstream-shaped or legacy-positional, gets a real var. Bind the natives
+;; to PRIVATE names FIRST -- before `ping`/`ping-proc` below shadow the
+;; bare names in THIS namespace -- exactly the order a host application's bridge proved
+;; out (src-mova/clojure/core/async/flow.mova:132-133 there): at the point
+;; these two defs run, the bare symbols `ping`/`ping-proc` still resolve to
+;; the natives `reg_flow` interned directly into this namespace, so the
+;; private aliases capture the NATIVE value, not a self-reference; only
+;; the `defn`s below reassign what `ping`/`ping-proc` mean in this
+;; namespace, and by then the private aliases already hold their own
+;; independent binding to the original native.
+(def ^:private ping* ping)
+(def ^:private ping-proc* ping-proc)
+
+(defn ping
+  "(ping g), (ping g timeout-ms) -- mova's original positional spelling,
+   used unmodified by the whole existing test/bench corpus -- or (ping g
+   :timeout-ms n), upstream's keyword-opts spelling. Dispatched on
+   whether the first vararg is a number (positional) or anything else
+   (kwargs, `apply hash-map`d exactly like upstream's `&` destructuring)."
+  ([g] (ping* g))
+  ([g x & more]
+   (if (number? x)
+     (ping* g x)
+     (let [{timeout-ms :timeout-ms :or {timeout-ms 1000}} (apply hash-map x more)]
+       (ping* g timeout-ms)))))
+
+(defn ping-proc
+  "(ping-proc g pid), (ping-proc g pid timeout-ms), or (ping-proc g pid
+   :timeout-ms n) -- see `ping`'s doc for the dispatch rule."
+  ([g pid] (ping-proc* g pid))
+  ([g pid x & more]
+   (if (number? x)
+     (ping-proc* g pid x)
+     (let [{timeout-ms :timeout-ms :or {timeout-ms 1000}} (apply hash-map x more)]
+       (ping-proc* g pid timeout-ms)))))

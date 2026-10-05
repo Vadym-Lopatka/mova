@@ -1,0 +1,144 @@
+;; arrays.corpus -- S4/1D Java arrays (Value::Array): into-array, make-array,
+;; to-array/to-array-2d, the typed factories (int-array/long-array/
+;; double-array/float-array/boolean-array/byte-array/char-array/
+;; short-array/object-array), aget/aset/aset-*, alength, aclone, amap/
+;; areduce, and array integration (seq/count/nth/vec/reduce/instance?/
+;; equality). One session (see tests/conformance_test.rs's module doc).
+;;
+;; DELIBERATELY EXCLUDED: any form whose printed result embeds a raw array
+;; (`(pr-str (into-array [1 2]))`-shaped, or anything that would print one
+;; nested inside a collection) -- real Clojure's array print form carries
+;; the JVM's per-run identity hash (`#object["[I" 0x<hash> "[I@<hash>"]`),
+;; which is nondeterministic across runs and therefore un-goldenable (see
+;; this task's brief and tests/conformance/DEVIATIONS.md). Every form here
+;; either returns a plain value (a class name, a number, a vec'd/seq'd
+;; snapshot of an array's contents, a boolean) or deliberately throws.
+
+;; ---- into-array: component-type inference ----
+(class (into-array []))
+(class (into-array [1 2 3]))
+(class (into-array ["a" "b"]))
+(class (into-array [1.0 2.0]))
+(class (into-array [nil nil]))
+(class (into-array [1 nil]))
+(class (into-array [\a \b]))
+(class (into-array [true false]))
+(class (into-array [:a :b]))
+(class (into-array [(list 1) (list 2)]))
+(class (into-array [[1 2] [3 4]]))
+(class (into-array (list 1 2 3)))
+(class (into-array (range 3)))
+(class (into-array String ["a" "b"]))
+(class (into-array Object [1 "a"]))
+(vec (into-array [1 2 3]))
+(alength (into-array []))
+(alength (into-array [1 2 3]))
+
+;; ---- into-array: mismatch throws ----
+(try (into-array [1 "a"]) (catch Exception e :threw))
+(try (into-array [1 2.0]) (catch Exception e :threw))
+
+;; ---- typed factories: size / seq / size+init arities ----
+(class (int-array 3))
+(vec (int-array 3))
+(vec (int-array [1 2 3]))
+(vec (int-array 3 7))
+(class (long-array 3))
+(vec (long-array [1 2 3]))
+(class (double-array 3))
+(vec (double-array [1.0 2.0]))
+(class (float-array 3))
+(vec (float-array [1.0 2.0]))
+(class (boolean-array 3))
+(vec (boolean-array [true false]))
+(class (byte-array 3))
+(vec (byte-array [1 2 3]))
+(class (char-array 3))
+(vec (char-array [\a \b]))
+(vec (char-array "abc"))
+(class (short-array 3))
+(vec (short-array [1 2 3]))
+(class (object-array 3))
+(vec (object-array [1 2 3]))
+(vec (object-array (range 4)))
+
+;; ---- typed factories: unchecked truncating coercion (measured: array
+;; CONSTRUCTION wraps like a C-style narrowing cast, never range-checks --
+;; see src/builtins/arrays.rs's module doc) ----
+(vec (byte-array [200]))
+(vec (short-array [40000]))
+(vec (int-array [1.5]))
+(vec (int-array [-1.9]))
+
+;; ---- make-array / to-array / to-array-2d ----
+(class (make-array String 2 3))
+(map alength (make-array String 2 3))
+(alength (aget (make-array String 2 3) 0))
+(vec (aget (make-array String 2 3) 0))
+(class (to-array [1 2 3]))
+(vec (to-array [1 2 3]))
+(vec (aget (to-array-2d [[1 2] [3 4]]) 0))
+(vec (aget (to-array-2d [[1 2] [3 4]]) 1))
+(alength (to-array-2d [[1 2] [3 4]]))
+
+;; ---- aget / aset / aset-* / alength / aclone ----
+(let [a (int-array [1 2 3])] (aget a 0))
+(let [a (int-array [1 2 3])] (aget a 2))
+(try (let [a (int-array [1 2 3])] (aget a -1)) (catch Exception e :threw))
+(try (let [a (int-array [1 2 3])] (aget a 3)) (catch Exception e :threw))
+(let [a (int-array [1 2 3])] (aset a 0 99) (vec a))
+(try (let [a (int-array [1 2 3])] (aset a 3 99)) (catch Exception e :threw))
+(let [a (int-array [1 2 3])] (aset-int a 0 42) (vec a))
+(let [a (long-array [1 2 3])] (aset-long a 0 42) (vec a))
+(let [a (double-array [1.0 2.0])] (aset-double a 0 4.2) (vec a))
+(let [a (boolean-array [true false])] (aset-boolean a 0 false) (vec a))
+(let [a (byte-array [1 2 3])] (aset-byte a 0 10) (vec a))
+(let [a (short-array [1 2 3])] (aset-short a 0 10) (vec a))
+(let [a (char-array [\a \b])] (aset-char a 0 \z) (vec a))
+(let [a (object-array [1 2 3])] (aset a 0 "x") (vec a))
+(try (let [a (int-array [1 2 3])] (aset a 0 "x")) (catch Exception e :threw))
+(try (let [a (byte-array [1 2 3])] (aset-byte a 0 200)) (catch Exception e :threw))
+(alength (int-array [1 2 3]))
+(let [a (int-array [1 2 3]) b (aclone a)] (aset b 0 99) [(vec a) (vec b)])
+(identical? (int-array [1 2 3]) (int-array [1 2 3]))
+(= (into-array [1]) (into-array [1]))
+(let [a (into-array [1])] (= a a))
+
+;; ---- amap / areduce ----
+(vec (amap (int-array [1 2 3]) i ret (* 2 (aget ret i))))
+(areduce (int-array [1 2 3]) i ret 0 (+ ret (aget (int-array [1 2 3]) i)))
+(let [arr (int-array [1 2 3])] (areduce arr i ret 0 (+ ret (aget arr i))))
+
+;; ---- seq / count / nth / vec / vector? / seq? over arrays ----
+(seq (into-array []))
+(seq (into-array [1 2 3]))
+(first (into-array [1 2 3]))
+(rest (into-array [1 2 3]))
+(count (into-array [1 2 3]))
+(count (into-array []))
+(nth (into-array [1 2 3]) 1)
+(try (nth (into-array [1 2 3]) 5) (catch Exception e :threw))
+(vec (into-array [1 2 3]))
+(vector? (into-array [1 2 3]))
+(seq? (into-array [1 2 3]))
+(sort (into-array [3 1 2]))
+(reduce + (into-array [1 2 3]))
+(map inc (into-array [1 2 3]))
+(reverse (into-array [1 2 3]))
+(seqable? (into-array [1 2 3]))
+(indexed? (into-array [1 2 3]))
+(counted? (into-array [1 2 3]))
+(bytes? (byte-array 0))
+(bytes? (int-array 0))
+(contains? (into-array []) 0)
+(contains? (into-array [1]) 0)
+(contains? (into-array [1]) 1)
+(try (conj (into-array []) 1) (catch Exception e :threw))
+(sort (set (into-array [1 2])))
+(set? (set (into-array [1 2])))
+
+;; ---- instance? / class equality ----
+(instance? (class (int-array 0)) (int-array 3))
+(instance? (class (object-array 0)) (object-array 3))
+(= (class (int-array 3)) (class (int-array 5)))
+(= (class (int-array 3)) (class (long-array 3)))

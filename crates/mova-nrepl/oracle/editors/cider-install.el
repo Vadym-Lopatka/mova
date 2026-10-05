@@ -1,0 +1,10 @@
+;; Install CIDER into a private package dir given by env MOVA_ED_PKG.
+(require 'package)
+(setq package-user-dir (getenv "MOVA_ED_PKG"))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                         ("melpa" . "https://melpa.org/packages/")))
+(package-initialize)
+(package-refresh-contents)
+(package-install 'cider)
+(message "CIDER-INSTALLED %s" (cadr (assq 'cider package-alist)))

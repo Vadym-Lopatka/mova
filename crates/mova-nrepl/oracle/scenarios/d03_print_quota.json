@@ -1,0 +1,123 @@
+{
+ "name": "d03_print_quota",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 20
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 20,
+    "nrepl.middleware.print/stream?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 20,
+    "nrepl.middleware.print/stream?": "1",
+    "nrepl.middleware.print/buffer-size": 5
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(range 5)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 1000
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(range 5)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 11
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(range 5)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 10
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 0
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 20,
+    "nrepl.middleware.print/print": "nrepl.util.print/pprint"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(range 100) (range 100)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 20
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "\"\u65e5\u672c\u65e5\u672c\u65e5\u672c\"",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 5
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 5,
+    "nrepl.middleware.caught/print?": "1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(apply str (repeat 100 \"ab\"))",
+    "session": "$s1",
+    "nrepl.middleware.print/quota": 20,
+    "nrepl.middleware.print/stream?": "1"
+   }
+  }
+ ]
+}

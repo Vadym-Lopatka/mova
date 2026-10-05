@@ -1,0 +1,24 @@
+;; tests/conformance/ORACLE.edn
+;;
+;; Machine-readable pin for the conformance oracle: the exact real-Clojure
+;; build every golden in this project is generated against. This is the
+;; SAME pin as tests/conformance/CLOJURE_VERSION -- that bare one-line file
+;; remains the version string every existing tool (tools/gen-golden.bb,
+;; tools/gen-pending.sh, tools/jvm-runner.clj, ...) reads, and its format
+;; must not change. This file exists alongside it because those callers
+;; only need a version *string*, while tools/bootstrap-oracle.sh (and any
+;; future tool that needs the git commit, repo URL, or JDK) needs the full
+;; pin in one machine-readable place instead of scraped out of prose in
+;; COMPATIBILITY.md or a comment in tests/clojure-suite/MANIFEST.sha256.
+;;
+;; tools/bootstrap-oracle.sh asserts :clojure-version here equals the
+;; contents of CLOJURE_VERSION on every run, and hard-fails if they ever
+;; disagree -- so the two files cannot silently drift apart. When the pin
+;; is bumped, update BOTH files in the same commit (see ORACLE.md's
+;; "bumping the pin" section for the full list and order).
+{:clojure-version "1.13.0-alpha6"
+ :git-tag "clojure-1.13.0-alpha6"
+ :commit "15c821d7e7df241c8f9fed42fbc51b09c65b67d9"
+ :repo "https://github.com/clojure/clojure"
+ :jdk-tested "21"
+ :note "The reference implementation for every golden under tests/conformance/ and tests/clojure-suite/. Materialize it locally with tools/bootstrap-oracle.sh; see tests/conformance/ORACLE.md for the full explanation and tests/clojure-suite/MANIFEST.sha256 for the vendored-test-suite provenance that shares this same commit."}

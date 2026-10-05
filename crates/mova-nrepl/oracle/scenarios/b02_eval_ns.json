@@ -1,0 +1,134 @@
+{
+ "name": "b02_eval_ns",
+ "doc": "",
+ "sessions": [
+  "s1",
+  "s2"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(str *ns*)",
+    "session": "$s1",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(str *ns*)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(join \",\" [1 2])",
+    "session": "$s1",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(str *ns*)",
+    "session": "$s1",
+    "ns": "no.such.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(str *ns*)",
+    "session": "$s1",
+    "ns": ""
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(in-ns 'foo.bar)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(str *ns*)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(def zz 1)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "foo.bar/zz",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(str *ns*)",
+    "session": "$s1",
+    "ns": "user"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "(str *ns*)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "(ns baz.qux (:require [clojure.set :as s]))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(s/union #{1} #{2})",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(str *ns*)"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "(str *ns*)",
+    "session": "$s2"
+   }
+  }
+ ]
+}

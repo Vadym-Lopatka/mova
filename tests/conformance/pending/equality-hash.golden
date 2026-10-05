@@ -1,0 +1,9 @@
+OK	false
+OK	true
+ERR	ClassCastException
+ERR	ClassCastException
+ERR	ClassCastException
+OK	0
+OK	74834163
+OK	nil
+OK	false

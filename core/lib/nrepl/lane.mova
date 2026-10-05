@@ -1,0 +1,39 @@
+;; nrepl.lane: glue between the native server and Mova-level handlers.
+;; Called by the Rust side only (src/nrepl/middleware.rs).
+(ns nrepl.lane
+  (:require [nrepl.server :as server]
+            [nrepl.transport :as t]))
+
+(defn- load-var [kind sym]
+  (let [sym (symbol sym)]
+    (when (namespace sym)
+      (require (symbol (namespace sym))))
+    (or (resolve sym)
+        (throw (ex-info (str "Could not resolve " (name kind) " " sym) {:kind kind :symbol sym})))))
+
+(defn- middleware-list [syms]
+  (mapcat (fn [sym]
+            (let [v (load-var :middleware sym)
+                  x @v]
+              (if (sequential? x) x [v])))
+          syms))
+
+(defn build
+  "The handler: `native` hands a message to the native ops; `handler-sym` is
+  `--handler` (or nil); `mw-syms` is `--middleware`, in order."
+  [native handler-sym mw-syms]
+  (reset! server/native-handler-fn native)
+  (if handler-sym
+    (let [v (load-var :handler handler-sym)]
+      (fn [msg] (v msg)))
+    (apply server/default-handler (middleware-list mw-syms))))
+
+(defn make-msg
+  "The map middleware sees: the request plus `:transport`. `:session` is the
+  session id string, as on the JVM before the session middleware; the
+  `session` stand-in swaps in the session atom (see
+  `nrepl.middleware.session`). The session id and namespace ride on the
+  map's metadata."
+  [raw sid ns send-fn]
+  (with-meta (assoc raw :transport (t/native-transport send-fn))
+    {:nrepl.lane/sid sid :nrepl.lane/ns ns}))

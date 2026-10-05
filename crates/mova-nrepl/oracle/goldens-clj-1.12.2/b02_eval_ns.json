@@ -1,0 +1,301 @@
+{
+"scenario": "b02_eval_ns",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "clojure.string",
+"session": "<uuid:1>",
+"value": "\"clojure.string\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "\"user\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "clojure.string",
+"session": "<uuid:1>",
+"value": "\"1,2\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "no.such.ns",
+"session": "<uuid:1>",
+"status": [
+"namespace-not-found",
+"done",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"ns": "",
+"session": "<uuid:1>",
+"status": [
+"namespace-not-found",
+"done",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "foo.bar",
+"session": "<uuid:1>",
+"value": "#object[clojure.lang.Namespace 0xHASH \"foo.bar\"]"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling at (REPL:1:1).\nUnable to resolve symbol: str in this context\n",
+"id": "7",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "7",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "foo.bar",
+"session": "<uuid:1>",
+"value": "#'foo.bar/zz"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"ns": "foo.bar",
+"session": "<uuid:1>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "\"user\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling at (REPL:1:1).\nUnable to resolve symbol: str in this context\n",
+"id": "11",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "11",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"ns": "baz.qux",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"ns": "baz.qux",
+"session": "<uuid:1>",
+"value": "#{1 2}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"ns": "user",
+"session": "<uuid:2>",
+"value": "\"user\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"ns": "user",
+"session": "<uuid:3>",
+"value": "\"user\""
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:3>",
+"status": [
+"done"
+]
+}
+}
+]
+}

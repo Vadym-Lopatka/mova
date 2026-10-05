@@ -1,0 +1,138 @@
+# tests/clojure-suite/MANIFEST.sha256
+#
+# SHA-256 manifest of every vendored Clojure test-suite file under
+# tests/clojure-suite/vendor/. This is the anti-cheating device for the
+# no-edit rule: vendored files must stay byte-identical to the tagged
+# upstream release. `tools/verify-vendor.sh` re-hashes every file listed
+# below and fails (non-zero exit) on any mismatch, missing file, or
+# extra un-manifested file in vendor/.
+#
+# Upstream source (PRIMARY -- 48 of the 51 files below):
+#   repo:   https://github.com/clojure/clojure
+#   tag:    clojure-1.13.0-alpha6
+#   commit: 15c821d7e7df241c8f9fed42fbc51b09c65b67d9
+#   path:   test/clojure/test_clojure/*.clj  (top-level files, PLUS a
+#           small set of subdirectory companion files that a vendored
+#           top-level file genuinely `:require`s -- see "Companion
+#           namespaces" below. Every other subdirectory file is a
+#           support/fixture file for an excluded JVM-bound suite; see
+#           tests/clojure-suite/NOT-PORTABLE.md for what and why)
+#
+# Upstream source (SECOND REPO -- the 3 spec files, added by SPEC-W6b):
+#   repo:        https://github.com/clojure/spec.alpha
+#   describe:    v0.6.249-2-g6b698ee  (the 0.6.250-SNAPSHOT line)
+#   spec-commit: 6b698eed1787c14907082c86de3410dd51e816b4
+#   path:        src/test/clojure/clojure/test_clojure/*.clj
+#   files:       instr.clj, multi_spec.clj, spec.clj
+#
+#   A second repo, not a second STANDARD. `clojure.spec.alpha` lives in
+#   its own git repository but it is not a third-party library: it SHIPS
+#   WITH Clojure -- `clojure -Sdeps '{:deps {org.clojure/clojure
+#   {:mvn/version "1.13.0-alpha6"}}}'` gives you a working
+#   `clojure.spec.alpha` with no other dependency -- and these three
+#   files ARE that library's official test suite. They sit at exactly the
+#   `clojure/test_clojure/` path the primary repo's own suite uses and
+#   declare `clojure.test-clojure.{spec,instr,multi-spec}` namespaces.
+#   They are vendored under identical rules to everything else here:
+#   byte-identical, hash-locked, never hand-edited, flat in vendor/ (the
+#   runner derives each file's module path from its own `(ns ...)` form,
+#   not from the filename). `multi_spec.clj` `:require`s
+#   `[clojure.test-clojure.spec :refer [submap?]]`, which resolves
+#   because `spec.clj` is vendored beside it and materializes as
+#   `clojure/test_clojure/spec.mova` in the runner's scratch tree -- the
+#   same mechanism the "Companion namespaces" block below describes, with
+#   no flattening needed.
+#
+#   NOTE for tools/oracle-census.sh: it reads the primary upstream commit
+#   with `grep -m1 '^#\s*commit:'`, which is why the key above is spelled
+#   `spec-commit:` -- the primary `commit:` line must stay the first one.
+#
+# Companion namespaces (flattened into vendor/ under a
+# `<parent>_<child>.clj` name, e.g. `protocols/examples.clj` ->
+# `protocols_examples.clj`; the runner derives each vendored file's
+# module path from its own `(ns ...)` form, not from this filename, so
+# the flattening is cosmetic only -- see tools/clojure-suite-run.bb):
+#   protocols_examples.clj       <- protocols/examples.clj
+#     (required by protocols.clj's `:use`)
+#   protocols_more_examples.clj  <- protocols/more_examples.clj
+#     (required by protocols.clj's `:require ... :as other`)
+#   repl_example.clj             <- repl/example.clj
+#     (required by repl.clj's `:use`)
+#
+# Counts (recorded here, not just in NOT-PORTABLE.md's prose, so
+# tools/generate-compat-report.bb can read the "N of M vendored, K
+# excluded" arithmetic from an artifact that survives into a fresh
+# checkout -- the pinned upstream clone used to derive these numbers is a
+# session-scratchpad path that will NOT exist on a later machine/run):
+#   upstream-top-level-clj-files: 67
+#   vendored-count: 45
+#   excluded-count: 22
+#   companion-count: 3
+#   spec-alpha-count: 3
+#   (67 = 45 + 22 top-level files of the PRIMARY repo; the 3 companions
+#   above are additional subdirectory files of that same repo, and the 3
+#   spec-alpha files come from the SECOND repo -- neither group is part
+#   of the 67/45/22 top-level arithmetic, and both physically live in
+#   vendor/, so the directory holds 45 + 3 + 3 = 51 files. Every excluded
+#   top-level file is named with a reason in
+#   tests/clojure-suite/NOT-PORTABLE.md)
+#
+# Regenerate (do NOT hand-edit) with:
+#   cd tests/clojure-suite/vendor && shasum -a 256 *.clj | sort -k2 >> MANIFEST.sha256
+# (after re-copying files byte-identically from the pinned upstream tree
+# and re-writing this header).
+#
+# Format below: standard `shasum -a 256 -c` checksum lines, one per
+# vendored file, sorted by filename. Lines starting with '#' are comments
+# and ignored by `shasum -c`.
+b5e92938658dc153c2ac85a8ecd70dd57f52ef4ced576724dcb0a06648b7e664  api.clj
+cf44010039332dd7cd4328a81dce69826ac5a664bfc7a44dbb73a076b51fd9ee  atoms.clj
+232a8187bfb31e30cf5d456a5f71c7c9a5eeb347e7af1b4398dc164d9ec971bf  clojure_set.clj
+a5752aa0c47857ac80783b20000b20e53d8818bc20ca5077396df6321bfd6715  clojure_walk.clj
+5d5c175be03d8e3bdf3c5a549160804bcbe03c7e1ba3a16e5d7e902cc1f84e3d  clojure_zip.clj
+8badcf1519327a46c2701011b645d0e109e5dcc27267eb2a09f5cd6985be8843  control.clj
+8194e9071e10da263eb45e703bda2786f45c882e0e28fb3231f0e59b89e0aa23  data_structures.clj
+5e45f211d2a1131593fc2cc422b32f83bec0a1c1e02dda26c257be03baafbe7b  data.clj
+ed09480cfda5b4c899407b1b31e10092d79dfea4768e21f63c01cc9e06363a70  def.clj
+75f7ad1af92c8be588602bfc76aa717c4e52b3d8cd1f9f33cac7df3a5bc4d76f  delays.clj
+1585efc97854440a0c9feb554a2b24783c119c7090f0c5909f3e9be9e826bf54  edn.clj
+74b7bb6119986320b2ec9b1bc5541b3672d99536819a8cb6fc9c865feadf6a0d  errors.clj
+f49486330604441b8b6fab897700f001cd485502dec74cf4fdd94245de7da407  evaluation.clj
+506978fe24edfbb7fc3bccf950b9ec5e38736d47b192855f85b4aa659cf0de17  fn.clj
+97e3cde65848c2a16b59ca737bb841378c487770922d895c495a6d923c62de71  for.clj
+5901bf8a5d62f4c4ee600da5cfc0bfbaa87e0895a1898c3b7882d05296f99afc  generators.clj
+55e790a8aa2ab0e779db8ed718a84ce75a85bad17124ddbf06d52c8a8f8057a3  instr.clj
+fec6e7ff6f3d676f8577b3c0b56a89f9ff8af06d5c088c2d038595b9bf95f3a1  keywords.clj
+c3527a6e9e62d95c11fd74c2bc1877d585b3db36cd6ab3b271a3d9cf769c6f44  logic.clj
+0ab6f4fa802e0389959fc3ff18f277fc35aadb136086f68b0ceac92afd3c5976  macros.clj
+9edabc7c3b4cd599c9b055c32c7e994062f3cf91a60367f42ff692f564a1ce9e  math.clj
+eb47cec84ea8423e46905b162c8a9dbffec78e050900e1598df86bb3e188384b  multi_spec.clj
+6bde35bc2de3c3025d3999267eba639cf7d89f8a4c1ff6fef4c3f62bc8c715ba  multimethods.clj
+92bc6644f9212cffdd48a833a0d6bd9c0757a7dc5310af836a460d5ccb6c21d0  ns_libs_load_later.clj
+d61c29d4aed8e26ff9c5c657f4a7ca19209ac39aa5e8fa9153d842a5f5194d8e  ns_libs.clj
+7f743f7cff2e5c214d8eeb53d120b1a2953377bd8153bb1853d8542900a1e2dd  numbers.clj
+11dd9aee44293c8b5fbb98161aeaeb86689bb88259724237946eaf2ca659fdf6  other_functions.clj
+012cf0a98bacc11bc94c6205c5e23b463c8a81b6f2c9835eb7a5bfd3be0807f7  parallel.clj
+914619847223838a45b403c7eb29676d4f100398adf9307037fdff4b37a66b0f  parse.clj
+565cbb0a5b9490428b81b26286c78ff2882c3b26e98cbdc7e50c8d100a6a20a4  predicates.clj
+2861e1ba78e607c9bf57a037e49f3dd7fb8bb33c01a4b47eca6a9f5ac5dbf7cb  printer.clj
+b54766f6f3c8ecb3da62db225b3ac50203fe32a8d5ec58c366a6b77ec0dc8215  protocols.clj
+b725f0679dfd00685d89019b71e4aef076429f689ee5ade09ee82afb03f29c58  protocols_examples.clj
+88e6ba18a3f7e57b75dbda7003410d13b8563ffc9fcdbdfdd39230bc13ad1a41  protocols_more_examples.clj
+52224f30a657e409b1c892527cb658b2af5e09421b2cec776278ce04f32c5964  refs.clj
+6353764e04ca0dece14cdc6ae99ade24182e76049744811eb6f138de658accc7  repl.clj
+01186cc8cf6a7e0e275fe6d2040f4ea3b13a76ba4f6c85e05f7f51da6d9343ae  repl_example.clj
+f0f614ab0c49a1761b54fb66e45d69fd5820474cab027c7548b8f6e5f1dae86b  rt.clj
+bb54cee1d720ac19ab7565e213767053460e9c04e6daf1d4abb29d7d3c132f6a  run_single_test.clj
+c8867167ec275e3e5fec48db31628ad43b396f62e68fabea91df2c03504af96b  sequences.clj
+495ac557bad3dd04fa23e22e8abbe09d8f41b17c89606bcd27fd875f7e2e7ab3  spec.clj
+fa3e11f1759a4c9370e567caf4ba1e0b90c43c3f19de0a11ffdecc319063b32f  special.clj
+d328cd575149077ccb6495f4b7121ccb5e1f564db93b8c7f1921102557d789c4  string.clj
+5f8f49b4c07f69494a6dfe448a3e9dc590a288fee22ba30ad36263803b760398  test_fixtures.clj
+13f79e3838ed1b4bc6ca54d35d48929eef58debddfcfd77adf98b539f12e8961  test.clj
+f6963f2d3a443ab3d3e4ae4a065443a7f32a58c37b0b5bb4180c04399d0616e0  transducers.clj
+62dd78901fd58dbe2fd711e418570553f6e5916fb7fc59b36be400ff9539d605  transients.clj
+e0a12007d6c21d562b3456f5d2ad989546015da662f0d536f33207291be6c6e6  try_catch.clj
+0bdbdec68bd72a1d0ce436f157f452878aa858cacd35497308c312581aefcb94  vars.clj
+3672b3f54c60d119f464973cdf27db1e2fe6e8356267295986ddb11f6c22e09b  vectors.clj
+b7cc2b119fb27c2f5d8bb494b22aca773ca14da6ba91b618d61bd63dd1ad36ad  volatiles.clj

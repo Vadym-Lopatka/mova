@@ -1,0 +1,46 @@
+{
+"scenario": "f05_interrupt_loop",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done",
+"interrupted"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

@@ -1,0 +1,78 @@
+;; S6: boxed-number/Boolean/Character constructors, `cast`, `Class/forName`.
+;; COMPAT VENEER over the vendored suite's Java-interop idiom (see
+;; src/hostclass.rs's S6 module doc) -- these forms exercise the SAME
+;; idiom tests/clojure-suite/vendor/numbers.clj uses directly
+;; (`(Byte. Byte/MAX_VALUE)` etc.), not a general JVM reflection surface.
+;; Two lines are DELIBERATE, documented mismatches (see DEVIATIONS.md's S6
+;; section): `(class (Float. ...))` and `(hash (Float. 1.5))` both collapse
+;; onto `Double`'s behavior, since mova has one `Value::Float` for both
+;; JVM widths. Every other line here conforms.
+;;
+;; `(Float. Float/MAX_VALUE)` is asserted via `==` rather than printed bare
+;; -- `Float/MAX_VALUE` itself already has a documented, UNRELATED print
+;; divergence (src/builtins/statics.rs's module doc: mova widens `f32::MAX`
+;; to `f64` and prints full `f64` shortest-round-trip digits, not Java's
+;; shorter `Float.toString`), and this corpus's job is the CTOR, not a
+;; second copy of that pre-existing statics.rs deviation.
+(Float. 0.0)
+(Float. "1.5")
+(= (Float. 1.5) 1.5)
+(== (Float. 1.5) 1.5)
+(+ (Float. 1.5) 1)
+(Double. 1.5)
+(Double. "1.5")
+(class (Double. 1.5))
+(Long. 3)
+(Long. "3")
+(Integer. 3)
+(Short. (short 3))
+(Byte. (byte 3))
+(Boolean. true)
+(Boolean. "TrUe")
+(Boolean. "nope")
+(Character. \a)
+(BigDecimal. "1.5")
+(BigInteger. "15")
+(class (BigInteger. "15"))
+(= (Integer. 3) 3)
+(= (Long. 3) 3)
+(Byte. Byte/MAX_VALUE)
+(Short. Short/MAX_VALUE)
+(Integer. Integer/MAX_VALUE)
+(Long. Long/MAX_VALUE)
+(== (Float. Float/MAX_VALUE) Float/MAX_VALUE)
+(Double. Double/MAX_VALUE)
+(str (BigDecimal. 0.1))
+(str (BigDecimal. 0.0))
+(try (Long. 1.5) (catch Exception e :caught))
+(try (Integer. "x") (catch Exception e :caught))
+(try (Double. 3) (catch Exception e :caught))
+(try (BigInteger. 3) (catch Exception e :caught))
+(try (Boolean. 1) (catch Exception e :caught))
+(try (Character. 3) (catch Exception e :caught))
+(try (Byte. 200) (catch Exception e :caught))
+(instance? Float (Float. 0.5))
+(instance? Double (Float. 0.5))
+(class (Float. 1.5))
+(hash (Float. 1.5))
+(cast Long 3)
+(cast Number 3)
+(class (cast Number 3))
+(try (cast String 3) (catch Exception e :caught))
+(try (cast Long 1.5) (catch Exception e :caught))
+(cast Long nil)
+(try (cast nil 3) (catch Exception e :caught))
+(class (cast Long 3))
+(Class/forName "java.lang.Long")
+(= (Class/forName "java.lang.Long") Long)
+(Class/forName "[D")
+(= (Class/forName "[D") (class (double-array 1)))
+(try (Class/forName "nope.Nope") (catch Exception e :caught))
+(Class/forName "[I")
+(= (Class/forName "[I") (class (int-array 1)))
+(Class/forName "[Z")
+(Class/forName "[B")
+(Class/forName "[C")
+(Class/forName "[S")
+(Class/forName "[F")
+(Class/forName "[J")

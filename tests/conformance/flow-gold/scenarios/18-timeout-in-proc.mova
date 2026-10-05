@@ -1,0 +1,40 @@
+;;RUNS 5
+;;TIMEOUT-MS 30000
+;; scenario 18: a proc whose TRANSFORM blocks on a `timeout` chan before
+;; emitting each message. Pins the timer-wake path from inside a proc body
+;; on both sides: upstream parks the proc's executor thread on the timeout
+;; chan; mova (since L3) parks the proc TASK, whose wake rides
+;; `chan_close` draining `task_takers` -- the design's "timers are
+;; zero-work" claim (design §2), as a conformance golden rather than a
+;; unit test. The blocking take inside transform is legitimate on both
+;; sides (a transform may block briefly; SPEC.md rule 6's concern is
+;; asserting ORDER via sleeps, which this scenario does not -- the
+;; invariant is count+order, guaranteed by FIFO regardless of timing).
+
+(def out-ch (chan 100))
+
+(def slow-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] (<!! (timeout 10)) [s {:out [m]}])}))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:a {:proc (flow/process slow-step)}
+                  :s {:proc (flow/process sink-step)}}
+          :conns [[[:a :out] [:s :in]]]}))
+
+(flow/start fl)
+(flow/resume fl)
+
+(deref (flow/inject fl [:a :in] (range 30)) 10000 :timed-out)
+
+(def result (deref (future (vec (repeatedly 30 #(<!! out-ch)))) 20000 :timed-out))
+(println "RESULT count" (if (= result :timed-out) :timed-out (count result)))
+(println (if (= result (vec (range 30))) "PASS timeout-in-transform-order" "FAIL timeout-in-transform-order"))
+
+(flow/stop fl)

@@ -1,0 +1,104 @@
+{
+"scenario": "f07_interrupt_catch_finally",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "user",
+"session": "<uuid:1>",
+"value": ":caught"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done",
+"interrupted"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done",
+"interrupted"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"out": "fin\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (InterruptedException) at java.lang.Thread/sleepNanos0 (Thread.java:-2).\nsleep interrupted\n",
+"id": "8",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.InterruptedException",
+"id": "8",
+"root-ex": "class java.lang.InterruptedException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

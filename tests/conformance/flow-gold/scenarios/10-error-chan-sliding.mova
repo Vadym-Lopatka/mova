@@ -1,0 +1,68 @@
+;;RUNS 5
+;; 10-error-chan-sliding: flood a proc with 150 error-triggering messages
+;; (:boom), then one normal message (:done-marker), all in a SINGLE
+;; flow/inject call so within-call FIFO (established in scenarios 01-03)
+;; guarantees :done-marker is processed strictly after all 150 :boom
+;; messages. The scenario waits for :done-marker's output on the sink
+;; BEFORE touching the error-chan at all -- by that point every possible
+;; error-chan put has already happened on the proc's own serial thread,
+;; so draining afterward (never concurrently with the flood) sees a
+;; stable, non-racing snapshot: the error-chan is a sliding-buffer of 100
+;; on BOTH sides, so exactly 100 of the 150 errors survive. Finally, one
+;; more normal message proves the proc is still alive and processing after
+;; the flood (a proc that crashed instead of erroring-and-continuing would
+;; make this final read time out).
+
+(def step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m]
+                 (if (= m :boom)
+                   (throw (ex-info "boom" {}))
+                   [s {:out [m]}]))}))
+
+(def out-ch (chan 10))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process step)}
+                  :s {:proc (flow/process sink)}}
+          :conns [[[:p :out] [:s :in]]]}))
+(def chans (flow/start fl))
+(flow/resume fl)
+
+(def msgs (conj (vec (repeat 150 :boom)) :done-marker))
+(flow/inject fl [:p :in] msgs)
+
+(def marker (deref (future (<!! out-ch)) 15000 :timed-out))
+(if (= marker :timed-out)
+  (println "FAIL marker-read timed-out")
+  (println "RESULT marker" (pr-str marker)))
+
+;; drain the error-chan to quiescence -- safe now, all puts already
+;; happened before we started taking (see comment above). A single
+;; abandoned reader is left dangling on the FINAL (timed-out) iteration
+;; only -- error-chan is never read again afterward, so that's harmless
+;; (see FINDINGS.md's "abandoned reader" pitfall note).
+(defn drain-count [ch]
+  (loop [n 0]
+    (let [v (deref (future (<!! ch)) 300 :timed-out)]
+      (if (= v :timed-out)
+        n
+        (recur (inc n))))))
+(def err-count (drain-count (:error-chan chans)))
+(println "RESULT error-count" err-count)
+(println (if (<= err-count 100) "PASS sliding-bound" (str "FAIL sliding-bound " err-count)))
+
+;; flow still alive after the flood
+(flow/inject fl [:p :in] [:alive-check])
+(def post-flood (deref (future (<!! out-ch)) 10000 :timed-out))
+(if (= post-flood :timed-out)
+  (println "FAIL post-flood-read timed-out")
+  (println "RESULT post-flood-output" (pr-str post-flood)))
+
+(flow/stop fl)

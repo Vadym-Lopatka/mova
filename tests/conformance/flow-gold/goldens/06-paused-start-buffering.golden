@@ -1,0 +1,5 @@
+RESULT status-while-paused :paused
+RESULT count-while-paused 0
+PASS nothing-processed-while-paused
+RESULT after-resume [1 2 3]
+PASS delivered-after-resume

@@ -1,0 +1,24 @@
+;; fizzbuzz.mova -- the traditional first program, mova-flavored: cond,
+;; dotimes, mod, and the threading/lazy-seq stdlib all at once.
+;;
+;;   ./target/debug/mova examples/fizzbuzz.mova
+
+(defn fizzbuzz-line [n]
+  (cond
+    (zero? (mod n 15)) "FizzBuzz"
+    (zero? (mod n 5)) "Fizz"
+    (zero? (mod n 3)) "Buzz"
+    :else (str n)))
+
+(println "-- classic loop, 1..20 --")
+(dotimes [i 20]
+  (println (fizzbuzz-line (inc i))))
+
+;; Same thing again, but built as a lazy pipeline instead of a side-effecting
+;; loop -- `range`/`map` stay lazy until `doseq`-via-`dorun` walks them.
+(println)
+(println "-- lazy pipeline, 21..30 --")
+(->> (range 21 31)
+     (map fizzbuzz-line)
+     (map println)
+     dorun)

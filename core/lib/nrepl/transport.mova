@@ -1,0 +1,64 @@
+;; nrepl.transport: the `Transport` protocol and the helpers middleware uses.
+;; The transport a middleware sees in `:transport` writes to the request's
+;; connection (or to the next wrapping transport). `recv` is not supported
+;; on it: it returns nil.
+(ns nrepl.transport
+  (:refer-clojure :exclude [send])
+  (:require [nrepl.misc :refer [response-for uuid]]))
+
+(defprotocol Transport
+  "Defines the interface for a wire protocol implementation for use
+   with nREPL."
+  (recv [this] [this timeout]
+    "Reads and returns the next message received. Should return nil if a
+     message is not available after `timeout` ms or if the channel is closed.")
+  (send [this msg] "Sends msg. Implementations should return the transport."))
+
+(defn fn-transport
+  "Returns a Transport implementation that delegates its functionality
+   to the 2 or 3 functions provided. Unlike the JVM one it reads on the
+   calling thread (no reader thread)."
+  ([transport-read write] (fn-transport transport-read write nil))
+  ([transport-read write close]
+   (reify Transport
+     (send [this msg] (write msg) this)
+     (recv [this] (transport-read))
+     (recv [_ timeout] (transport-read)))))
+
+(defn native-transport
+  "The transport of a request: `send-fn` is the native function that
+  encodes a map and queues it on the connection."
+  [send-fn]
+  (reify Transport
+    (send [this msg] (send-fn msg) this)
+    (recv [_] nil)
+    (recv [_ _timeout] nil)))
+
+(defn respond-to
+  "Send a response for `msg` with `response-data` using message's transport."
+  [msg & response-data]
+  (send (:transport msg) (apply response-for msg response-data)))
+
+(defmacro safe-handle
+  "When given a message and a number of <op handler> pairs, invoke the handler
+  with the op that matches message's op. If an exception is raised during
+  handling, send an automatic error response through the message's transport
+  with `:<op>-error` status. Special keyword `:else` can be used for an op to
+  define a catch-all handler. Handlers should be functions of 1 argument `msg`."
+  {:style/indent 1}
+  [msg & body]
+  (assert (even? (count body)))
+  (let [msg-sym (gensym "msg")
+        op-sym (gensym "op")]
+    `(let [~msg-sym ~msg
+           ~op-sym (:op ~msg-sym)]
+       (cond ~@(mapcat (fn [[op handler]]
+                         (if (= op :else)
+                           [:else `(~handler ~msg-sym)]
+                           [`(= ~op-sym ~op)
+                            `(try (respond-to ~msg-sym (~handler ~msg-sym))
+                                  (catch Exception e#
+                                    (respond-to ~msg-sym
+                                                :status #{~(keyword (str op "-error")) :error :done}
+                                                :message (ex-message e#))))]))
+                       (partition 2 body))))))

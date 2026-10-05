@@ -1,0 +1,46 @@
+;; flow-4hop.mova -- N-hop pipeline convention (see FLOW-DESIGN.md's bench
+;; section): "N-hop" = N procs total in the chain (N-1 relay procs, each a
+;; pure pass-through, + 1 final counting sink), matching
+;; tests/flow_test.rs's ten_hop_deep_pipeline shape (10 relays + sink).
+;; 4-hop = 3 relays -> sink: a mid-depth pipeline between flow-2hop.mova's
+;; single-hop floor and flow-11hop.mova's deep chain, for watching the
+;; per-hop-ns cost trend as depth grows.
+;;
+;;   ./target/release/mova bench/flow-4hop.mova
+
+(def N 1100000)
+(def HOPS 4)
+(def done-ch (chan 1))
+
+(def relay
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:done {}}})
+    :init (fn [_] {:n 0 :clojure.core.async.flow/out-ports {:done done-ch}})
+    :transform (fn [s _ m]
+                 (let [n2 (inc (:n s))]
+                   (if (= n2 N)
+                     [(assoc s :n n2) {:done [n2]}]
+                     [(assoc s :n n2) {}])))}))
+
+(def relay-pids (map #(keyword (str "r" %)) (range (dec HOPS))))
+(def relay-procs (into {} (map (fn [p] [p {:proc (flow/process relay)}]) relay-pids)))
+(def procs (assoc relay-procs :sink {:proc (flow/process sink)}))
+(def chain-pids (vec (concat relay-pids [:sink])))
+(def conns (vec (map (fn [a b] [[a :out] [b :in]]) chain-pids (rest chain-pids))))
+
+(def fl (flow/create-flow {:procs procs :conns conns}))
+(flow/start fl)
+(flow/resume fl)
+
+(def t0 (time-ms))
+(flow/inject fl [(first chain-pids) :in] (range N))
+(<!! done-ch)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-4hop" N elapsed rate)
+(flow/stop fl)

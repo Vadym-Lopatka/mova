@@ -1,0 +1,78 @@
+;; libstatics.corpus -- S6/libstatics: host-veneer features the vendored
+;; test.check/data.generators/clojure.test.generative suite needs.
+;;   - `var?`: true only for a `Value::Var` (predicates.rs).
+;;   - `identical?` on `Class` values: mirrors `=`'s own per-`ClassVal`-
+;;     variant identity rule (name for Builtin/Interface, `Arc` pointer for
+;;     User) -- see predicates.rs's `identical` fn doc.
+;;   - `Math/getExponent`, `Long/numberOfLeadingZeros`, `Character/isDigit`,
+;;     `Long/reverse`, `String/valueOf` -- new statics.rs registrations.
+;;     `Long/reverse` in particular fixes a real bug: before this session it
+;;     had no exact `{ns: "Long", name: "reverse"}` global, so the bare-name
+;;     resolution fallback silently resolved it to the unrelated seq
+;;     `reverse` builtin instead of doing bit reversal.
+;;   - Exception "veneer" constructors (`IllegalArgumentException.`,
+;;     `IndexOutOfBoundsException.`, `RuntimeException.`, `Exception.`) plus
+;;     the `Throwable`/`Exception`/`RuntimeException` hierarchy `instance?`
+;;     needs to see through a subclass -- see hostclass.rs's own doc
+;;     comment on the `exception_ctor`/`is_exception_named` arm group for
+;;     the full "thin veneer, not a Java exception hierarchy" framing and
+;;     which vendored files drove this (test.check's own
+;;     `clojure.test.check.properties` checks `(instance? Throwable x)` on
+;;     a caught value to tell a thrown failure from an ordinary `false`
+;;     property result).
+;;
+;; Session model: ONE shared `Interp` per file (matching every other
+;; corpus's convention). Every exception instance below is `let`-bound
+;; and exercised on a SINGLE line (matching hostclasses.corpus's own
+;; established convention/comment): a bare top-level `(def x ...)` prints
+;; `#'user/x` on the real JVM but mova's own documented `def` divergence
+;; prints the assigned VALUE instead, so no line here is a standalone
+;; `(def ...)`.
+
+(var? #'+)
+(var? 5)
+(var? nil)
+(var? (var +))
+(identical? Long Long)
+(identical? (Class/forName "java.lang.Long") Long)
+(identical? Long Double)
+(identical? Long (Class/forName "java.lang.Long"))
+(Math/getExponent 8.0)
+(Math/getExponent 1.0)
+(Math/getExponent 0.0)
+(Math/getExponent -8.0)
+(Math/getExponent Double/POSITIVE_INFINITY)
+(Math/getExponent Double/NEGATIVE_INFINITY)
+(Math/getExponent Double/NaN)
+(Long/numberOfLeadingZeros 1)
+(Long/numberOfLeadingZeros 0)
+(Long/numberOfLeadingZeros -1)
+(Long/numberOfLeadingZeros Long/MAX_VALUE)
+(Character/isDigit \5)
+(Character/isDigit \0)
+(Character/isDigit \9)
+(Character/isDigit \a)
+(Character/isDigit \space)
+(Long/reverse 1)
+(Long/reverse 0)
+(Long/reverse -1)
+(Long/reverse Long/MAX_VALUE)
+(Long/reverse Long/MIN_VALUE)
+(String/valueOf 5)
+(String/valueOf true)
+(String/valueOf false)
+(String/valueOf \a)
+(String/valueOf 1.5)
+(String/valueOf "hi")
+(String/valueOf nil)
+(let [iae (IllegalArgumentException. "msg1")] [(.getMessage iae) (instance? IllegalArgumentException iae) (instance? RuntimeException iae) (instance? Exception iae) (instance? Throwable iae) (instance? IndexOutOfBoundsException iae)])
+(let [ioobe (IndexOutOfBoundsException.)] [(.getMessage ioobe) (instance? RuntimeException ioobe) (instance? Throwable ioobe)])
+(let [rte-msg (RuntimeException. "rt-msg") rte-nomsg (RuntimeException.)] [(.getMessage rte-msg) (.getMessage rte-nomsg) (instance? Exception rte-nomsg)])
+(let [exc-msg (Exception. "exc-msg") exc-nomsg (Exception.)] [(.getMessage exc-msg) (.getMessage exc-nomsg) (instance? Throwable exc-nomsg) (instance? RuntimeException exc-nomsg)])
+(try (throw (IllegalArgumentException. "boom")) (catch Exception e (.getMessage e)))
+(try (throw (RuntimeException. "kaboom")) (catch RuntimeException e (.getMessage e)))
+
+;; Wave-C small sweep item 5: a best-effort `Throwable->map` (core.mova),
+;; promoted from tests/conformance/pending/errors.corpus after the fix.
+(:cause (Throwable->map (ex-info "m" {:a 2})))
+(:data (Throwable->map (ex-info "m" {:a 2})))

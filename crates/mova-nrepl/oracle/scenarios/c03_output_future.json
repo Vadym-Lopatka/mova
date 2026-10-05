@@ -1,0 +1,96 @@
+{
+ "name": "c03_output_future",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(future (Thread/sleep 400) (println \"late\") (binding [*out* *err*] (println \"late-err\")) :f)",
+    "session": "$s1"
+   }
+  },
+  {
+   "wait": 1.0
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(println \"next\")",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(do (future (Thread/sleep 100) (println \"f2\")) (Thread/sleep 400) 5)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(doto (Thread. (fn [] (Thread/sleep 200) (println \"raw-thread\"))) (.start))",
+    "session": "$s1"
+   }
+  },
+  {
+   "wait": 0.8
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(.println System/out \"sys-from-eval\")",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(println \"bg\") (future (Thread/sleep 200) (println \"after done\"))",
+    "session": "$s1"
+   }
+  },
+  {
+   "wait": 0.8
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(def pr-agent (agent 0))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(send pr-agent (fn [x] (println \"agent out\") x))",
+    "session": "$s1"
+   }
+  },
+  {
+   "wait": 0.4
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(pmap (fn [x] (println \"pm\" x) x) [1])",
+    "session": "$s1"
+   }
+  },
+  {
+   "wait": 0.3
+  }
+ ]
+}

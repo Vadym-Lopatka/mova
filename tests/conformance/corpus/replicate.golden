@@ -1,0 +1,7 @@
+OK	(:a :a :a)
+OK	(:a)
+OK	()
+OK	()
+OK	clojure.lang.LazySeq
+OK	(:a :a :a)
+OK	[:x :x :x :x]

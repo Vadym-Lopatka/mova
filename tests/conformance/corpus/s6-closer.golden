@@ -1,0 +1,14 @@
+OK	(3 4 5)
+OK	nil
+OK	(1 2 3)
+OK	nil
+OK	(1 2 3)
+OK	false
+OK	true
+OK	true
+OK	true
+OK	java.lang.StringBuilder
+OK	java.lang.StringBuffer
+OK	true
+OK	false
+OK	2

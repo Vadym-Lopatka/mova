@@ -1,0 +1,10 @@
+ERR	{:message "Unable to resolve symbol: tree-seq", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: bounded-count", :type :error/unresolved}
+OK	nil
+ERR	{:message "contains?: not associative: string", :type :error/type}
+ERR	{:message "contains?: not associative: string", :type :error/type}
+OK	[:a 1]
+OK	([1 :f] [1 :b] [2 :d] [3 :e] [3 :c] [3 :a])
+OK	([1 :f] [1 :b] [2 :d] [3 :e] [3 :c] [3 :a])
+OK	([2 :d] [2 :b] [1 :c] [1 :a])
+OK	([3 :e] [3 :c] [3 :a] [2 :d] [1 :f] [1 :b])

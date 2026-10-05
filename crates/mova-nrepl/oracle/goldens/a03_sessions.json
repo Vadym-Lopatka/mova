@@ -1,0 +1,204 @@
+{
+"scenario": "a03_sessions",
+"doc": "clone/close/ls-sessions, use of closed or unknown session",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"new-session": "<uuid:1>",
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"new-session": "<uuid:3>",
+"session": "<uuid:4>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"new-session": "<uuid:5>",
+"session": "<uuid:6>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:7>",
+"sessions": [
+"<uuid:1>",
+"<uuid:3>",
+"<uuid:5>",
+"<uuid:6>"
+],
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:6>",
+"sessions": [
+"<uuid:1>",
+"<uuid:3>",
+"<uuid:5>",
+"<uuid:6>"
+],
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:3>",
+"status": [
+"done",
+"session-closed"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:8>",
+"sessions": [
+"<uuid:1>",
+"<uuid:5>",
+"<uuid:6>"
+],
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:9>",
+"status": [
+"done",
+"session-closed"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "no-such-session",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "16",
+"session": "<uuid:3>",
+"status": [
+"done",
+"unknown-session",
+"error"
+]
+}
+}
+]
+}

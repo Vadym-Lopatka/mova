@@ -1,0 +1,24 @@
+;; reader-meta-oldstyle.corpus -- `#^{:x 1} foo`, the archaic pre-1.0
+;; spelling of `^{:x 1} foo`. Identical semantics: `#` is discarded and the
+;; rest is handed to the same `read_meta` the bare `^` dispatch calls (see
+;; src/reader.rs's `read_hash`). Covers the map/keyword-shorthand/symbol-
+;; shorthand/string-shorthand desugaring forms and the `(def #^{...} name
+;; val)` shape real vendored test files use (e.g. `(deftest #^{:has-meta
+;; true} name ...)`).
+;;
+;; Multi-key stacked `^` forms (`#^:a ^:b sym`) are deliberately NOT
+;; exercised here: per CONFORMANCE-GUARANTEE.md rule 2, an unsorted map's
+;; iteration/print order is unspecified and not itself a divergence, but
+;; this harness compares `pr-str` output literally -- a 2-distinct-key
+;; unsorted map's print order isn't guaranteed to line up between mova and
+;; the oracle, so a corpus form built on it would be testing print-order
+;; luck, not the reader-macro semantics this file exists to cover.
+(read-string "#^{:x 1} foo")
+(meta (read-string "#^{:x 1} foo"))
+(meta (read-string "#^:kw sym"))
+(meta (read-string "#^Tag sym"))
+(meta (read-string "#^\"str-tag\" sym"))
+(read-string "#^{:a 1} [1 2 3]")
+(meta (read-string "#^{:a 1} [1 2 3]"))
+(do (eval (read-string "(def #^{:has-meta true} name-oldstyle-meta 42)")) name-oldstyle-meta)
+(do (eval (read-string "(def #^{:has-meta true} name-oldstyle-meta 42)")) (select-keys (meta (var name-oldstyle-meta)) [:has-meta :name]))

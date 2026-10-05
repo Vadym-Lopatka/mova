@@ -1,0 +1,56 @@
+;; vars-binding.corpus -- vars/dynamic-binding gap corpus (pending).
+;; Every form on this list currently DIVERGES between real Clojure
+;; 1.13.0-alpha6 and mova; it is a ledger of failures, not aspirational
+;; syntax. One session -- a `def` on an earlier line is visible to later
+;; lines exactly like a real REPL session.
+;;
+;; Headline finding: mova has NO dynamic-var/binding-stack machinery at
+;; all -- `binding`, `with-redefs`, `alter-var-root`, `var-get`,
+;; `var-set`, `var?`, `bound?`, `meta`, and the whole `*clojure-version*`/
+;; `*flush-on-newline*`/`*command-line-args*` dynamic-var family are all
+;; unresolved symbols. `def` itself returns the VALUE in mova instead of
+;; a Var (Clojure: `(def x 1)` => `#'user/x`; mova => `1`), so vars are
+;; not first-class at all -- `(var x)` exists as a reader/special form
+;; but produces something that is NOT the same kind of object Clojure's
+;; Var is (see the `(def av (var a1))` / redefinition-identity pair
+;; below: mova's "var" just re-evaluates to the current value, it does
+;; not capture a stable indirection cell).
+;;
+;; Silent-wrongness callout: `(def zzz)` (no init) + `(nil? zzz)` --
+;; Clojure's unbound sentinel is not nil (`(nil? zzz)` => false); mova
+;; defaults the uninitialized var to nil (`(nil? zzz)` => true). This is
+;; the one case where mova produces a plausible-looking WRONG answer
+;; instead of a loud error.
+;;
+;; Also covers: macro-used-as-a-value (Clojure: compile error "Can't
+;; take value of a macro"; mova: returns a first-class `#<macro ...>`
+;; value) and `&form` inside `defmacro` (unresolved symbol in mova).
+(def ^:dynamic *x* 1)
+(def y 1)
+(binding [y 2] y)
+(defn f [] :orig)
+(def counter 0)
+(var-set (var counter) 100)
+(bound? (var counter))
+(def a1 1)
+(def av (var a1))
+(def a1 2)
+;; S5/M3: `(:private (meta (var foo)))` and `(:dynamic (meta (var *x*)))`
+;; conformed once var metadata landed and were promoted to
+;; corpus/metadata.corpus. S6: `defn`'s DOCSTRING now lands too (see
+;; core/core.mova's `defn`) and was promoted to corpus/defn-meta.corpus.
+;; SPEC-W5: `:arglists` is computed now (`clojure.spec.test.alpha/
+;; instrument-1` reads it, and nothing else decides whether a kwargs fn
+;; gets its kvs-forwarding thunk), so `(:arglists (meta (var foo)))` was
+;; promoted to corpus/defn-meta.corpus too.
+;; What's left: the synthesized `:line`/`:column`/`:file` keys, which
+;; `defn-meta.corpus`'s own comment covers under the same KNOWN GAP
+;; already on `def`'s docstring path (`publish_var_meta`).
+(defn ^:private foo "doc string" [n] n)
+(def zzz)
+(nil? zzz)
+(:major *clojure-version*)
+*command-line-args*
+(defmacro two [] 2)
+two
+(defmacro my-name [] (str (first &form)))

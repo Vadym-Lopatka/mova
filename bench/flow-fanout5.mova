@@ -1,0 +1,44 @@
+;; flow-fanout5.mova -- 1 generator -> 5 counting sinks via a native `mult`
+;; fan-out thread (run_mult_thread in src/builtins/flow.rs): exercises the
+;; fast-pass try_put-to-all-dests broadcast path, distinct from the 1:1
+;; zero-copy conns every other bench scenario uses. Throughput is reported
+;; as total DELIVERED messages (N * 5 sinks), matching "every dest gets
+;; every message" fan-out semantics.
+;;
+;;   ./target/release/mova bench/flow-fanout5.mova
+
+(def N 200000)
+
+(def gen
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] [s {:out [m]}])}))
+
+(defn mk-sink [done-ch]
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:done {}}})
+    :init (fn [_] {:n 0 :clojure.core.async.flow/out-ports {:done done-ch}})
+    :transform (fn [s _ m]
+                 (let [n2 (inc (:n s))]
+                   (if (= n2 N)
+                     [(assoc s :n n2) {:done [n2]}]
+                     [(assoc s :n n2) {}])))}))
+
+(def sink-pids [:s0 :s1 :s2 :s3 :s4])
+(def done-chans (vec (map (fn [_] (chan 1)) sink-pids)))
+(def sink-procs (into {} (map (fn [p dc] [p {:proc (flow/process (mk-sink dc))}]) sink-pids done-chans)))
+(def procs (assoc sink-procs :gen {:proc (flow/process gen)}))
+(def conns (vec (map (fn [p] [[:gen :out] [p :in]]) sink-pids)))
+
+(def fl (flow/create-flow {:procs procs :conns conns}))
+(flow/start fl)
+(flow/resume fl)
+
+(def t0 (time-ms))
+(flow/inject fl [:gen :in] (range N))
+(doseq [dc done-chans] (<!! dc))
+(def elapsed (max 1 (- (time-ms) t0)))
+(def total-msgs (* N 5))
+(def rate (quot (* total-msgs 1000) elapsed))
+(println "flow-fanout5" total-msgs elapsed rate)
+(flow/stop fl)

@@ -1,0 +1,9 @@
+OK	{:tag java.lang.String}
+OK	(quote user/a)
+OK	#:foo{:a 1}
+OK	#:user{:a 1}
+OK	"\b"
+OK	"\f"
+ERR	RuntimeException
+ERR	IllegalStateException
+ERR	RuntimeException

@@ -1,0 +1,43 @@
+;;RUNS 5
+;; 13-stop-semantics: `flow/stop` idempotency IS conformant on both sides
+;; (a second `flow/stop` on an already-stopped flow never throws), and so
+;; is a post-stop read of the report-chan/error-chan:
+;; - Gold: `impl.clj`'s `(stop [_] ...)` calls `(async/close! error)` and
+;;   `(async/close! report)` before returning, so a post-stop read
+;;   returns `nil` immediately (a closed-channel take).
+;; - mova: `stop_flow_cell` (`src/builtins/flow.rs`) closes both chans as
+;;   its LAST act, strictly after every proc and the supervisor have
+;;   exited -- design doc "flow namespace + ::flow/report" Part 3 item 3.
+;;   This scenario used to be `;;DIVERGENT` (mova left both chans open, so
+;;   a post-stop read blocked forever instead of returning `nil`); once
+;;   `flow/start` began wiring `::flow/report`/`::flow/error` as
+;;   always-present out-targets on every proc (Part 2 of the same design),
+;;   leaving the chans open post-stop stopped making sense as a deviation
+;;   and was fixed instead -- see DIVERGENCES.md's git history for the
+;;   removed entry.
+;;
+;; The portable bounded-read idiom `(deref (future (<!! ch)) MS
+;; SENTINEL) )` (FINDINGS.md's "Standardized portable bounded-read idiom"
+;; -- bare `alts!!` is NOT usable in a scenario body under the real JVM
+;; prelude, which does not :refer it) is kept even though both sides now
+;; return `nil` well within the bound: it is still the corpus's standard
+;; idiom, and keeping it means this scenario needs no special-casing if a
+;; future regression ever made a post-stop read hang again.
+;; restart-after-stop is a separate concern, split out to 13b per
+;; SPEC.md's catalog note (it still has its own DIVERGENT classification).
+
+(def step (flow/map->step {:describe (fn [] {:ins {} :outs {}}) :transform (fn [s _ m] [s {}])}))
+(def fl (flow/create-flow {:procs {:p {:proc (flow/process step)}} :conns []}))
+(def chans (flow/start fl))
+(flow/stop fl)
+
+(def stop2-ok (try (do (flow/stop fl) true) (catch Exception e false)))
+(println (if stop2-ok "PASS stop-idempotent" "FAIL stop-idempotent"))
+
+(def report-result (deref (future (<!! (:report-chan chans))) 1000 :bounded-timeout))
+(println "RESULT report-after-close" (pr-str report-result))
+
+(def error-result (deref (future (<!! (:error-chan chans))) 1000 :bounded-timeout))
+(println "RESULT error-after-close" (pr-str error-result))
+
+(flow/stop fl)

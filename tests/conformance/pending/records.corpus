@@ -1,0 +1,17 @@
+;; records.corpus -- REMAINING record/deftype/reify gaps after the S3
+;; type system landed (the conforming bulk was promoted to
+;; corpus/records.corpus). Self-contained forms.
+;;
+;; EMPTY as of W3d2: every form this area ever carried now conforms and
+;; has been promoted. Record metadata went first -- S5/M3 made records
+;; IObj (see src/builtins/meta.rs's `is_iobj`) and that row moved to
+;; corpus/metadata.corpus; S6 promoted `clojure.lang.IRecord` as a class
+;; token the same way; D1 built `reify` and promoted three more
+;; (`.toString`, protocol-fn dispatch, `record?`); W3d2 gave the anonymous
+;; type the protocol keys it names (src/types.rs's `TypeDef::protocols`)
+;; and promoted the last one, `satisfies?` of a `reify`d protocol, to
+;; corpus/records.corpus's tail as well.
+;;
+;; The file is kept rather than deleted so the next record/deftype/reify
+;; divergence has an obvious home -- an area with zero forms is a healthy
+;; ledger entry, not a missing one.

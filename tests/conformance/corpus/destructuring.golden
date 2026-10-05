@@ -1,0 +1,78 @@
+OK	3
+OK	[1 2 3]
+OK	[1 2 3 4]
+OK	[1 2 3 4]
+OK	[1 (2 3 4)]
+OK	[1 nil]
+OK	[1 2 (3 4 5)]
+OK	[1 2 [1 2 3]]
+OK	[1 (2 3) [1 2 3]]
+OK	[1 nil nil]
+OK	[nil nil]
+OK	[\x \y]
+OK	[1 2]
+OK	[1 2 3]
+OK	[2 4]
+OK	3
+OK	[1 nil]
+OK	3
+OK	nil
+OK	:dflt
+OK	42
+OK	[1 99]
+OK	[1 1 2]
+OK	[10 20]
+OK	[1 10 20]
+OK	[nil 99]
+OK	nil
+OK	[1 2]
+OK	[1 2]
+OK	[1 2]
+OK	[1 2]
+OK	nil
+OK	7
+OK	nil
+OK	[5 0]
+OK	[0 0]
+OK	nil
+OK	[1 2]
+OK	nil
+OK	[1 2 nil]
+OK	nil
+OK	"Hello, World!"
+OK	"Hi, Bob!"
+OK	nil
+OK	"Hello, World!"
+OK	"Hi, Bob!"
+OK	nil
+OK	[:one 1]
+OK	[:two 1 2 3]
+OK	5
+OK	[1 4 9 16 25]
+OK	10
+OK	[0 1 2 3 4]
+OK	[0 2 4]
+OK	[0 1 4 9 16]
+OK	[0 4 16]
+OK	[3 7 11]
+OK	[11 21 12 22]
+OK	[3 7]
+OK	(0 1 2 3 4)
+OK	(0 2 4)
+OK	(0 1 4 9 16)
+OK	(0 4 16)
+OK	(11 21 12 22)
+OK	([1 10] [1 20])
+OK	(3 7)
+OK	3
+OK	:none
+OK	5
+OK	nil
+OK	2
+OK	42
+OK	nil
+OK	(3 7 11)
+OK	6
+OK	[1 2]
+OK	6
+OK	[1 2]

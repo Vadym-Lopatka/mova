@@ -1,0 +1,28 @@
+OK	[1 2]
+OK	[2 10]
+OK	2
+OK	2
+OK	100
+OK	100
+OK	true
+OK	false
+OK	111
+OK	"hello"
+OK	""
+OK	"a\n"
+OK	:none
+OK	7
+OK	1
+OK	1
+OK	11
+OK	11
+OK	0
+OK	0
+OK	5
+OK	42
+OK	1
+OK	:ok
+OK	1
+OK	:caught
+OK	:released
+OK	1

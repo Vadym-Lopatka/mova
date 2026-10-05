@@ -1,0 +1,117 @@
+;; nrepl.misc: the public API of nREPL 1.8.0's `nrepl.misc` that middleware
+;; uses. Mova-authored; JVM-only parts (class loaders, JVMTI, java version
+;; probing) are reduced to what makes sense here.
+(ns nrepl.misc
+  (:require [clojure.string :as str]))
+
+(defn log
+  "Log a message to *err*. The first argument can optionally be a keyword
+  log level (e.g. :warning, :error). If the first non-keyword argument is
+  a Throwable, its message is printed."
+  [?kw & [ex-or-msg & msgs]]
+  (let [[kw ex-or-msg msgs] (if (keyword? ?kw)
+                              [?kw ex-or-msg msgs]
+                              [:error ?kw (cons ex-or-msg msgs)])
+        ex (when (instance? Throwable ex-or-msg) ex-or-msg)
+        msgs (if ex msgs (filter identity (cons ex-or-msg msgs)))]
+    (binding [*out* *err*]
+      (apply println (str (str/upper-case (name kw)) ":") msgs)
+      (when ex (println (str ex))))))
+
+(defmacro log-exceptions
+  "Execute body, logging and re-throwing any exception."
+  [& body]
+  `(try
+     ~@body
+     (catch Throwable ex#
+       (log ex#)
+       (throw ex#))))
+
+(defmacro returning
+  "Executes `body`, returning `x`."
+  {:deprecated "1.4"
+   :style/indent 1}
+  [x & body]
+  `(let [x# ~x] ~@body x#))
+
+(defn uuid
+  "Returns a new UUID string."
+  []
+  (str (java.util.UUID/randomUUID)))
+
+(defn take-until
+  "Like (take-while (complement f) coll), but includes the first item in coll that
+   returns true for f."
+  [f coll]
+  (lazy-seq
+   (when-first [el coll]
+     (cons el (when-not (f el)
+                (take-until f (rest coll)))))))
+
+(defn response-for
+  "Returns a map containing the :session and :id from the \"request\" `msg`
+   as well as all entries specified in `response-data`, which can be one
+   or more maps (which will be merged), *or* key-value pairs.
+
+   (response-for msg :status :done :value \"5\")
+   (response-for msg {:status :interrupted})
+
+   The :session value in `msg` may be an atom with an :id slot in its
+   metadata (what the middleware lane provides), or a string."
+  [{:keys [session id]} & response-data]
+  {:pre [(seq response-data)]}
+  (let [{:keys [status] :as response} (if (map? (first response-data))
+                                        (reduce merge response-data)
+                                        (apply hash-map response-data))
+        response (if (not status)
+                   response
+                   (assoc response :status (if (coll? status)
+                                             status
+                                             #{status})))
+        basis (merge (when id {:id id})
+                     (when session {:session (if (string? session)
+                                               session
+                                               (-> session meta :id))}))]
+    (merge basis response)))
+
+(defmacro resolve-in-session
+  "Given an nREPL message and a dynamic variable, return the value of that
+  variable in the message's session (the `:session` atom), or the variable's
+  current value when the session does not hold it. The session atom of the
+  middleware lane holds `*ns*` only, and writes to it do not reach the
+  session."
+  [msg dynvar]
+  `(get (some-> (:session ~msg) deref) (var ~dynvar) ~dynvar))
+
+(defmacro with-session-classloader
+  "No class loaders here: runs `body`."
+  [& body]
+  `(do ~@body))
+
+(def java-version "No JVM: a recent Java version number, for code that checks." 25)
+
+(defn java-8? "Always false." [] false)
+
+(defn attach-self-enabled? "Always false." [] false)
+
+(defn jvmti-agent-enabled? "Always false." [] false)
+
+(def safe-var-metadata
+  "Var metadata attributes that are safe to return to clients."
+  [:ns :name :doc :file :arglists :forms :macro :special-form
+   :protocol :line :column :added :deprecated :resource])
+
+(defn sanitize-meta
+  "Sanitize a Clojure metadata map such that it can be bencoded."
+  [m]
+  (-> m
+      (select-keys safe-var-metadata)
+      (update :ns str)
+      (update :name str)
+      (update :protocol str)
+      (update :file #(when % (str %)))
+      (cond-> (:deprecated m) (update :deprecated str))
+      (cond-> (:macro m) (update :macro str))
+      (cond-> (:special-form m) (update :special-form str))
+      (assoc :arglists-str (str (:arglists m)))
+      (cond-> (:arglists m) (update :arglists str))))

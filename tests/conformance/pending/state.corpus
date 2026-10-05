@@ -1,0 +1,56 @@
+;; state.corpus -- mutable-reference-type gap corpus (pending). Every
+;; form on this list currently DIVERGES between real Clojure 1.13.0-
+;; alpha6 and mova; it is a ledger of failures, not aspirational syntax.
+;; One session -- a `def` on an earlier line is visible to later lines.
+;;
+;; Headline finding: mova has ONLY a bare, unary-constructor `atom` +
+;; `deref`/`swap!`/`reset!` + `future`/`future?`. Everything else in
+;; Clojure's reference-type family is completely absent (unresolved
+;; symbol): atom construction options (`:validator`/`:meta`),
+;; `add-watch`/`remove-watch`, `compare-and-set!`, `swap-vals!`/
+;; `reset-vals!`, the ENTIRE volatile family (`volatile!`/`vswap!`/
+;; `vreset!`/`volatile?`), the ENTIRE ref/STM family (`ref`/`dosync`/
+;; `alter`/`commute`/`ref-set`), the ENTIRE agent family (`agent`/
+;; `send`/`await`), `future-cancel`/`future-done?`/`future-cancelled?`,
+;; `pmap`, `locking`, and `with-open`. `swap!`/`reset!`/plain `deref` on
+;; a plain atom already conform (excluded here, not repeated).
+;;
+;; Cascading-state note: several `@x` reads below stay at their PREVIOUS
+;; value in mova (e.g. `@cs` never advances past 1) not because the read
+;; itself is broken, but because the upstream mutator on the prior line
+;; (`compare-and-set!`, `add-watch`'s watch-fn, ...) already failed as an
+;; unresolved symbol and never ran -- kept because the downstream VALUE
+;; divergence is real and worth pinning independently of the upstream
+;; cause.
+;;
+;; `deref` with an explicit timeout was probed and found to conform
+;; trivially (atoms/already-completed futures are always immediately
+;; ready) -- an actually-elapsed-timeout scenario would need a real delay
+;; primitive mova doesn't have (no `Thread/sleep` interop), and any
+;; wall-clock-based construction would violate this corpus family's
+;; determinism rule, so that specific dimension is left untested here.
+(some? (atom 1 :validator pos?))
+(:doc (meta (atom 1 :meta {:doc "x"})))
+(def wlog (atom []))
+(def wa (atom 0))
+(do (add-watch wa :k (fn [k r o n] (swap! wlog conj [o n]))) :watched)
+(do (swap! wa inc) @wlog)
+(do (remove-watch wa :k) :unwatched)
+(do (swap! wa inc) @wlog)
+(def cs (atom 1))
+(compare-and-set! cs 1 2)
+@cs
+(compare-and-set! cs 1 99)
+@cs
+(def svs (atom 1))
+(def v (volatile! 1))
+(def ag (agent 0))
+(do (send ag inc) :sent)
+(await ag)
+@ag
+(def f1 (future (+ 1 2)))
+(do @f1 (future-done? f1))
+(future-cancel f1)
+(future-cancelled? f1)
+(def lockobj (atom :m))
+(with-open [x (java.io.StringWriter.)] (.write x "hi") (str x))

@@ -1,0 +1,11 @@
+ERR	{:message "Unable to resolve symbol: create-ns", :type :error/unresolved}
+ERR	{:message "No namespace: foo123 found", :type :error/other}
+ERR	{:message "No namespace: foo123 found", :type :error/other}
+ERR	{:message "No namespace: foo123 found", :type :error/other}
+ERR	{:message "Unable to resolve symbol: ns-unmap", :type :error/unresolved}
+ERR	{:message "No namespace: foo123 found", :type :error/other}
+ERR	{:message "No namespace: foo123 found", :type :error/other}
+ERR	{:message "Unable to resolve symbol: remove-ns", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: ns-map", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: alias", :type :error/unresolved}
+ERR	{:message "Unable to resolve symbol: requiring-resolve", :type :error/unresolved}

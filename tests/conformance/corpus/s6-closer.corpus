@@ -1,0 +1,42 @@
+;; s6-closer.corpus -- session 6 close: `nthnext` (small unblock,
+;; predicates.clj's next blocker), `map-entry?` (small unblock -- see
+;; DEVIATIONS.md for why it's a documented deviation, same reasoning as
+;; the existing `instance? clojure.lang.IMapEntry` row), and
+;; `java.lang.StringBuilder`/`StringBuffer` construction (small unblock,
+;; predicates.clj's `test-string?-more` deftest -- construction-only, see
+;; `hostclass.rs`'s `HostKind` doc for why no method surface exists).
+;; All forms self-contained (no cross-form session state).
+
+;; -- nthnext: `(seq (drop n coll))`, core.mova -- one form promoted here
+;; from tests/conformance/pending/seq-fns.corpus (it now conforms; see
+;; this session's commit message) plus edge cases measured separately.
+(nthnext [1 2 3 4 5] 2)
+(nthnext [1] 5)
+(nthnext [1 2 3] 0)
+(nthnext nil 0)
+(nthnext [1 2 3] -1)
+
+;; -- map-entry?: `[:a 1]` (a plain vector, never a real map entry here)
+;; matches the oracle; `(first {:a 1})` is the documented deviation (see
+;; DEVIATIONS.md's s6-closer.corpus row, extending the existing
+;; classrows-s6.corpus:30 IMapEntry entry).
+(map-entry? [:a 1])
+(map-entry? (first {:a 1}))
+
+;; -- java.lang.StringBuilder / java.lang.StringBuffer: construction only.
+(not (string? (new java.lang.StringBuilder "abc")))
+(not (string? (new java.lang.StringBuffer "xyz")))
+(class (StringBuilder. "abc"))
+(class (StringBuffer.))
+(instance? java.lang.StringBuilder (StringBuilder. "abc"))
+(instance? java.lang.StringBuilder (StringBuffer. "abc"))
+
+;; -- clojure.core self-aliasing (Blocker 1): aliasing the pre-loaded
+;; `clojure.core` namespace must make its STRUCTURAL special forms
+;; (`let`, `inc` is an ordinary fn and worked already -- `let` didn't)
+;; reachable through the alias, exactly like bare. Switches the corpus
+;; SESSION's current namespace as a side effect (`ns` is a top-level
+;; form here, same as any other corpus line that calls `ns`), so this is
+;; placed LAST in the file, after every other form that needs the
+;; default namespace.
+(do (ns s6closercorealias (:require [clojure.core :as c])) (c/let [x 1] (c/inc x)))

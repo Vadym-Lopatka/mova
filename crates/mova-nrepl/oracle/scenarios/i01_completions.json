@@ -1,0 +1,235 @@
+{
+ "name": "i01_completions",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "completions",
+    "id": "1",
+    "session": "$s1",
+    "prefix": "ma"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "2",
+    "session": "$s1",
+    "prefix": "clojure.string/"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "3",
+    "session": "$s1",
+    "prefix": "join",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "4",
+    "session": "$s1",
+    "prefix": "ma",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "5",
+    "session": "$s1",
+    "prefix": "ma",
+    "options": {
+     "extra-metadata": [
+      "arglists",
+      "doc"
+     ]
+    }
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "6",
+    "session": "$s1",
+    "prefix": "clojure.string/jo",
+    "options": {
+     "extra-metadata": [
+      "arglists",
+      "doc"
+     ]
+    }
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "7",
+    "session": "$s1",
+    "prefix": ""
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "8",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "9",
+    "session": "$s1",
+    "prefix": "zzzzqq"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "10",
+    "session": "$s1",
+    "prefix": "str/j",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "11",
+    "session": "$s1",
+    "prefix": "Sys"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "12",
+    "session": "$s1",
+    "prefix": "System/get"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "13",
+    "session": "$s1",
+    "prefix": "java.io.File"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "14",
+    "session": "$s1",
+    "prefix": ":ke"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "15",
+    "session": "$s1",
+    "prefix": "ma",
+    "ns": "no.such.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "16",
+    "session": "$s1",
+    "prefix": "clojure.str"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "17",
+    "session": "$s1",
+    "prefix": "ma",
+    "options": {
+     "extra-metadata": []
+    }
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "18",
+    "code": "(def my-comp-var 1)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "19",
+    "session": "$s1",
+    "prefix": "my-comp"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "20",
+    "code": "(ns comp.ns (:require [clojure.set :as s]))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "21",
+    "session": "$s1",
+    "prefix": "s/un",
+    "ns": "comp.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "22",
+    "session": "$s1",
+    "prefix": "comp.ns/"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "23",
+    "session": "$s1",
+    "prefix": "when-"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "24",
+    "session": "$s1",
+    "prefix": "if"
+   }
+  },
+  {
+   "send": {
+    "op": "completions",
+    "id": "25",
+    "prefix": "ma"
+   }
+  },
+  {
+   "send": {
+    "op": "complete",
+    "id": "26",
+    "session": "$s1",
+    "prefix": "ma"
+   }
+  }
+ ]
+}

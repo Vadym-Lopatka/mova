@@ -1,0 +1,1198 @@
+{
+"scenario": "e01_errors",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "0",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "0",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (REPL:1).\nDivide by zero\n",
+"id": "1",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "1",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ExceptionInfo) at user/eval<N> (REPL:1).\nboom\n",
+"id": "2",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "2",
+"root-ex": "class clojure.lang.ExceptionInfo",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling at (REPL:1:1).\nUnable to resolve symbol: foo-unresolved in this context\n",
+"id": "3",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "3",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling at (REPL:0:0).\nUnable to resolve symbol: foo-unresolved in this context\n",
+"id": "4",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "4",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error at user/eval<N> (REPL:1).\ninner\n",
+"id": "5",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.RuntimeException",
+"id": "5",
+"root-ex": "class java.lang.Exception",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (AssertionError) at user/eval<N> (REPL:1).\nAssert failed: false\n",
+"id": "6",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.AssertionError",
+"id": "6",
+"root-ex": "class java.lang.AssertionError",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error at user/eval<N> (REPL:1).\nmulti\nline\n",
+"id": "7",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.Exception",
+"id": "7",
+"root-ex": "class java.lang.Exception",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"out": "1\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (REPL:1).\nDivide by zero\n",
+"id": "8",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "8",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"out": "2\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (IllegalArgumentException) at user/eval<N> (REPL:1).\nNo matching field found: foo for class java.lang.Long\n",
+"id": "9",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.IllegalArgumentException",
+"id": "9",
+"root-ex": "class java.lang.IllegalArgumentException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (IndexOutOfBoundsException) at user/eval<N> (REPL:1).\nnull\n",
+"id": "10",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.IndexOutOfBoundsException",
+"id": "10",
+"root-ex": "class java.lang.IndexOutOfBoundsException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (NumberFormatException) at java.lang.NumberFormatException/forInputString (NumberFormatException.java:67).\nFor input string: \"x\"\n",
+"id": "11",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.NumberFormatException",
+"id": "11",
+"root-ex": "class java.lang.NumberFormatException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error macroexpanding clojure.core/let at (REPL:1:1).\n[x] - failed: even-number-of-forms? at: [:bindings] spec: :clojure.core.specs.alpha/bindings\n",
+"id": "12",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "12",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling if at (REPL:1:1).\nToo few arguments to if\n",
+"id": "13",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "13",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error at user/eval<N> (REPL:1).\nnull\n",
+"id": "14",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.Exception",
+"id": "14",
+"root-ex": "class java.lang.Exception",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ExceptionInfo) at user/eval<N> (REPL:1).\nno data\n",
+"id": "15",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "15",
+"root-ex": "class clojure.lang.ExceptionInfo",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (Error) at user/eval<N> (REPL:1).\nerr\n",
+"id": "16",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.Error",
+"id": "16",
+"root-ex": "class java.lang.Error",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "16",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (StackOverflowError) at user/eval<N> (REPL:1).\nnull\n",
+"id": "17",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.StackOverflowError",
+"id": "17",
+"root-ex": "class java.lang.StackOverflowError",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/f"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (StackOverflowError) at user/f (REPL:1).\nnull\n",
+"id": "18",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.StackOverflowError",
+"id": "18",
+"root-ex": "class java.lang.StackOverflowError",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ClassCastException) at user/eval<N> (REPL:1).\nclass clojure.lang.Keyword cannot be cast to class java.lang.Number (clojure.lang.Keyword is in unnamed module of loader 'app'; java.lang.Number is in module java.base of loader 'bootstrap')\n",
+"id": "19",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ClassCastException",
+"id": "19",
+"root-ex": "class java.lang.ClassCastException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "19",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (FileNotFoundException) at user/eval<N> (REPL:1).\nCould not locate no/such/ns__init.class, no/such/ns.clj or no/such/ns.cljc on classpath.\n",
+"id": "20",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.io.FileNotFoundException",
+"id": "20",
+"root-ex": "class java.io.FileNotFoundException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "20",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "21",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#error {\n :cause \"x\"\n :data {:a #object[java.lang.Object 0xHASH \"java.lang.Object@HASH\"]}\n :via\n [{:type clojure.lang.ExceptionInfo\n   :message \"x\"\n   :data {:a #object[java.lang.Object 0xHASH \"java.lang.Object@HASH\"]}\n   :at [user$eval<N> invokeStatic \"NO_SOURCE_FILE\" 1]}]\n :trace <FRAMES>}"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "21",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ExceptionInfo) at user/eval<N> (REPL:1).\ni\n",
+"id": "22",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "22",
+"root-ex": "class clojure.lang.ExceptionInfo",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "22",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Error printing return value (ClassCastException) at clojure.lang.Numbers/inc (Numbers.java:139).\nclass clojure.lang.Keyword cannot be cast to class java.lang.Number (clojure.lang.Keyword is in unnamed module of loader 'app'; java.lang.Number is in module java.base of loader 'bootstrap')\n",
+"id": "23",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "23",
+"root-ex": "class java.lang.ClassCastException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "23",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ClassCastException) at user/eval<N> (REPL:1).\nclass clojure.lang.Keyword cannot be cast to class java.lang.Number (clojure.lang.Keyword is in unnamed module of loader 'app'; java.lang.Number is in module java.base of loader 'bootstrap')\n",
+"id": "24",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ClassCastException",
+"id": "24",
+"root-ex": "class java.lang.ClassCastException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "24",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (IllegalArgumentException) at user/eval<N> (REPL:1).\nDon't know how to create ISeq from: java.lang.Long\n",
+"id": "25",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.IllegalArgumentException",
+"id": "25",
+"root-ex": "class java.lang.IllegalArgumentException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "25",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error (IllegalArgumentException) compiling new at (REPL:1:1).\nUnable to resolve classname: Nope\n",
+"id": "26",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "26",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "26",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling at (REPL:1:1).\nNo such namespace: Nope\n",
+"id": "27",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "27",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "27",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (NullPointerException) at user/eval<N> (REPL:1).\nCannot throw exception because \"null\" is null\n",
+"id": "28",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.NullPointerException",
+"id": "28",
+"root-ex": "class java.lang.NullPointerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "28",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ClassCastException) at user/eval<N> (REPL:1).\nclass java.lang.Long cannot be cast to class java.lang.Throwable (java.lang.Long and java.lang.Throwable are in module java.base of loader 'bootstrap')\n",
+"id": "29",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ClassCastException",
+"id": "29",
+"root-ex": "class java.lang.ClassCastException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "29",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N> (REPL:1).\nDivide by zero\n",
+"id": "30",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.ArithmeticException",
+"id": "30",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "30",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "31",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "31",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Exception pst2\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tuser/eval<N> (NO_SOURCE_FILE:1)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tuser/eval<N> (NO_SOURCE_FILE:1)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tclojure.lang.Compiler.eval (Compiler.java:7763)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tnrepl.middleware.interruptible-eval/evaluator/run--<N>/fn--<N> (interruptible_eval.clj:148)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tnrepl.middleware.interruptible-eval/evaluator/run--<N> (interruptible_eval.clj:143)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tnrepl.middleware.session/session-exec/session-loop--<N> (session.clj:206)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "\tnrepl.SessionThread.run (SessionThread.java:21)\n",
+"id": "32",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "32",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "32",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "33",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "33",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (ArithmeticException) at user/eval<N>$fn (REPL:1).\nDivide by zero\n",
+"id": "34",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.util.concurrent.ExecutionException",
+"id": "34",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "34",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (FileNotFoundException) at bad.ns/eval<N>$loading (REPL:1).\nCould not locate no/such/lib__init.class, no/such/lib.clj or no/such/lib.cljc on classpath.\n",
+"id": "35",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.io.FileNotFoundException",
+"id": "35",
+"root-ex": "class java.io.FileNotFoundException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "35",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error compiling def at (REPL:1:1).\nToo few arguments to def\n",
+"id": "36",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.Compiler$CompilerException",
+"id": "36",
+"root-ex": "class clojure.lang.Compiler$CompilerException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "36",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Execution error (IllegalArgumentException) at bad.ns/eval<N> (REPL:1).\nNo matching method sleep found taking 1 args\n",
+"id": "38",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class java.lang.IllegalArgumentException",
+"id": "38",
+"root-ex": "class java.lang.IllegalArgumentException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "38",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

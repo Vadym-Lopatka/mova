@@ -1,0 +1,15 @@
+RESULT paused-status :paused
+RESULT paused-count 0
+RESULT paused-has-ins true
+RESULT paused-has-outs true
+RESULT paused-has-state true
+RESULT paused-ins-count 1
+RESULT paused-outs-count 1
+RESULT drained [1 2 3]
+RESULT running-status :running
+RESULT running-count 3
+RESULT running-has-ins true
+RESULT running-has-outs true
+RESULT running-has-state true
+RESULT running-ins-count 1
+RESULT running-outs-count 1

@@ -1,0 +1,1 @@
+{:indent-line-comments? true :remove-multiple-non-indenting-spaces? true :normalize-newlines-at-file-end? true}

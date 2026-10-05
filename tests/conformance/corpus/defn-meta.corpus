@@ -1,0 +1,126 @@
+;; defn-meta.corpus -- S6: defn/defn-/defmacro's full signature (docstring
+;; + attr-map + var metadata), oracle-measured against real Clojure
+;; 1.13.0-alpha6. `(def name .. value)` itself still returns the VALUE in
+;; mova, not a Var (a separate, already-pending divergence unrelated to
+;; metadata) -- every setup line below is wrapped `(do (defn ...) nil)` to
+;; keep that unrelated gap out of these rows, exactly like
+;; `metadata.corpus`'s own def/defn section does.
+;;
+;; NOT covered here (documented, deliberate exclusions -- see the comment
+;; above `defn` in core/core.mova and `extract_macro_doc_and_attrs` in
+;; src/eval/special_forms.rs): `:inline`, and the synthesized
+;; `:line`/`:column`/`:file` keys real Clojure's `def` compiler step adds.
+;; No vendored suite file reads either. (Auto-computed `:arglists` was on
+;; that list until SPEC-W5; it is covered now, in this file's last
+;; section.)
+
+;; plain defn: no doc, no attr-map -- meta is :name/:ns/:arglists (KNOWN
+;; GAP: real Clojure also has :line/:column/:file here; see above).
+;; :ns itself is excluded from every row in this corpus -- its value is a
+;; live `#object[clojure.lang.Namespace 0x...]` on the real side, a
+;; pointer-address-bearing print that can never conform byte-for-byte;
+;; that gap belongs to the same KNOWN GAP already documented for `def` in
+;; `publish_var_meta`, not to anything new here.
+(do (defn dm-f0 [x] x) nil)
+[(:name (meta (var dm-f0))) (:doc (meta (var dm-f0)))]
+
+;; docstring only
+(do (defn dm-f1 "doc1" [x] x) nil)
+(:doc (meta (var dm-f1)))
+
+;; attr-map only
+(do (defn dm-f2 {:added "1.1"} [x] x) nil)
+(:added (meta (var dm-f2)))
+
+;; docstring + attr-map
+(do (defn dm-f3 "doc3" {:added "1.1" :foo :bar} [x] x) nil)
+[(:doc (meta (var dm-f3))) (:added (meta (var dm-f3))) (:foo (meta (var dm-f3)))]
+
+;; multi-arity, no doc/attr
+(do (defn dm-f4 ([x] x) ([x y] (+ x y))) nil)
+(dm-f4 1 2)
+
+;; multi-arity + docstring + trailing attr-map
+(do (defn dm-f5 "doc5" ([x] x) ([x y] (+ x y)) {:added "1.2"}) nil)
+[(:doc (meta (var dm-f5))) (:added (meta (var dm-f5)))]
+
+;; defn- adds :private true
+(do (defn- dm-f6 [x] x) nil)
+(:private (meta (var dm-f6)))
+
+;; defn- + docstring + attr-map, :private still lands
+(do (defn- dm-f7 "doc7" {:added "1.3"} [x] x) nil)
+[(:private (meta (var dm-f7))) (:doc (meta (var dm-f7))) (:added (meta (var dm-f7)))]
+
+;; a single-arity TRAILING map is body, not an attr-map (only the
+;; multi-arity `(...)+` shape treats a trailing map specially)
+(do (defn dm-g1 [x] x {:weird true}) nil)
+(dm-g1 1)
+(:weird (meta (var dm-g1)))
+
+;; defn- with an explicit :private false in the attr-map WINS over the
+;; :private true defn- injects (attr-map has higher merge precedence than
+;; the name symbol's own meta, which is where defn- puts its marker)
+(do (defn- dm-g2 {:private false} [x] x) nil)
+(:private (meta (var dm-g2)))
+
+;; multi-arity, leading attr-map only, no doc
+(do (defn dm-g3 {:added "1.0"} ([x] x) ([x y] (+ x y))) nil)
+(:added (meta (var dm-g3)))
+
+;; leading AND trailing attr-map on multi-arity: trailing wins conflicts
+(do (defn dm-j1 {:x 1} ([a] a) ([a b] (+ a b)) {:x 2}) nil)
+(:x (meta (var dm-j1)))
+
+;; the name symbol's own `^{...}` meta vs a positional docstring: the
+;; docstring wins (both ultimately merge into the same map; docstring is
+;; applied on top of the name's own meta)
+(do (defn ^{:doc "namemeta-doc"} dm-j2 "positional-doc" [x] x) nil)
+(:doc (meta (var dm-j2)))
+
+;; the name symbol's own `^{...}` meta vs an attr-map on the SAME key:
+;; the attr-map wins (higher merge precedence than the name's own meta)
+(do (defn ^{:foo 1} dm-h2 {:foo 2} [x] x) nil)
+(:foo (meta (var dm-h2)))
+
+;; the name symbol's own `^{...}` meta and an attr-map on DIFFERENT keys:
+;; both are present (no conflict, both flow into the merged map)
+(do (defn ^{:bar 1} dm-h3 {:baz 2} [x] x) nil)
+[(:bar (meta (var dm-h3))) (:baz (meta (var dm-h3)))]
+
+;; docstring vs an attr-map's own explicit :doc key: attr-map wins
+(do (defn dm-h1 "positional-doc" {:doc "attrmap-doc"} [x] x) nil)
+(:doc (meta (var dm-h1)))
+
+;; defmacro has the SAME signature as defn (S6 -- previously a Rust
+;; special form that accepted-and-discarded a docstring, no attr-map
+;; support, no var meta at all); `:macro true` is always present.
+(do (defmacro dm-m1 "doc-m1" {:added "1.0"} [x] x) nil)
+[(:doc (meta (var dm-m1))) (:added (meta (var dm-m1))) (:macro (meta (var dm-m1)))]
+
+;; defmacro, multi-arity + trailing attr-map
+(do (defmacro dm-m2 ([x] x) ([x y] `(+ ~x ~y)) {:added "1.4"}) nil)
+[(dm-m2 5) (dm-m2 2 3)]
+(:added (meta (var dm-m2)))
+
+;; defmacro, no doc/attr at all -- still gets :macro true + :name/:ns
+(do (defmacro dm-m0 [x] x) nil)
+[(:macro (meta (var dm-m0))) (:name (meta (var dm-m0)))]
+
+;; SPEC-W5: auto-computed `:arglists`. Was a pending divergence
+;; (`pending/vars-binding.corpus`) until `clojure.spec.test.alpha`'s
+;; `instrument-1` made it load-bearing -- it is the ONLY thing that decides
+;; whether a kwargs fn gets its kvs-forwarding thunk. See the `:arglists`
+;; note in `core/core.mova`'s `defn` for what this deliberately does NOT do
+;; (no `&form`/`&env` elision, no `resolve-tag`, no per-arity attr-map
+;; lifting), none of which any row here or in the vendored suite reaches.
+(do (defn ^:private dm-a0 "doc string" [n] n) nil)
+(:arglists (meta (var dm-a0)))
+(do (defn dm-a1 ([a] a) ([a b] [a b]) ([a b & {:as m}] [a b m])) nil)
+(:arglists (meta (var dm-a1)))
+;; an explicit attr-map `:arglists` still wins over the computed one
+(do (defn dm-a2 {:arglists '([supplied])} ([a] a) ([a b] [a b])) nil)
+(:arglists (meta (var dm-a2)))
+;; defn- gets one too
+(do (defn- dm-a3 [x y] [x y]) nil)
+(:arglists (meta (var dm-a3)))

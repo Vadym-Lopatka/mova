@@ -1,0 +1,113 @@
+;; L5 / P6a — the hammer. Chan-heavy, timer-heavy, alts-heavy, and
+;; TERMINATING BY CONSTRUCTION: every loop below is bounded by a fixed
+;; iteration count, never by wall time, so the event count is a property of
+;; the program and not of the machine that ran it.
+;;
+;; Deliberately absent (probe scope, design §9): `sleep-ms` and every other
+;; thread-blocking native (it would monopolize the one sim shard), `future`,
+;; `thread`, `flow`. Fence items #2/#3 are landing work; the probe programs
+;; simply stay inside the fence.
+;;
+;; Deliberately absent for a SECOND reason — an `alts!` over a chan that is
+;; already closed-and-empty returns `[nil ch]` WITHOUT parking, so a loop
+;; that keeps selecting over it spins forever at one cooperative shard
+;; (design §8 R1, the livelock class). Every alts set here is therefore
+;; either never closed or refreshed each pass (a fresh `timeout`).
+
+(def hops 2800)          ; ping-pong round trips per ring
+(def rings 8)           ; ping-pong rings (half buffered, half unbuffered)
+(def alts-items 800)    ; items per alts producer
+(def alts-groups 4)
+(def alts-to-items 600)  ; items through the alts-with-timeout workers
+(def alts-to-groups 3)
+(def fan-items 2000)
+(def fan-workers 5)
+(def fan-groups 2)
+(def backoff-attempts 12)
+(def backoff-workers 6)
+
+;; --- a ping-pong pair: `hops` round trips, then the ping side closes the
+;; forward chan and the pong side falls out on the `nil`.
+(defn ping-pong [buf out]
+  (let [a (if (pos? buf) (chan buf) (chan))
+        b (if (pos? buf) (chan buf) (chan))]
+    (go (loop [i 0]
+          (if (< i hops)
+            (do (>! a i)
+                (<! b)
+                (recur (inc i)))
+            (do (close! a)
+                (>! out :ring)))))
+    (go (loop []
+          (let [v (<! a)]
+            (when-not (nil? v)
+              (>! b v)
+              (recur)))))))
+
+;; --- alts over 3 take ops. The producers never close, and the consumer
+;; takes exactly as many items as the producers put, so the whole group
+;; retires with nothing parked.
+(defn alts3 [out]
+  (let [c1 (chan 1) c2 (chan 1) c3 (chan 1)]
+    (go (loop [i 0] (when (< i alts-items) (>! c1 i) (recur (inc i)))))
+    (go (loop [i 0] (when (< i alts-items) (>! c2 (* 2 i)) (recur (inc i)))))
+    (go (loop [i 0] (when (< i alts-items) (>! c3 (* 3 i)) (recur (inc i)))))
+    (go (loop [k 0]
+          (if (< k (* 3 alts-items))
+            (do (alts! [c1 c2 c3]) (recur (inc k)))
+            (>! out :alts3))))))
+
+;; --- alts over {a chan, a FRESH timeout} — the shape that arms and then
+;; abandons timer entries, which is what the advance rule's
+;; skip-the-cancelled / fire-the-live split has to get right.
+(defn alts-timeout [out]
+  (let [c (chan)]
+    (go (loop [i 0] (when (< i alts-to-items) (>! c i) (recur (inc i)))))
+    (go (loop [k 0]
+          (if (< k alts-to-items)
+            (let [r (alts! [c (timeout (+ 3 (mod k 7)))])]
+              (recur (if (nil? (first r)) k (inc k))))
+            (>! out :alts-to))))))
+
+;; --- fan-out to `fan-workers`, fan-in to one sink.
+(defn fan [out]
+  (let [in (chan 4) sink (chan 4)]
+    (go (loop [i 0]
+          (if (< i fan-items)
+            (do (>! in i) (recur (inc i)))
+            (close! in))))
+    (dotimes [_ fan-workers]
+      (go (loop []
+            (let [v (<! in)]
+              (when-not (nil? v)
+                (>! sink (* 2 v))
+                (recur))))))
+    (go (loop [k 0]
+          (if (< k fan-items)
+            (do (<! sink) (recur (inc k)))
+            (>! out :fan))))))
+
+;; --- user-level supervisor-style exponential backoff: the virtual-clock
+;; workhorse. `(bit-shift-left 1 a)` at 12 attempts is a 2048x spread, so
+;; the timer heap holds entries at wildly different deadlines at once.
+(defn backoff [base out]
+  (go (loop [a 0]
+        (if (< a backoff-attempts)
+          (do (<! (timeout (* base (bit-shift-left 1 a))))
+              (recur (inc a)))
+          (>! out :backoff)))))
+
+(defn run []
+  (let [out (chan 64)
+        total (+ rings alts-groups alts-to-groups fan-groups backoff-workers)]
+    (dotimes [i rings] (ping-pong (if (even? i) 0 2) out))
+    (dotimes [_ alts-groups] (alts3 out))
+    (dotimes [_ alts-to-groups] (alts-timeout out))
+    (dotimes [_ fan-groups] (fan out))
+    (dotimes [i backoff-workers] (backoff (+ 1 i) out))
+    (loop [k 0]
+      (if (< k total)
+        (do (<! out) (recur (inc k)))
+        :hammer-done))))
+
+(run)

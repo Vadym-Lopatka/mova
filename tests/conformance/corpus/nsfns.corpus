@@ -1,0 +1,71 @@
+;; nsfns.corpus -- S4: callable require, *ns*, ns-name, find-ns, the-ns,
+;; ns-resolve, resolve, all-ns, import. One `Interp`/`clojure` process per
+;; FILE (see conformance_test.rs's module doc), so later lines may build on
+;; require/import done earlier -- every form still stands alone in the
+;; sense that it doesn't depend on corpus ordering beyond that shared
+;; session. Deliberately avoids two known-nondeterministic/non-portable
+;; shapes: raw `(pr-str *ns*)` (real Clojure's `#object[clojure.lang.
+;; Namespace 0x<hash> "user"]` has a JVM identity-hash address -- same
+;; "never assert #object[" rule the pending-corpus lint enforces) and
+;; `pr-str` of a `Var` (real Clojure prints `#'clojure.core/str`; mova's
+;; core builtins are interned BARE -- ARCHITECTURE.md/`ns.rs`'s `CORE_NS`
+;; doc -- so mova prints `#'str`; a pre-existing, unrelated-to-S4 var-
+;; printing convention gap, not asserted here).
+(require 'clojure.string)
+(some? (find-ns 'clojure.string))
+(require '[clojure.set :as nsfns-cset])
+(nsfns-cset/union #{1} #{2})
+(require '[clojure.string :refer [blank?]])
+(blank? "")
+(let [n 'clojure.set] (require n) (some? (find-ns 'clojure.set)))
+(require 'clojure.string)
+(str *ns*)
+(class *ns*)
+(.name *ns*)
+(class (.name *ns*))
+(str (.name *ns*))
+(map? *ns*)
+(ns-name *ns*)
+(ns-name 'user)
+(some? (find-ns 'clojure.core))
+(nil? (find-ns 'totally.bogus.ns.xyz))
+(ns-name (the-ns 'clojure.core))
+(ns-name (the-ns *ns*))
+(= (the-ns 'user) (find-ns 'user))
+(some? (ns-resolve 'user 'str))
+(nil? (ns-resolve 'user 'no-such-var-xyz))
+(some? (resolve 'str))
+(nil? (resolve 'no-such-var-xyz))
+(>= (count (all-ns)) 1)
+(true? (some #(= (ns-name %) 'user) (all-ns)))
+(import '(java.lang Boolean Long))
+(class Boolean)
+(import 'java.lang.Integer)
+(class Integer)
+(do (import java.lang.Double) (class Double))
+(import 'java.util.WeakReference)
+(import '(java.util WeakReference))
+
+;; Promoted from tests/conformance/pending/namespaces.corpus (pending's
+;; own README/`gen-pending.sh` demands promotion the moment a pending form
+;; starts conforming; S4 lands `*ns*`/`find-ns`/`the-ns`/`ns-name`/
+;; `require`/`resolve`, so these 9 flip from DIVERGE to CONFORM). The
+;; `union` one needs a `:refer` immediately before it that the ORIGINAL
+;; pending session didn't need (it conformed there via a `(use
+;; 'clojure.set)` a few lines earlier, itself unpromotable -- `use` is
+;; out of S4's scope): without it, a FRESH real-`clojure` process (this
+;; corpus file's own session, not the pending ledger's) would answer
+;; `nil` where mova's `union` resolves bare regardless (mova registers
+;; every `clojure.set` fn bare AND namespace-qualified, this file's own
+;; header comment's "genuine curiosity" note) -- same true/true outcome,
+;; now for the SAME reason on both sides instead of two different ones.
+(ns-name *ns*)
+(str *ns*)
+(ns-name (the-ns 'clojure.core))
+(some? (find-ns 'clojure.core))
+(nil? (find-ns 'totally.bogus.ns.xyz))
+(nil? (find-ns 'foo123))
+(require (quote [clojure.string :as str]))
+(require (quote [clojure.set :as set]))
+(require '[clojure.set :refer [union]])
+(some? (resolve 'union))

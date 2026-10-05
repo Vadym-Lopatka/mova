@@ -1,0 +1,76 @@
+;; reader-cond.corpus -- S5: `#?`/`#?@` reader conditionals
+;; (src/reader.rs's `read_reader_cond`/`read_cond_body`). A prerequisite
+;; for vendoring test.check (74 `#?` sites in its upstream source).
+;;
+;; Session model note (see this repo's own module doc on
+;; tools/gen-golden.bb/tests/conformance_test.rs): every corpus line here
+;; goes through PLAIN `read-string`/`eval_str` on BOTH sides -- real
+;; Clojure's `tools/jvm-runner.clj` never passes `{:read-cond :allow}`,
+;; and mova's own `eval_named`/`eval_str` default `allow_read_cond` to
+;; `false` for the exact same reason (matching ordinary `.clj`-style
+;; loading, not a `.cljc` file -- see `reader::Reader::allow_read_cond`'s
+;; doc comment). That means a BARE `#?`/`#?@` anywhere in a corpus line's
+;; own top-level syntax throws "Conditional read not allowed" on BOTH
+;; sides -- that throw IS the golden for the gating rows below. To
+;; exercise the actual feature-matching/splicing LOGIC (not just the
+;; gate), every other row below wraps the `#?`/`#?@` content inside a
+;; STRING literal and reads it via an explicit
+;; `(read-string {:read-cond :allow} "...")` call -- the OUTER form the
+;; corpus line itself is has no bare `#?` in it, so it clears the gate on
+;; both sides trivially, while the INNER read-string call turns read-cond
+;; ON for just that one nested read, exactly like the JVM's own
+;; `read-string` option. Every row was cross-checked against the pinned
+;; oracle transcript-by-transcript before being written down here.
+
+;; --- gating: bare #?/#?@ in ordinary (non-.cljc, non-read-string-opts)
+;; source throws on both sides, unconditionally.
+#?(:clj 1)
+#?@(:clj [1 2])
+(read-string "#?(:clj 1)")
+
+;; --- read-string 1-arity explicitly rejects a `#?` INSIDE its string
+;; argument too (no :read-cond option means :forbid, same gate).
+(read-string "#?(:clj 1 :cljs 2)")
+
+;; --- {:read-cond :allow}: basic selection, first-match-wins, :default.
+(read-string {:read-cond :allow} "#?(:clj 1 :cljs 2)")
+(read-string {:read-cond :allow} "#?(:cljs 2 :clj 1)")
+(read-string {:read-cond :allow} "#?(:cljs 1 :default 99)")
+(read-string {:read-cond :allow} "#?(:default 1 :clj 2)")
+(read-string {:read-cond :allow} "#?(:cljs 9 :default 1 :clj 2)")
+(read-string {:read-cond :allow} "#?(:clj 1 :clj 2)")
+
+;; --- no match: vanishes entirely (a value position with nothing there).
+(read-string {:read-cond :allow} "[1 #?(:cljs 2) 3]")
+(read-string {:read-cond :allow} "[1 #?() 3]")
+(read-string {:read-cond :allow} "[1 #?(:cljs 1) 3]")
+
+;; --- #?@ splicing: vector, map, set positions; no-match splices nothing.
+(read-string {:read-cond :allow} "[1 #?@(:clj [10 20]) 9]")
+(read-string {:read-cond :allow} "{:a 1 #?@(:clj [:b 2 :c 3])}")
+(read-string {:read-cond :allow} "[1 #?@(:cljs [2 3]) 4]")
+(read-string {:read-cond :allow} "{:a 1 #?@(:cljs [:b 2] :default [:c 3])}")
+
+;; --- #?@ splicing not allowed at the top level of a read (of the STRING
+;; argument -- the outer `read-string` call itself is fine).
+(read-string {:read-cond :allow} "#?@(:clj [1 2])")
+
+;; --- #?@ whose matched form isn't a list/vector: error.
+(read-string {:read-cond :allow} "[1 #?@(:clj 10) 9]")
+
+;; --- nested #?/#?@: expands when the OUTER branch matches...
+(read-string {:read-cond :allow} "[1 #?(:clj [#?(:clj 10 :cljs 20)]) 2]")
+(read-string {:read-cond :allow} "[1 #?(:clj [#?@(:clj [10 20])]) 2]")
+;; ...and is still read (paren-matched) but discarded, unevaluated for
+;; selection purposes, when the OUTER branch is itself skipped.
+(read-string {:read-cond :allow} "[1 #?(:cljs #?(:clj (whatever) :clj 2)) 3]")
+
+;; --- post-match trailing content: read+discarded one at a time, with NO
+;; pairing/keyword validation (odd count, non-keyword tokens both fine).
+(read-string {:read-cond :allow} "#?(:clj 1 :cljs)")
+(read-string {:read-cond :allow} "[1 #?(:clj 1 6 7) 9]")
+(read-string {:read-cond :allow} "[1 #?(:clj 1 :cljs (a b) :default 2) 9]")
+
+;; --- pre-match validation: a non-keyword feature (before any match is
+;; found) is a hard error even though the whole #? later vanishes/matches.
+(read-string {:read-cond :allow} "[1 #?(:cljs (bad 2 :default 5) 6]")

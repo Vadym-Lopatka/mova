@@ -1,0 +1,506 @@
+{
+"scenario": "i02_lookup",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"info": {
+"added": "1.0",
+"arglists": "([f] [f coll] [f c1 c2] [f c1 c2 c3] [f c1 c2 c3 & colls])",
+"arglists-str": "([f] [f coll] [f c1 c2] [f c1 c2 c3] [f c1 c2 c3 & colls])",
+"column": 1,
+"doc": "Returns a lazy sequence consisting of the result of applying f to\n  the set of first items of each coll, followed by applying f to the\n  set of second items in each coll, until any one of the colls is\n  exhausted.  Any remaining items in other colls are ignored. Function\n  f should accept number-of-colls arguments. Returns a transducer when\n  no collection is provided.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"line": 2744,
+"name": "map",
+"ns": "clojure.core",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"info": {
+"added": "1.0",
+"arglists": "([test & body])",
+"arglists-str": "([test & body])",
+"column": 1,
+"doc": "Evaluates test. If logical true, evaluates body in an implicit do.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"line": 495,
+"macro": "true",
+"name": "when",
+"ns": "clojure.core",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"info": {
+"arglists-str": "",
+"doc": "Evaluates test. If not the singular values nil or false,\n  evaluates and yields then, otherwise, evaluates and yields else. If\n  else is not supplied it defaults to nil.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"forms": [
+[
+"if",
+"test",
+"then",
+"else?"
+]
+],
+"name": "if",
+"ns": "clojure.core",
+"protocol": "",
+"special-form": "true"
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"info": {
+"added": "1.2",
+"arglists": "([coll] [separator coll])",
+"arglists-str": "([coll] [separator coll])",
+"column": 1,
+"doc": "Returns a string of all elements in coll, as returned by (seq coll),\n   separated by an optional separator.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/string.clj",
+"line": 180,
+"name": "join",
+"ns": "clojure.string",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"info": {
+"added": "1.2",
+"arglists": "([coll] [separator coll])",
+"arglists-str": "([coll] [separator coll])",
+"column": 1,
+"doc": "Returns a string of all elements in coll, as returned by (seq coll),\n   separated by an optional separator.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/string.clj",
+"line": 180,
+"name": "join",
+"ns": "clojure.string",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"message": "No namespace: lk.ns found",
+"session": "<uuid:1>",
+"status": [
+"done",
+"error",
+"lookup-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"message": "no conversion to symbol",
+"session": "<uuid:1>",
+"status": [
+"done",
+"error",
+"lookup-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"info": {
+"arglists-str": "",
+"doc": "Creates and interns a global var with the name\n  of symbol in the current namespace (*ns*) or locates such a var if\n  it already exists.  If init is supplied, it is evaluated, and the\n  root binding of the var is set to the resulting value.  If init is\n  not supplied, the root binding of the var is unaffected.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"forms": [
+[
+"def",
+"symbol",
+"doc-string?",
+"init?"
+]
+],
+"name": "def",
+"ns": "clojure.core",
+"protocol": "",
+"special-form": "true"
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"info": {
+"added": "1.0",
+"arglists-str": "",
+"column": 1,
+"doc": "*print-length* controls how many items of each collection the\n  printer will print. If it is bound to logical false, there is no\n  limit. Otherwise, it must be bound to an integer indicating the maximum\n  number of items of each collection to print. If a collection contains\n  more items, the printer will print items up to the limit followed by\n  '...' to represent the remaining items. The root binding is nil\n  indicating no limit.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core_print.clj",
+"line": 16,
+"name": "*print-length*",
+"ns": "clojure.core",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"message": "No namespace: no.such.ns found",
+"session": "<uuid:1>",
+"status": [
+"done",
+"error",
+"lookup-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"info": {
+"added": "1.0",
+"arglists": "([bindings & body])",
+"arglists-str": "([bindings & body])",
+"column": 1,
+"doc": "Evaluates the exprs in a lexical context in which the symbols in\n  the binding-forms are bound to their respective init-exprs or parts\n  therein. Acts as a recur target.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"forms": [
+[
+"loop",
+[
+"bindings*"
+],
+"exprs*"
+]
+],
+"line": 4624,
+"macro": "true",
+"name": "loop",
+"ns": "clojure.core",
+"protocol": "",
+"special-form": "true"
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"ns": "lk.ns",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "16",
+"info": {
+"added": "1.2",
+"arglists": "([coll] [separator coll])",
+"arglists-str": "([coll] [separator coll])",
+"column": 1,
+"doc": "Returns a string of all elements in coll, as returned by (seq coll),\n   separated by an optional separator.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/string.clj",
+"line": 180,
+"name": "join",
+"ns": "clojure.string",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"ns": "lk.ns",
+"session": "<uuid:1>",
+"value": "#'lk.ns/lk-fn"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"info": {
+"arglists": "([a b])",
+"arglists-str": "([a b])",
+"column": 1,
+"doc": "doc here",
+"file": "NO_SOURCE_PATH",
+"line": 1,
+"name": "lk-fn",
+"ns": "lk.ns",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "19",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "20",
+"info": {
+"added": "1.0",
+"arglists": "([name docstring? attr-map? references*])",
+"arglists-str": "([name docstring? attr-map? references*])",
+"column": 1,
+"doc": "Sets *ns* to the namespace named by name (unevaluated), creating it\n  if needed.  references can be zero or more of: (:refer-clojure ...)\n  (:require ...) (:use ...) (:import ...) (:load ...) (:gen-class)\n  with the syntax of refer-clojure/require/use/import/load/gen-class\n  respectively, except the arguments are unevaluated and need not be\n  quoted. (:gen-class ...), when supplied, defaults to :name\n  corresponding to the ns name, :main true, :impl-ns same as ns, and\n  :init-impl-ns true. All options of gen-class are\n  supported. The :gen-class directive is ignored when not\n  compiling. If :gen-class is not supplied, when compiled only an\n  nsname__init.class will be generated. If :refer-clojure is not used, a\n  default (refer 'clojure.core) is used.  Use of ns is preferred to\n  individual calls to in-ns/require/use/import:\n\n  (ns foo.bar\n    (:refer-clojure :exclude [ancestors printf])\n    (:require (clojure.contrib sql combinatorics))\n    (:use (my.lib this that))\n    (:import (java.util Date Timer Random)\n             (java.sql Connection Statement)))",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"line": 5817,
+"macro": "true",
+"name": "ns",
+"ns": "clojure.core",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "21",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "22",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "23",
+"info": {
+"added": "1.0",
+"arglists": "([f] [f coll] [f c1 c2] [f c1 c2 c3] [f c1 c2 c3 & colls])",
+"arglists-str": "([f] [f coll] [f c1 c2] [f c1 c2 c3] [f c1 c2 c3 & colls])",
+"column": 1,
+"doc": "Returns a lazy sequence consisting of the result of applying f to\n  the set of first items of each coll, followed by applying f to the\n  set of second items in each coll, until any one of the colls is\n  exhausted.  Any remaining items in other colls are ignored. Function\n  f should accept number-of-colls arguments. Returns a transducer when\n  no collection is provided.",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"line": 2744,
+"name": "map",
+"ns": "clojure.core",
+"protocol": ""
+},
+"session": "<uuid:2>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "24",
+"message": "Index 0 out of bounds for length 0",
+"session": "<uuid:1>",
+"status": [
+"done",
+"error",
+"lookup-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "25",
+"info": [],
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "26",
+"info": {
+"added": "1.2",
+"arglists": "([x] [x y] [x y & more])",
+"arglists-str": "([x] [x y] [x y & more])",
+"column": 1,
+"doc": "If no ys are supplied, returns the negation of x, else subtracts\n  the ys from x and returns the result. Does not auto-promote\n  longs, will throw on overflow. See also: -'",
+"file": "jar:file:<HOME>/.m2/repository/org/clojure/clojure/1.12.2/clojure-1.12.2.jar!/clojure/core.clj",
+"line": 1045,
+"name": "-",
+"ns": "clojure.core",
+"protocol": ""
+},
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "27",
+"op": "eldoc",
+"session": "<uuid:1>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "28",
+"op": "info",
+"session": "<uuid:1>",
+"status": [
+"done",
+"unknown-op",
+"error"
+]
+}
+}
+]
+}

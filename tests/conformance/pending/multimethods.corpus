@@ -1,0 +1,9 @@
+;; multimethods.corpus -- defmulti/defmethod/dispatch/hierarchy gap
+;; corpus. Most of S4's measured semantics conform now and were promoted
+;; to tests/conformance/corpus/multimethods.corpus; what's left here is
+;; ONLY the one genuine, permanent gap: `def`'s own return value (mova
+;; returns the bound VALUE; real Clojure returns the VAR -- a general,
+;; pre-existing divergence, not S4-specific, tracked as its own item
+;; rather than duplicated across every corpus file that could trip on
+;; it).
+(def customh123 (atom (make-hierarchy)))

@@ -1,0 +1,15 @@
+OK	1
+OK	1
+OK	(:foo/a :foo/b)
+OK	true
+OK	true
+OK	true
+OK	2
+OK	1
+OK	2
+OK	1
+OK	true
+OK	nil
+OK	1
+OK	2
+OK	[:c :x/a :y/b]

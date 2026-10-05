@@ -1,0 +1,50 @@
+;; flow-2hop-w2000.mova -- same 1-relay -> counting-sink shape as
+;; flow-2hop.mova, but EVERY transform (relay's and sink's) burns a
+;; 2000-iteration LCG loop of interpreted mova code per message before
+;; forwarding/counting. This is the WORK>0 tier from the jank-based async bench
+;; protocol (FLOW-DESIGN.md): W=0 scenarios measure the engine's own
+;; substrate cost; W=2000 measures interpreter compute cost, where a real
+;; JIT (JVM) is expected to start winning -- see bench/RESULTS.md's verdict
+;; for the actual crossover.
+;;
+;;   ./target/release/mova bench/flow-2hop-w2000.mova
+
+(defn lcg-work [n seed]
+  (loop [i 0 x seed]
+    (if (>= i n)
+      x
+      (recur (inc i) (mod (+ (* x 1103515245) 12345) 2147483648)))))
+
+(def N 900)
+(def WORK 2000)
+(def done-ch (chan 1))
+
+(def relay
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:out {}}})
+    :transform (fn [s _ m] (lcg-work WORK m) [s {:out [m]}])}))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {:done {}}})
+    :init (fn [_] {:n 0 :clojure.core.async.flow/out-ports {:done done-ch}})
+    :transform (fn [s _ m]
+                 (lcg-work WORK m)
+                 (let [n2 (inc (:n s))]
+                   (if (= n2 N)
+                     [(assoc s :n n2) {:done [n2]}]
+                     [(assoc s :n n2) {}])))}))
+
+(def fl (flow/create-flow
+         {:procs {:r {:proc (flow/process relay)} :sink {:proc (flow/process sink)}}
+          :conns [[[:r :out] [:sink :in]]]}))
+(flow/start fl)
+(flow/resume fl)
+
+(def t0 (time-ms))
+(flow/inject fl [:r :in] (range 1 (inc N)))
+(<!! done-ch)
+(def elapsed (max 1 (- (time-ms) t0)))
+(def rate (quot (* N 1000) elapsed))
+(println "flow-2hop-w2000" N elapsed rate)
+(flow/stop fl)

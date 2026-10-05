@@ -1,0 +1,53 @@
+;; L5 / P6a — "30 virtual days in milliseconds of wall". Pure timer work:
+;; compounding backoff chains and a timeout ladder whose virtual total is
+;; ≥ 2.592e9 ms, with several tasks live at once so the heap really holds
+;; multiple entries at multiple deadlines (a single-entry heap would test
+;; the jump but not the pop-all-due-at-this-instant rule).
+;;
+;; No chan traffic beyond the retirement signals, on purpose: this program's
+;; job is to make virtual/wall the ONLY thing being measured.
+
+(def days 30)
+(def day-ms 86400000)
+
+;; 30 sequential one-day waits = 2 592 000 000 virtual ms exactly.
+(defn day-ladder [out]
+  (go (loop [d 0]
+        (if (< d days)
+          (do (<! (timeout day-ms)) (recur (inc d)))
+          (>! out :days)))))
+
+;; Compounding exponential backoff: sum over a=0..19 of base*2^a
+;; = base * (2^20 - 1) ms. At base 1000 that is another ~12 virtual days.
+(defn backoff-chain [base steps out]
+  (go (loop [a 0]
+        (if (< a steps)
+          (do (<! (timeout (* base (bit-shift-left 1 a))))
+              (recur (inc a)))
+          (>! out :backoff)))))
+
+;; A ladder of many small, staggered waits — this is what makes the heap
+;; hold a crowd, and what makes "pop ALL entries due at this instant"
+;; actually fire more than one entry at a time (the three chains below share
+;; deadlines whenever their partial sums coincide).
+(defn tick-ladder [step n out]
+  (go (loop [k 0]
+        (if (< k n)
+          (do (<! (timeout step)) (recur (inc k)))
+          (>! out :ticks)))))
+
+(defn run []
+  (let [out (chan 16)]
+    (day-ladder out)
+    (backoff-chain 1000 20 out)
+    (backoff-chain 1500 20 out)
+    (backoff-chain 2000 20 out)
+    (tick-ladder 3600000 200 out)
+    (tick-ladder 3600000 200 out)
+    (tick-ladder 7200000 150 out)
+    (loop [k 0]
+      (if (< k 7)
+        (do (<! out) (recur (inc k)))
+        :days30-done))))
+
+(run)

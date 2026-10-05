@@ -1,0 +1,64 @@
+;; bit-ops.corpus -- S5: bit-op stragglers (src/builtins/numbers.rs's
+;; bit-op cluster + `Long/bitCount`/`System/currentTimeMillis` in
+;; src/builtins/statics.rs). `System/currentTimeMillis` is deliberately
+;; NOT here (not deterministic) -- see that fn's own doc comment; only
+;; its VALUE TYPE is unit-tested (src/builtins/statics.rs).
+
+;; --- bit-and/bit-or/bit-xor are variadic (min arity 2), not the
+;; previous Exact(2).
+(bit-and 7 3 1)
+(bit-and 12 10 9)
+(bit-or 1 2 4)
+(bit-or 1 2 4 8)
+(bit-xor 1 2 4)
+(bit-xor 1 2 4 7)
+(bit-and 7)
+(bit-and)
+(bit-or)
+(bit-xor)
+
+;; --- unsigned-bit-shift-right: fixed 2-arity, unsigned (never
+;; sign-extends), shift distance masked to the low 6 bits exactly like
+;; bit-shift-left/-right (>=64 and negative distances both wrap).
+(unsigned-bit-shift-right -1 1)
+(unsigned-bit-shift-right -1 0)
+(unsigned-bit-shift-right 8 2)
+(unsigned-bit-shift-right 1 64)
+(unsigned-bit-shift-right 1 65)
+(unsigned-bit-shift-right 8 -1)
+(unsigned-bit-shift-right 1 2 3)
+
+;; --- bit-set/bit-clear/bit-test/bit-flip: fixed 2-arity.
+(bit-set 0 3)
+(bit-set -1 3)
+(bit-clear 15 1)
+(bit-clear 1)
+(bit-test 5 0)
+(bit-test 5 1)
+(bit-test -1 63)
+(bit-test -2 0)
+(bit-flip 5 0)
+(bit-flip -1 0)
+(bit-set 1 2 3)
+
+;; --- promoted from tests/conformance/pending/numerics.corpus (S5 landed
+;; the functions these probed; per tests/conformance/pending/README.md's
+;; promotion workflow, `(bit-test 5 0)` above already covers that one --
+;; only the genuinely new forms are added here).
+(unsigned-bit-shift-right -8 1)
+(bit-set 4 0)
+(bit-flip 5 1)
+(bit-clear 5 0)
+
+;; --- bit-shift-left/-right ground truth (pre-existing, re-affirmed
+;; here alongside the new ops): shift distance masking, including >=64
+;; and negative distances.
+(bit-shift-left 1 64)
+(bit-shift-left 1 65)
+(bit-shift-right 1 64)
+(bit-shift-left 1 -1)
+
+;; --- Long/bitCount.
+(Long/bitCount -1)
+(Long/bitCount 0)
+(Long/bitCount 255)

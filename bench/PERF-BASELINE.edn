@@ -1,0 +1,76 @@
+;; bench/PERF-BASELINE.edn
+;;
+;; The committed reference point for tools/check-perf-regression.sh.
+;; Every run of that tool measures the five house benchmarks fresh into
+;; bench/perf-scoreboard.edn (gitignored, live) and compares them
+;; per-metric against THIS file -- see tools/check-perf-regression.bb's
+;; own module doc for the exact REGRESSED/IMPROVED/UNCHANGED/hard-bar
+;; rules (mirrors tools/check-regression.bb's conformance gate, adapted
+;; for range-overlap perf verdicts instead of per-file assertion counts).
+;;
+;; THIS FILE IS RE-BLESSED ONLY VIA:
+;;
+;;   PERF_UPDATE_BASELINE=1 bash tools/check-perf-regression.sh
+;;
+;; which overwrites it with the just-measured scoreboard and prints
+;; loudly what changed relative to the previous baseline. Never
+;; hand-edit this file -- there is no other supported way to update it.
+
+{:baseline-provenance
+ {:blessed-at "2026-08-23T08:15:44.455202Z",
+  :blessed-from
+  "bench/perf-scoreboard.edn",
+  :blessed-by
+  "tools/check-perf-regression.sh (PERF_UPDATE_BASELINE=1)",
+  :git-head "f6e91635d5ae6bce39f0cb912babaa5e4e3e6102",
+  :machine-load
+  "11:15  up 3 days, 17:43, 2 users, load averages: 1.69 4.01 3.97",
+  :provisional-loaded-machine false,
+  :rebless-instructions
+  "PERF_UPDATE_BASELINE=1 bash tools/check-perf-regression.sh"},
+ :metrics
+ {:lane
+  {:median 8.712E8,
+   :min 8.685E8,
+   :max 8.716E8,
+   :samples [8.712E8],
+   :rounds 1,
+   :unit "iters/s",
+   :direction :higher,
+   :bar-pass? true},
+  :flow-2hop
+  {:median 1929824.0,
+   :min 1634472.0,
+   :max 2037037.0,
+   :samples [1842546.0 2025782.0 1634472.0 1929824.0 2037037.0],
+   :rounds 5,
+   :unit "msg/s",
+   :direction :higher,
+   :bar-pass? true},
+  :flow-4hop
+  {:median 1203501.0,
+   :min 1189189.0,
+   :max 1248581.0,
+   :samples [1189189.0 1190476.0 1248581.0 1203501.0 1238738.0],
+   :rounds 5,
+   :unit "msg/s",
+   :direction :higher,
+   :bar-pass? true},
+  :delays
+  {:median 2.534522417,
+   :min 2.4869435,
+   :max 2.586982,
+   :samples [2.55908825 2.586982 2.523595417 2.4869435 2.534522417],
+   :rounds 5,
+   :unit "s",
+   :direction :lower,
+   :bar-pass? true},
+  :parse
+  {:median 164.1224942085,
+   :min 163.341585958,
+   :max 164.903402459,
+   :samples [163.341585958 164.903402459],
+   :rounds 2,
+   :unit "s",
+   :direction :lower,
+   :bar-pass? true}}}

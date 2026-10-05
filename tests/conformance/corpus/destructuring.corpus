@@ -1,0 +1,116 @@
+;; destructuring.corpus -- let/loop/fn/defn destructuring: sequential
+;; nested/&/:as, map :keys/:strs/:or (incl. present-vs-missing nil
+;; semantics), options-map fn idioms (both a plain map param and the
+;; variadic `& {:keys [...]}` kwargs idiom), loop+recur with patterns,
+;; doseq/for with :when/:let, if-let/when-let with patterns. One session.
+;; Multi-entry map/set literals are never left as the printed RESULT
+;; (unordered iteration) -- wrapped in a vector of explicit extractions
+;; instead, matching collections.corpus's convention.
+
+;; ---- sequential: basic / nested / rest / :as ----
+(let [[a b] [1 2]] (+ a b))
+(let [[a b c] [1 2 3]] [a b c])
+(let [[a [b c] d] [1 [2 3] 4]] [a b c d])
+(let [[[a b] [c d]] [[1 2] [3 4]]] [a b c d])
+(let [[a & r] [1 2 3 4]] [a r])
+(let [[a & r] [1]] [a r])
+(let [[a b & r] [1 2 3 4 5]] [a b r])
+(let [[a b :as all] [1 2 3]] [a b all])
+(let [[a & r :as all] [1 2 3]] [a r all])
+(let [[a b c] [1]] [a b c])
+(let [[a b] nil] [a b])
+(let [[a b] "xy"] [a b])
+(let [[a b] (list 1 2)] [a b])
+(let [[a b c] (map inc (range 3))] [a b c])
+(let [[_ b _ d] [1 2 3 4]] [b d])
+
+;; ---- map: :keys / :strs / :or / :as / general binding / nested ----
+(let [{:keys [a b]} {:a 1 :b 2}] (+ a b))
+(let [{:keys [a b]} {:a 1}] [a b])
+(let [{:strs [x y]} {"x" 1 "y" 2}] (+ x y))
+(let [{:keys [a] :or {a :dflt}} {:a nil}] a)
+(let [{:keys [a] :or {a :dflt}} {}] a)
+(let [{:keys [a] :or {a :dflt}} {:a 42}] a)
+(let [{:keys [a b] :or {a 1 b 2}} {:b 99}] [a b])
+(let [{:keys [a] :as m} {:a 1 :b 2}] [a (:a m) (:b m)])
+(let [{a :a b :b} {:a 10 :b 20}] [a b])
+(let [{a :a [x y] :point} {:a 1 :point [10 20]}] [a x y])
+(let [{:keys [a b] :or {b 99}} nil] [a b])
+(let [{:keys [a]} nil] a)
+(let [{{:keys [x y]} :point} {:point {:x 1 :y 2}}] [x y])
+(let [[{:keys [a]} {:keys [b]}] [{:a 1} {:b 2}]] [a b])
+
+;; ---- map destructuring on a seq: implicitly (apply hash-map ...) ----
+(let [{:keys [a b]} (list :a 1 :b 2)] [a b])
+(let [{:keys [a b]} '(:a 1 :b 2)] [a b])
+
+;; ---- fn/defn: sequential, map, variadic, options-map idioms ----
+;; A bare top-level `(defn ...)` is never left as the compared golden line:
+;; real Clojure's `def`/`defn` returns the newly-bound Var (prints as
+;; `#'ns/name`), while mova's `def` returns the plain value -- an
+;; established, out-of-scope-for-A4 deviation, so every definition here is
+;; wrapped `(do (defn ...) nil)` (both sides agree on printing `nil`) with
+;; separate call-only lines doing the actual comparison, exactly like
+;; `higher-order.corpus`'s `case`/`condp` defns below.
+(do (defn add-pair [[a b]] (+ a b)) nil)
+(add-pair [3 4])
+(do (defn describe-point [{:keys [x y] :or {x 0 y 0}}] [x y]) nil)
+(describe-point {:x 5})
+(describe-point {})
+(do (defn f-rest [& [a b]] [a b]) nil)
+(f-rest 1 2 3)
+(do (defn f-rest2 [a & [b c]] [a b c]) nil)
+(f-rest2 1 2)
+(do (defn greet [{:keys [name greeting] :or {greeting "Hello"}}] (str greeting ", " name "!")) nil)
+(greet {:name "World"})
+(greet {:name "Bob" :greeting "Hi"})
+(do (defn greet2 [& {:keys [name greeting] :or {greeting "Hello"}}] (str greeting ", " name "!")) nil)
+(greet2 :name "World")
+(greet2 :name "Bob" :greeting "Hi")
+(do (defn multi ([x] [:one x]) ([x [a b]] [:two x a b])) nil)
+(multi 1)
+(multi 1 [2 3])
+
+;; ---- loop/recur with patterns ----
+(loop [[a b] [0 1] n 5] (if (zero? n) a (recur [b (+ a b)] (dec n))))
+(loop [acc [] [x & xs] [1 2 3 4 5]] (if (nil? x) acc (recur (conj acc (* x x)) xs)))
+(loop [{:keys [i acc]} {:i 0 :acc 0}] (if (= i 5) acc (recur {:i (inc i) :acc (+ acc i)})))
+
+;; ---- doseq with :let / :when / destructuring ----
+(let [acc (atom [])] (doseq [x (range 5)] (swap! acc conj x)) @acc)
+(let [acc (atom [])] (doseq [x (range 5) :when (even? x)] (swap! acc conj x)) @acc)
+(let [acc (atom [])] (doseq [x (range 5) :let [y (* x x)]] (swap! acc conj y)) @acc)
+(let [acc (atom [])] (doseq [x (range 5) :let [y (* x x)] :when (even? y)] (swap! acc conj y)) @acc)
+(let [acc (atom [])] (doseq [[a b] [[1 2] [3 4] [5 6]]] (swap! acc conj (+ a b))) @acc)
+(let [acc (atom [])] (doseq [x [1 2] y [10 20]] (swap! acc conj (+ x y))) @acc)
+(let [acc (atom [])] (doseq [{:keys [a b]} [{:a 1 :b 2} {:a 3 :b 4}]] (swap! acc conj (+ a b))) @acc)
+
+;; ---- for: :when / :let / cross product / destructuring ----
+(for [x (range 5)] x)
+(for [x (range 5) :when (even? x)] x)
+(for [x (range 5) :let [y (* x x)]] y)
+(for [x (range 5) :let [y (* x x)] :when (even? y)] y)
+(for [x [1 2] y [10 20]] (+ x y))
+(for [x [1 2] y [10 20] :when (= x 1)] [x y])
+(for [[a b] [[1 2] [3 4]]] (+ a b))
+
+;; ---- if-let / when-let with patterns ----
+(if-let [[a b] [1 2]] (+ a b) :none)
+(if-let [[a b] nil] (+ a b) :none)
+(if-let [{:keys [a]} {:a 5}] a :none)
+(if-let [{:keys [a]} {}] a :none)
+(when-let [[a b] [1 2]] (* a b))
+(when-let [{:keys [a]} {:a 42}] a)
+(when-let [{:keys [a]} nil] a)
+
+;; ---- combined: destructuring nested inside higher-order pipelines ----
+(map (fn [[a b]] (+ a b)) [[1 2] [3 4] [5 6]])
+(reduce (fn [acc [k v]] (+ acc v)) 0 [[:a 1] [:b 2] [:c 3]])
+(let [pairs [[1 :a] [2 :b]] firsts (map first pairs)] (vec firsts))
+(let [{:keys [a b c]} {:a 1 :b 2 :c 3}] (+ a b c))
+
+;; Wave-C small sweep item 5: `:syms` map-destructuring, promoted from
+;; tests/conformance/pending/destructuring-113.corpus after the fix
+;; (special_forms.rs's bind_map_pattern + compile/resolve.rs's compiled-
+;; tier mirror).
+(let [{:syms [a b]} {'a 1 'b 2}] [a b])

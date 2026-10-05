@@ -1,0 +1,64 @@
+;;RUNS 5
+;; 16-input-filter: state gains :clojure.core.async.flow/input-filter, a
+;; predicate of cid that restricts which in-ports are read
+;; (gold: impl.clj:288-295's `ipred`; mova: `extract_input_filter` /
+;; `recompute_read_set`, src/builtins/flow.rs). This proc starts with a
+;; filter that BLOCKS port :b (via :init). A message sent to :b sits
+;; buffered and unprocessed while the filter is active -- proven via a
+;; non-consuming flow/ping-proc count check (see below for why not a
+;; channel read). A message sent to :a (never filtered) is processed
+;; immediately, proving the flow itself is alive.
+;; A special message on :a (:lift-filter) removes the filter from state;
+;; once that's processed, :b's earlier, still-buffered message is finally
+;; read and processed -- proving the filter genuinely gated reads rather
+;; than dropping them.
+
+(def out-ch (chan 10))
+(def block-b (fn [cid] (not= cid :b)))
+
+(def step
+  (flow/map->step
+   {:describe (fn [] {:ins {:a {} :b {}} :outs {:out {}}})
+    :init (fn [_] {:clojure.core.async.flow/input-filter block-b})
+    :transform (fn [s cid m]
+                 (if (= m :lift-filter)
+                   [(dissoc s :clojure.core.async.flow/input-filter) {:out [:lifted]}]
+                   [s {:out [[cid m]]}]))}))
+
+(def sink
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:p {:proc (flow/process step)} :s {:proc (flow/process sink)}}
+          :conns [[[:p :out] [:s :in]]]}))
+(def chans (flow/start fl))
+(flow/resume fl)
+
+;; :b's message will sit blocked; :a's is processed right away
+(deref (flow/inject fl [:p :b] [:secret]))
+(deref (flow/inject fl [:p :a] [:hello]))
+(def hello-out (deref (future (<!! out-ch)) 5000 :timed-out))
+(println "RESULT while-filtered" (pr-str hello-out))
+
+;; :b's message must NOT have been processed yet. Checked via
+;; flow/ping-proc's non-consuming :count on the SINK proc (still 1,
+;; only :hello) rather than racing a read on out-ch -- an abandoned
+;; timed-out reader there would risk stealing a LATER legitimate value
+;; off the same channel (see FINDINGS.md's "abandoned reader" pitfall;
+;; this scenario reads out-ch three more times below, so that risk is
+;; real here, not hypothetical).
+(def mid-ping (flow/ping-proc fl :s 2000))
+(println "RESULT b-still-blocked" (= 1 (:clojure.core.async.flow/count mid-ping)))
+
+;; lift the filter via :a (the only unblocked port)
+(deref (flow/inject fl [:p :a] [:lift-filter]))
+(def lift-out (deref (future (<!! out-ch)) 5000 :timed-out))
+(println "RESULT lift-ack" (pr-str lift-out))
+
+;; now :b's earlier, still-buffered message is finally delivered
+(def b-out (deref (future (<!! out-ch)) 5000 :timed-out))
+(println "RESULT b-after-lift" (pr-str b-out))
+
+(flow/stop fl)

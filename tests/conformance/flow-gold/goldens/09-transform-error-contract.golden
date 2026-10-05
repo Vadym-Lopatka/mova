@@ -1,0 +1,11 @@
+RESULT pre-error-outputs [1 2]
+PASS error-chan-read
+RESULT err-pid :p
+RESULT err-cid :in
+RESULT err-msg :boom
+RESULT err-op :step
+RESULT err-has-status true
+RESULT err-has-state true
+RESULT err-has-count true
+RESULT err-has-ex true
+RESULT post-error-output 3

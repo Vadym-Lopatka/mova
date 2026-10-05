@@ -1,0 +1,250 @@
+{
+"scenario": "c03_output_future",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#object[clojure.core$future_call$reify__<N> 0xHASH {:status :pending, :val nil}]"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"out": "late\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "late-err\n",
+"id": "1",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"out": "next\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"out": "f2\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "5"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#object[java.lang.Thread 0xHASH \"Thread[#N,Thread-N,5,main]\"]"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"out": "bg\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#object[clojure.core$future_call$reify__<N> 0xHASH {:status :pending, :val nil}]"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"out": "after done\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#'user/pr-agent"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"out": "agent out\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "#object[clojure.lang.Agent 0xHASH {:status :ready, :val 0}]"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"out": "pm 1\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "(1)"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

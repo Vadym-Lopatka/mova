@@ -1,0 +1,125 @@
+=== 1. fdef + instrument: a bad call throws ===
+[user/adder]
+3
+Call to user/adder did not conform to spec.
+:instrument
+user/adder
+(1 :nope)
+([:b])
+(:nope)
+([1])
+(:clojure.spec.alpha/args :clojure.spec.alpha/failure :clojure.spec.alpha/fn :clojure.spec.alpha/problems :clojure.spec.alpha/spec :clojure.spec.alpha/value)
+=== 2. ::stest/caller names the fn that made the call ===
+user/report-bad-add
+stest-smoke.mova
+(:file :line :var-scope)
+true
+user/report-bad-add
+=== 3. unstrument restores the original fn ===
+[user/adder]
+3
+:threw
+[]
+=== 4. with-instrument-disabled ===
+[user/adder]
+:threw
+:threw
+:threw
+[user/adder]
+=== 5. instrument :spec override ===
+[user/over]
+a string
+Call to user/over did not conform to spec.
+[user/over]
+1
+(cat :x int?)
+=== 6. instrument :stub generates a return value ===
+[user/stubbed]
+true
+Call to user/stubbed did not conform to spec.
+[user/stubbed]
+the real body must not run
+=== 7. instrument :replace swaps the implementation ===
+[user/repl-me]
+:replaced
+Call to user/repl-me did not conform to spec.
+[user/repl-me]
+:original
+=== 8. kwargs fns: the kvs-emulation thunk ===
+([opts] [a b] [a b & {:as m}])
+[user/kwargs-fn]
+1
+[1 2]
+[1 2 {:a 1}]
+[1 2 {:a 1}]
+[1 2 {:a 1, :b 2}]
+:threw
+:threw
+user/fail-kwargs
+user/fail-kwargs
+[user/kwargs-fn]
+[1 2 {:a 1, :b :not-num}]
+=== 9. varargs fns, and a var with no :arglists ===
+[user/just-varargs]
+1
+15
+:threw
+user/fail-varargs
+[user/just-varargs]
+nil
+[user/add10]
+11
+:threw
+11
+[user/add10]
+=== 10. check: a conforming fn ===
+user/ranged-rand
+true
+12
+true
+false
+{:sym user/ranged-rand}
+3
+nil
+true
+=== 11. check: a non-conforming fn ===
+user/bad-ret
+false
+:check-failed
+Specification-based check failed
+(:clojure.spec.alpha/failure :clojure.spec.alpha/problems :clojure.spec.alpha/spec :clojure.spec.alpha/value :clojure.spec.test.alpha/args :clojure.spec.test.alpha/val)
+(:failure :spec :sym)
+user/bad-ret
+(fspec :args (cat :x int?) :ret int? :fn nil)
+:check-failed
+([:ret])
+:no-args-spec
+[]
+()
+=== 12. summarize-results ===
+{:total 1, :check-passed 1}
+{:total 1, :check-failed 1}
+{:total 1, :check-passed 1}
+=== 13. the sym sets, and enumerate-namespace ===
+true
+false
+true
+true
+true
+:asserted
+true
+true
+true
+true
+true
+=== 14. instrument/unstrument over a collection ===
+(user/adder user/just-varargs user/over)
+:threw
+:threw
+(user/adder user/just-varargs user/over)
+3
+[]
+[]
+(user/adder user/stubbed)
+(user/adder user/stubbed)
+3

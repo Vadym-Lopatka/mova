@@ -1,0 +1,119 @@
+# tests/clojure-suite/MANIFEST-LIBS.sha256
+#
+# SHA-256 manifest of every vendored file under
+# tests/clojure-suite/vendor-libs/. Same anti-cheating device as
+# MANIFEST.sha256 (tests/clojure-suite/vendor/) and the same no-edit
+# rule, applied to a different kind of vendored input: these are
+# TEST-SUPPORT LIBRARIES (test.check, test.generative, data.generators,
+# clojure.walk, clojure.template), not test files themselves. They are
+# never run as suite files and never enter the scoreboard or the North
+# Star denominator (see tools/clojure-suite-run.bb's `vendored` list,
+# which reads tests/clojure-suite/vendor/ only) -- they exist purely so
+# `require` of these namespaces resolves inside vendored test files that
+# want them (numbers.clj, data_structures.clj, sequences.clj,
+# transducers.clj, clojure_walk.clj, and others). `tools/verify-vendor.sh`
+# re-hashes every file listed below (in addition to MANIFEST.sha256's
+# vendor/ check) and fails (non-zero exit) on any mismatch, missing file,
+# or extra un-manifested file in vendor-libs/.
+#
+# Upstream sources (byte-identical, unzipped from local ~/.m2 jars or
+# copied from the pinned Clojure source checkout -- never hand-edited):
+#
+#   org.clojure/test.check 1.1.3 (~/.m2/repository/org/clojure/test.check/1.1.3/test.check-1.1.3.jar)
+#     clojure/test/check.cljc
+#     clojure/test/check/generators.cljc
+#     clojure/test/check/properties.cljc
+#     clojure/test/check/rose_tree.cljc
+#     clojure/test/check/results.cljc
+#     clojure/test/check/impl.cljc
+#     clojure/test/check/clojure_test.cljc
+#     clojure/test/check/clojure_test/assertions.cljc
+#     clojure/test/check/random.clj   (pure-Clojure splitmix64, NOT .cljc)
+#   SKIPPED from this jar (cljs-targeted, no :clj branch needs them):
+#     clojure/test/check/random.cljs
+#     clojure/test/check/random/doubles.cljs
+#     clojure/test/check/random/longs.cljs
+#     clojure/test/check/random/longs/bit_count_impl.cljs
+#     clojure/test/check/clojure_test/assertions/cljs.cljc
+#       -- verified by reading assertions.cljc: its own
+#       `(:require-macros [...assertions.cljs])` sits inside a
+#       `#?(:cljs (:require-macros ...))` reader-conditional branch, never
+#       required under :clj, so vendoring the cljs sibling would be dead
+#       weight.
+#
+#   org.clojure/test.generative 1.1.1 (~/.m2/repository/org/clojure/test.generative/1.1.1/test.generative-1.1.1.jar)
+#     clojure/test/generative.clj
+#   SKIPPED from this jar: clojure/test/generative/runner.clj -- pulls in
+#     org.clojure/tools.namespace and uses `locking`; no vendored suite
+#     file needs the runner itself, only the generative-testing macros in
+#     generative.clj.
+#
+#   org.clojure/data.generators 1.1.0 (~/.m2/repository/org/clojure/data.generators/1.1.0/data.generators-1.1.0.jar)
+#     clojure/data/generators.clj
+#
+#   Clojure 1.13.0-alpha6 core source, straight from .oracle/clojure-src
+#     (pure Clojure, no test.* dependency of their own):
+#     clojure/walk.clj
+#     clojure/template.clj
+#     clojure/zip.clj   (zero imports, zero host interop -- verified by
+#       inspection; vendor/clojure_zip.clj is blocked solely on
+#       `(:require [clojure.zip :as zip])`. clojure/xml.clj is
+#       deliberately NOT vendored here -- it imports org.xml.sax classes,
+#       a real JVM/SAX dependency, and stays a NOT-PORTABLE question for
+#       the owner rather than a same-pattern pure-Clojure copy.)
+#
+#   Clojure 1.13.0-alpha6 core source, D5 -- clojure.pprint, the whole
+#     eight-file library, byte-identical from .oracle/clojure-src:
+#     clojure/pprint.clj              (the `ns` form + seven `load` calls)
+#     clojure/pprint/utilities.clj
+#     clojure/pprint/column_writer.clj
+#     clojure/pprint/pretty_writer.clj
+#     clojure/pprint/pprint_base.clj
+#     clojure/pprint/cl_format.clj
+#     clojure/pprint/dispatch.clj
+#     clojure/pprint/print_table.clj
+#     Unlike every other entry above, the seven files under pprint/ carry
+#     NO `(ns ...)` form of their own -- each opens `(in-ns
+#     'clojure.pprint)` and is pulled in by `pprint.clj`'s `(load
+#     "pprint/<part>")`. The runner materializes those at their own
+#     vendor-libs-relative PATH rather than at an ns-derived one; see
+#     `materialize-vendor-lib-file` in tools/clojure-suite-run.bb for why
+#     that is the general rule for a multi-file namespace and not a
+#     pprint special case.
+#     Required by vendor/printer.clj (`(:require [clojure.pprint :refer
+#     [pprint]])`) and named in vendor/metadata.clj's `public-namespaces`.
+#
+# Counts: 22 files vendored total (9 test.check + 1 test.generative + 1
+# data.generators + 3 core-source companions + 8 clojure.pprint).
+#
+# Regenerate (do NOT hand-edit) with:
+#   cd tests/clojure-suite/vendor-libs && find . -type f | sed 's|^\./||' | sort | xargs shasum -a 256 >> MANIFEST-LIBS.sha256
+# (after re-copying files byte-identically from the pinned sources above
+# and re-writing this header).
+#
+# Format below: standard `shasum -a 256 -c` checksum lines, one per
+# vendored file (paths relative to vendor-libs/), sorted by path. Lines
+# starting with '#' are comments and ignored by `shasum -c`.
+64029c5ad0517e12eae199e81e609985a06498dc7f8fd441f0fdd06a9d52095b  clojure/data/generators.clj
+19d25ca1d57163cae1a6bb19ab4de5ada2e2277bc7647dfe693623ec4ee4d17a  clojure/pprint.clj
+cad901133e34f164732621ddbc98a26573cb8f4e2d5f0eababb26f4cd0ca0d06  clojure/pprint/cl_format.clj
+2824ad82bd7b42736766335bd78998500255fb61d80bb39e37876a842d923cf1  clojure/pprint/column_writer.clj
+adeba29a75d490e52c69d96594dc70f26b5d646e17bddc72337188201a5ac94e  clojure/pprint/dispatch.clj
+d98328b45694e0993d97a70c7aa4fce2b4c32f0a8788b241870b251200dc6bc6  clojure/pprint/pprint_base.clj
+ceec7aa364041a64e5e384583626f596ed626f355e07d055bdec047abc5948f1  clojure/pprint/pretty_writer.clj
+3bd31def2b899a36cdc40f0453bea03ad6e2f7f0fc13e2135850e8c82ef8d60d  clojure/pprint/print_table.clj
+96167bfac9879a25d15b7e3384277cda5dd492452453b79a7d2e60f785d121e1  clojure/pprint/utilities.clj
+a4f1f895f8776ebbb7aaa087a88d3bdd3abac28002fc5392418c2893dee190f3  clojure/stacktrace.clj
+b31d7b0bbcab1f44f8970d187aa193640069ca14301daa3d57e8ab47dfeccebb  clojure/template.clj
+c23c7893d4ed4ab067b3f69c9bd912ae3bad7bf1ac1154527950c26334f38dad  clojure/test/check.cljc
+29949fdcac299d72a77244b90794add0d5a2c093d70c7ce44fd916e5bb36c2db  clojure/test/check/clojure_test.cljc
+2b1566f2e1c828e933b43b723231eb7d9d6d415be7878b2b5495b18fed078dc4  clojure/test/check/clojure_test/assertions.cljc
+c8d231b55d02bd2e580605930035ea9a446220931a1b57bb0a218a4716f0b5d6  clojure/test/check/generators.cljc
+ca88cf77ca2339859d391ed9d7c97c38ab4dd5946e8c3a58bce8d70bf8fb8ba1  clojure/test/check/impl.cljc
+a7c399d51c1d0f7074cb0b8f599552f7916d149422d5c952f1d53aed2182a21b  clojure/test/check/properties.cljc
+68980685082eefdcd7bdd4449053b6638d3d14ca78b10aef580ddf636c4bfeb9  clojure/test/check/random.clj
+8ffbf8beecda4bde09e47f7ab92b810814f7999cdc8070caf09881eebf80c181  clojure/test/check/results.cljc
+c7bbebbb8600ba6ef17bfc3cd601a66309f147c53cf857f30a65ef2607aaf9fb  clojure/test/check/rose_tree.cljc
+a42643f38e633dae0ac462b5ce306c531479d86ed73f9224db34b7e00530009c  clojure/test/generative.clj
+98ab54d049a0dc8f78aeffb42b37c26cda9292e037096888867fe7290d00dc89  clojure/walk.clj
+b04f9338433353f955b0f639be9d69ffbc93e22f6012c6ea82ceeec1e8e54f8f  clojure/zip.clj

@@ -1,0 +1,72 @@
+OK	(1 3 3)
+OK	(1 2 3 4)
+OK	true
+OK	true
+OK	true
+OK	"é"
+OK	1
+ERR	RuntimeException
+ERR	RuntimeException
+OK	3
+ERR	RuntimeException
+OK	"é"
+OK	11
+OK	255
+OK	35
+OK	##Inf
+OK	##-Inf
+OK	##NaN
+OK	\A
+OK	"A"
+OK	1/3
+OK	7N
+OK	1.5M
+OK	9223372036854775808N
+OK	-9223372036854775809N
+OK	2
+OK	0
+OK	-3/2
+OK	3/2
+OK	92233720368547758080/3
+OK	46116860184273879040N
+ERR	ArithmeticException
+OK	-7N
+OK	255N
+OK	8N
+OK	-9223372036854775808
+OK	295147905179352825855N
+OK	7958661109946400884391935N
+OK	7M
+OK	1.50M
+OK	0.0M
+OK	1E+3M
+OK	0.000123M
+OK	1E+309M
+ERR	NumberFormatException
+OK	true
+OK	true
+OK	false
+OK	true
+OK	false
+OK	true
+OK	:a
+OK	:a
+OK	:a
+OK	true
+OK	true
+OK	true
+OK	false
+OK	#uuid "550e8400-e29b-41d4-a716-446655440000"
+OK	(user/a user/b)
+OK	clojure.core/map
+OK	(clojure.core/map clojure.core/inc [1 2])
+OK	user/x
+OK	true
+OK	:user/foo
+OK	"foo"
+OK	"user"
+OK	true
+OK	#inst "2020-01-01T00:00:00.000-00:00"
+OK	true
+OK	100
+OK	#inst "2020-01-01T00:00:00.000-00:00"

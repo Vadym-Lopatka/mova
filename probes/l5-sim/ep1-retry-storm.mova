@@ -1,0 +1,356 @@
+;; L5 / W5 — EPISODE 1: "The 30-second outage that never ends".
+;;
+;; A metastable failure (Bronson et al., HotOS'21; the industry calls it a
+;; retry storm) reproduced as ordinary Mova code and run under `simulate`,
+;; so the whole thing is one seeded, deterministic number instead of a
+;; production incident. `docs/L5-FLAGSHIP-DEMOS.md` Episode 1 is the spec;
+;; `tests/l5_demo_ep1.rs` holds the pre-registered bars and is the file that
+;; decides whether the claim ships.
+;;
+;; ═══ THE PHYSICS, ON PAPER ═══════════════════════════════════════════════
+;;
+;; Everything below is arithmetic you can check before running anything.
+;; The simulation is only allowed to CONFIRM it.
+;;
+;;   capacity        C  = workers / service-ms * 1000
+;;                      = 6 / 20 * 1000            =  300 req/s
+;;
+;;   steady offered  λ0 = clients / (think-ms + service-ms)
+;;                      = 5000 / 30.02 s           =  166.6 req/s
+;;   steady utilisation  ρ0 = λ0 / C = 55.5 %      (< 70 % — healthy, and
+;;                      queueing delay ≈ tens of ms against a 1000 ms
+;;                      client deadline, so the pre-outage success rate is
+;;                      ~100 % with room to spare)
+;;
+;;   queue delay when the request queue is pinned full:
+;;                      D  = queue-cap / C = 3000 / 300 = 10 s
+;;                      ...against a 1 s client deadline. EVERY request the
+;;                      server completes in that state was abandoned nine
+;;                      seconds before it was served. The server runs at
+;;                      100 % capacity and delivers 0 % goodput. That is the
+;;                      metastable state, and it is what makes the trigger
+;;                      removable without the outage ending.
+;;
+;;   storm offered load, naive-retry (fixed 1000 ms, no jitter, no breaker):
+;;                      a client's cycle is one rejected/timed-out attempt
+;;                      plus the fixed retry delay, so
+;;                      λ1 ≈ clients / retry-ms = 5000 / 1 s = 5000 req/s
+;;                         = 16.7 × C, and — the load-bearing part —
+;;                      λ1 DOES NOT DEPEND ON SUCCESS. Failure feeds
+;;                      retries, retries feed failure. Two stable states
+;;                      exist for one set of parameters: healthy at 166 req/s
+;;                      / 100 % success, and collapsed at 5000 req/s / 0 %
+;;                      success. The 30 s outage is only the push between
+;;                      them.
+;;
+;;   storm offered load, jittered-cb-retry (full-jitter exponential backoff
+;;   + a circuit breaker that opens for ~30 s after 5 consecutive failures):
+;;                      a client with an open breaker issues at most one
+;;                      probe per open window, so
+;;                      λ2 ≈ clients / cb-open-ms = 5000 / 30 s = 166 req/s
+;;                         = 0.55 × C — BELOW capacity. The queue drains,
+;;                      the half-open probes (spread by their own jitter)
+;;                      succeed, the breakers close, and the fleet falls
+;;                      back into the healthy state. Load shedding is the
+;;                      only exit from a metastable state, and this is what
+;;                      it looks like as code.
+;;
+;;   CONTROL: the same naive fleet with NO outage stays healthy for the
+;;   whole window. Without it the meltdown could just be an under-provisioned
+;;   server, which would prove nothing.
+;;
+;; ═══ WHAT IS MODELLED VS WHAT IS REAL (the honest caveat, in code) ═══════
+;;
+;; MODELLED with virtual timers: the server's service time and its worker
+;; concurrency, i.e. its capacity — queueing theory, but executable.
+;; REAL, unmodified, production-shape: the client retry loops. `naive` and
+;; `jittered-cb` below are the code people actually write, including the
+;; `(rand-int b)` jitter — which is a function of the sim seed, which is why
+;; a 100-seed sweep is a meaningful statement about the policy rather than
+;; about one lucky interleaving.
+;;
+;; ═══ SELF-BOUNDING ══════════════════════════════════════════════════════
+;;
+;; No external stop signal exists (design §5: nothing interacts with a
+;; running sim world). The PROGRAM bounds itself: the stats proc samples
+;; every virtual second, and when it reaches the observation horizon it
+;; flips `running`, hands the timeline to the root, and the root closes the
+;; request queue and waits for every client and worker to say goodbye. A
+;; clean run reports `:leaked-tasks 0`.
+
+;; ── Retry policies ───────────────────────────────────────────────────────
+;;
+;; Both are pure decision functions over (consecutive-failures, backoff,
+;; now): they return `[wait-ms fails' backoff' open-until']`. Keeping the
+;; policy pure is what makes "same everything else, only the policy differs"
+;; literally true in the source.
+
+(def ^:private cb-threshold 5)      ;; consecutive failures before opening
+(def ^:private cb-open-ms 30000)    ;; how long the breaker stays open
+(def ^:private cb-open-jitter 5000) ;; ...plus this much, so probes spread
+(def ^:private backoff-base 1000)
+(def ^:private backoff-cap 60000)
+(def ^:private naive-retry-ms 1000) ;; fixed, no jitter, no breaker
+
+(defn naive-on-failure [_fails backoff _now]
+  [naive-retry-ms 0 backoff 0])
+
+(defn jittered-cb-on-failure [fails backoff now]
+  (let [fails' (inc fails)
+        backoff' (min backoff-cap (* 2 backoff))]
+    (if (>= fails' cb-threshold)
+      ;; Trip. The open window IS the wait, so no extra backoff sleep; keep
+      ;; `fails` at the threshold so a failing half-open probe re-opens
+      ;; immediately instead of needing another five failures.
+      [0 cb-threshold backoff-base
+       (+ now cb-open-ms (rand-int cb-open-jitter))]
+      ;; Full jitter (Marc Brooker / AWS): uniform in [0, backoff).
+      [(rand-int backoff) fails' backoff' 0])))
+
+;; ── The server ───────────────────────────────────────────────────────────
+;;
+;; `workers` concurrent loops, each costing `service-ms` of VIRTUAL time per
+;; request — that is the whole capacity model. During the outage a worker
+;; that picks a request up simply sleeps until the outage is over, so
+;; nothing at all is drained for those 30 s and the queue fills.
+;;
+;; The reply is an `offer!`, never a `>!`: by the time a request is served
+;; in the collapsed state its client abandoned it ten seconds ago and nobody
+;; is listening. A blocking put there would park the server forever, which
+;; would be a bug in the MODEL rather than the finding.
+
+(defn- server-worker [req running qdepth cfg bye t0]
+  (let [{:keys [outage-from outage-to service-ms]} cfg]
+    (go-loop []
+      (let [m (<! req)]
+        (if (and m @running)
+          (do
+            (swap! qdepth dec)
+            (let [n (- (time-ms) t0)]
+              (when (and (>= n outage-from) (< n outage-to))
+                (<! (timeout (- outage-to n)))))
+            (<! (timeout service-ms))
+            (offer! (:reply m) :ok)
+            (recur))
+          (>! bye :worker))))))
+
+;; ── One client ───────────────────────────────────────────────────────────
+;;
+;; Ordinary production-shape retry code. `offer!` rather than `>!` on the
+;; request queue because a real client with a bounded connection pool gets
+;; an immediate rejection when the pool is exhausted — it does not queue
+;; forever. Both policies see exactly this loop; only `on-failure` differs.
+
+(defn- client [_id req running counters cfg on-failure bye t0]
+  (let [{:keys [think-ms deadline-ms]} cfg
+        {:keys [attempts successes timeouts rejects opens qdepth]} counters]
+    (go
+      ;; A fleet is not born synchronized: spread the first request over one
+      ;; think interval. Seeded, so it is part of the reproducible world.
+      (<! (timeout (rand-int think-ms)))
+      (loop [fails 0 backoff backoff-base open-until 0]
+        (if-not @running
+          (>! bye :client)
+          (let [n (- (time-ms) t0)]
+            (if (< n open-until)
+              ;; Breaker open: no request is issued at all. This is the load
+              ;; shedding, and it is the only thing that ends a storm.
+              (do (<! (timeout (- open-until n)))
+                  (recur fails backoff open-until))
+              (let [reply (chan 1)
+                    sent (offer! req {:reply reply})]
+                (swap! attempts inc)
+                (when sent (swap! qdepth inc))
+                (let [ok (when sent
+                           (first (alts! [reply (timeout deadline-ms)])))]
+                  (if ok
+                    (do (swap! successes inc)
+                        (<! (timeout think-ms))
+                        (recur 0 backoff-base 0))
+                    (do (if sent (swap! timeouts inc) (swap! rejects inc))
+                        (let [[wait fails' backoff' open'] (on-failure fails backoff n)]
+                          (when (pos? open') (swap! opens inc))
+                          (when (pos? wait) (<! (timeout wait)))
+                          (recur fails' backoff' open')))))))))))))
+
+;; ── The stats proc ───────────────────────────────────────────────────────
+;;
+;; Samples the counters onto a growing vector once per virtual second and
+;; owns the observation horizon. Row shape:
+;;   [t attempts successes timeouts rejects opens qdepth]
+;; where every count except `qdepth` is the DELTA over that second.
+
+(defn- stats-proc [counters observe-ms sample-ms running out t0]
+  (let [{:keys [attempts successes timeouts rejects opens qdepth]} counters]
+    (go-loop [rows [] pa 0 ps 0 pt 0 pr 0 po 0]
+      (<! (timeout sample-ms))
+      (let [t (- (time-ms) t0)
+            a @attempts s @successes to @timeouts rj @rejects op @opens
+            rows' (conj rows [t (- a pa) (- s ps) (- to pt) (- rj pr)
+                              (- op po) @qdepth])]
+        (if (>= t observe-ms)
+          (do (reset! running false)
+              (>! out rows'))
+          (recur rows' a s to rj op))))))
+
+;; ── Timeline analysis (pure) ─────────────────────────────────────────────
+
+(def ^:private smooth-window 5)   ;; virtual seconds
+(def ^:private heal-threshold 0.90)
+
+(defn- resolved [row] (+ (nth row 2) (nth row 3) (nth row 4)))
+
+;; Success rate over the `smooth-window` rows ending at index i. A window in
+;; which nothing resolved is 1.0 — no failures observed is not a failure.
+(defn smoothed-rate [rows i]
+  (let [lo (max 0 (- i (dec smooth-window)))
+        win (subvec rows lo (inc i))
+        s (reduce + (map (fn [r] (nth r 2)) win))
+        d (reduce + (map resolved win))]
+    (if (zero? d) 1.0 (/ (double s) (double d)))))
+
+;; RECOVERY IS PERMANENT, or it is not recovery. Scan the post-outage rows
+;; from the end: if the last row is unhealthy the run never recovered; else
+;; the recovery instant is the row right after the last unhealthy one.
+(defn recovered-at [rows outage-to]
+  (let [n (count rows)
+        first-i (loop [i 0] (cond (>= i n) nil
+                                  (>= (nth (nth rows i) 0) outage-to) i
+                                  :else (recur (inc i))))]
+    (when (and first-i (>= (smoothed-rate rows (dec n)) heal-threshold))
+      (loop [i (dec n) best (nth (nth rows first-i) 0)]
+        (if (< i first-i)
+          best
+          (if (< (smoothed-rate rows i) heal-threshold)
+            (if (< (inc i) n) (nth (nth rows (inc i)) 0) nil)
+            (recur (dec i) best)))))))
+
+(defn- window-stats [rows from-t]
+  (let [win (filterv (fn [r] (>= (nth r 0) from-t)) rows)
+        s (reduce + (map (fn [r] (nth r 2)) win))
+        d (reduce + (map resolved win))
+        idx (range (count rows))
+        maxr (reduce max 0.0
+                     (map (fn [i] (smoothed-rate rows i))
+                          (filter (fn [i] (>= (nth (nth rows i) 0) from-t)) idx)))]
+    {:rows (count win)
+     :successes s
+     :resolved d
+     :rate (if (zero? d) 1.0 (/ (double s) (double d)))
+     :max-rate maxr}))
+
+;; ── The fleet ────────────────────────────────────────────────────────────
+
+(def default-cfg
+  {:clients 5000
+   :workers 6           ;; C = 6/20*1000 = 300 req/s
+   :service-ms 20
+   :queue 3000          ;; pinned-full delay = 3000/300 = 10 s >> 1 s deadline
+   :think-ms 30000      ;; λ0 = 5000/30.02 = 166.6 req/s → ρ0 = 55.5 %
+   :deadline-ms 1000
+   :outage-from 60000
+   :outage-to 90000
+   :sample-ms 1000
+   :observe-ms 1890000  ;; 90 s + 30 virtual minutes of post-outage window
+   :policy :naive})
+
+(defn run-fleet [opts]
+  (let [cfg (merge default-cfg opts)
+        {:keys [clients workers queue observe-ms sample-ms outage-to policy]} cfg
+        on-failure (if (= policy :naive) naive-on-failure jittered-cb-on-failure)
+        t0 (time-ms)
+        req (chan queue)
+        running (atom true)
+        counters {:attempts (atom 0) :successes (atom 0) :timeouts (atom 0)
+                  :rejects (atom 0) :opens (atom 0) :qdepth (atom 0)}
+        bye (chan (+ clients workers))
+        stats-out (chan 1)]
+    (dotimes [_ workers]
+      (server-worker req running (:qdepth counters) cfg bye t0))
+    (dotimes [i clients]
+      (client i req running counters cfg on-failure bye t0))
+    (stats-proc counters observe-ms sample-ms running stats-out t0)
+    (let [rows (<!! stats-out)]
+      ;; `running` is already false; drain the world the program built.
+      (close! req)
+      (dotimes [_ (+ clients workers)] (<!! bye))
+      (let [pre (window-stats (filterv (fn [r] (< (nth r 0) (:outage-from cfg))) rows) 0)
+            fin (window-stats rows (- observe-ms 900000))
+            post (window-stats rows outage-to)]
+        {:policy policy
+         :timeline rows
+         :recovered-at (recovered-at rows outage-to)
+         :pre-outage pre
+         :post-outage post
+         :final-15m fin
+         :totals {:attempts @(:attempts counters)
+                  :successes @(:successes counters)
+                  :timeouts @(:timeouts counters)
+                  :rejects @(:rejects counters)
+                  :opens @(:opens counters)}
+         :offered-peak-per-s (reduce max 0 (map (fn [r] (nth r 1)) rows))
+         :capacity-per-s (long (/ (* 1000 workers) (:service-ms cfg)))}))))
+
+;; ── CSV, for the two-curve chart ─────────────────────────────────────────
+
+(defn- rate-of [row]
+  (let [d (resolved row)]
+    (if (zero? d) 1.0 (/ (double (nth row 2)) (double d)))))
+
+(defn timeline-csv [rows]
+  (clojure.string/join
+    "\n"
+    (cons "t_ms,attempts,successes,timeouts,rejects,breaker_opens,qdepth,success_rate"
+          (map (fn [r]
+                 (clojure.string/join
+                   ","
+                   [(nth r 0) (nth r 1) (nth r 2) (nth r 3) (nth r 4) (nth r 5) (nth r 6)
+                    (/ (Math/round (* 10000.0 (rate-of r))) 10000.0)]))
+               rows))))
+
+;; A run without its timeline — what the sweep compares and prints.
+(defn summarize [r]
+  (dissoc r :timeline))
+
+;; The same run as a flat vector of INTEGERS, which is what
+;; `tests/l5_demo_ep1.rs` asserts on: rates are carried as parts per
+;; million so that a verdict is exact rather than a float comparison, and
+;; `-1` is "never recovered" (there is no nil in a vector of longs).
+;;
+;;   0 recovered-at         5 opens              10 final-15m max-rate ppm
+;;   1 attempts             6 final-15m rows     11 pre-outage rate ppm
+;;   2 successes            7 final-15m succ     12 offered peak req/s
+;;   3 timeouts             8 final-15m resolved 13 capacity req/s
+;;   4 rejects              9 final-15m rate ppm 14 timeline rows
+(defn verdict [r]
+  (let [t (:totals r) f (:final-15m r)
+        ppm (fn [x] (Math/round (* 1000000.0 x)))]
+    [(or (:recovered-at r) -1)
+     (:attempts t) (:successes t) (:timeouts t) (:rejects t) (:opens t)
+     (:rows f) (:successes f) (:resolved f) (ppm (:rate f)) (ppm (:max-rate f))
+     (ppm (:rate (:pre-outage r)))
+     (:offered-peak-per-s r) (:capacity-per-s r) (count (:timeline r))]))
+
+;; ═══DRIVER═══ (tests/l5_demo_ep1.rs reads only the text ABOVE this marker
+;; and appends its own driver forms; everything below is the standalone
+;; `mova probes/l5-sim/ep1-retry-storm.mova` entry point.)
+
+;; Measured: 25.5 s of wall clock for 94.5 virtual MINUTES of a 5,000-proc
+;; fleet across three worlds — a ~222x compression, and 8.5 million of those
+;; requests are one fleet's retry storm.
+;;
+;; NOTE (see tests/l5_demo_ep1.rs, KERNEL FINDING 1): `rand` is not re-seeded
+;; per `simulate` call, so the jittered numbers printed here — the THIRD call
+;; in this process — differ slightly from the canonical single-call figures
+;; the test binary publishes. Both replay exactly; they are different worlds.
+(let [ctrl (simulate {:seed 7} (fn [] (run-fleet {:policy :naive
+                                                  :outage-from 0 :outage-to 0})))
+      naive (simulate {:seed 7} (fn [] (run-fleet {:policy :naive})))
+      jit (simulate {:seed 7} (fn [] (run-fleet {:policy :jittered-cb})))]
+  (println "control  (no outage, naive) " (summarize (:result ctrl)))
+  (println "naive    (30 s outage)      " (summarize (:result naive)))
+  (println "jittered (30 s outage)      " (summarize (:result jit)))
+  (println)
+  (println "  the trigger lasted 30 virtual seconds.")
+  (println "  naive    recovered-at:" (:recovered-at (:result naive)))
+  (println "  jittered recovered-at:" (:recovered-at (:result jit))))

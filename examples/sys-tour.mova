@@ -1,0 +1,45 @@
+;; sys-tour.mova -- mova's pitch in one file: system-level Clojure, where
+;; slurp/spit/sh/getenv are thin, errno-aware wrappers over libc rather than
+;; a hidden runtime. Every failure below carries the real errno and syscall
+;; name, not a generic "IOException".
+;;
+;;   ./target/debug/mova examples/sys-tour.mova
+
+(println "-- getenv --")
+(println "HOME =" (getenv "HOME"))
+(println "definitely-not-a-real-var =" (getenv "MOVA_TOUR_UNSET_VAR"))
+
+(println)
+(println "-- spit / slurp round-trip --")
+(def scratch-path "/tmp/mova-sys-tour-scratch.txt")
+(spit scratch-path "hello from mova\nsecond line\n")
+(println "wrote" scratch-path)
+(println "slurped back:" (pr-str (slurp scratch-path)))
+
+(println)
+(println "-- file-exists? / cwd / list-dir --")
+(println "exists?" (file-exists? scratch-path))
+(println "cwd =" (cwd))
+(println "tmp dir has" (count (list-dir "/tmp")) "entries")
+
+(println)
+(println "-- sh: shell out and capture exit/stdout/stderr --")
+(let [result (sh "echo" "hello from a child process")]
+  (println "exit:" (:exit result))
+  (println "out: " (pr-str (:out result))))
+
+(println)
+(println "-- errno-aware errors: catching a real ENOENT --")
+;; mova's `try`/`catch` binds an internal error's info map (:type
+;; :error/sys, :message "...") for a non-`throw`-raised error, so system
+;; failures are catchable Clojure data, not an opaque crash.
+(try
+  (slurp "/definitely/does/not/exist/mova-tour")
+  (catch e
+         (println "caught:" (:type e))
+    (println "message:" (:message e))))
+
+(println)
+(println "-- cleanup --")
+(delete-file scratch-path)
+(println "deleted" scratch-path "; still there?" (file-exists? scratch-path))

@@ -1,0 +1,21 @@
+[package]
+name = "nx-core"
+version = "0.1.0"
+edition = "2021"
+license = "EPL-1.0"
+description = "Native core of nx (clojure-lsp on Mova Flow): reader, analyzer, linters, store, queries."
+
+[dependencies]
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+memmap2 = "0.9"
+sha2 = "0.10"
+regex = "1"
+arc-swap = "1"
+
+[profile.release]
+debug = 1
+
+[dev-dependencies]
+mimalloc = { version = "0.1", default-features = false }
+libmimalloc-sys = { version = "0.1", default-features = false, features = ["extended"] }

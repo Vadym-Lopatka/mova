@@ -1,0 +1,637 @@
+{
+"scenario": "b07_read_errors",
+"doc": "",
+"messages": [
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading, starting at line 1\n",
+"id": "1",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "1",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "1",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:2).\nUnmatched delimiter: )\n",
+"id": "2",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "2",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "2",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:5).\nMap literal must contain an even number of forms\n",
+"id": "3",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "3",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "3",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading, starting at line 1\n",
+"id": "4",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "4",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "4",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:3).\nUnreadable form\n",
+"id": "5",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "5",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "5",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading string\n",
+"id": "6",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "6",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "6",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading, starting at line 1\n",
+"id": "7",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "7",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "7",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:10).\nUnmatched delimiter: )\n",
+"id": "8",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "8",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "8",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "2"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:6).\nUnmatched delimiter: )\n",
+"id": "9",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "9",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "9",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "3"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "10",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nInvalid token: ::a/b\n",
+"id": "11",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "11",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "11",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nNo reader function for tag foo/bar\n",
+"id": "12",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "12",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "12",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading\n",
+"id": "13",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "13",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "13",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading character\n",
+"id": "14",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "14",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "14",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:12).\nDuplicate key: :a\n",
+"id": "15",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "15",
+"root-ex": "class java.lang.IllegalArgumentException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "15",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:1:7).\nDuplicate key: 1\n",
+"id": "16",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "16",
+"root-ex": "class java.lang.IllegalArgumentException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "16",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"out": "1\n",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "nil"
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nEOF while reading, starting at line 1\n",
+"id": "17",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "17",
+"root-ex": "class java.lang.RuntimeException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "17",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nDivide by zero\n",
+"id": "18",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "18",
+"root-ex": "class java.lang.ArithmeticException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "18",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"err": "Syntax error reading source at (REPL:2:1).\nInvalid number: 09\n",
+"id": "19",
+"session": "<uuid:1>"
+}
+},
+{
+"conn": "main",
+"msg": {
+"ex": "class clojure.lang.ExceptionInfo",
+"id": "19",
+"root-ex": "class java.lang.NumberFormatException",
+"session": "<uuid:1>",
+"status": [
+"eval-error"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "19",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "20",
+"ns": "user",
+"session": "<uuid:1>",
+"value": "1"
+}
+},
+{
+"conn": "main",
+"msg": {
+"id": "20",
+"session": "<uuid:1>",
+"status": [
+"done"
+]
+}
+}
+]
+}

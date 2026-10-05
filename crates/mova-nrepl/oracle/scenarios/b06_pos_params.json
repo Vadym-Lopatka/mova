@@ -1,0 +1,170 @@
+{
+ "name": "b06_pos_params",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "eval",
+    "id": "1",
+    "code": "(def pv1 1)\n(def pv2 2)\n(select-keys (meta #'pv2) [:line :column :file])",
+    "session": "$s1",
+    "file": "foo/bar.clj",
+    "line": 10,
+    "column": 5
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "2",
+    "code": "(def pv3 1)",
+    "session": "$s1",
+    "file": "/abs/path/baz.clj",
+    "line": 3
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "3",
+    "code": "(select-keys (meta #'pv3) [:line :column :file])",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "4",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "file": "foo/bar.clj",
+    "line": 10,
+    "column": 5
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "5",
+    "code": "(+ 1 2)\n(/ 1 0)",
+    "session": "$s1",
+    "file": "foo/bar.clj",
+    "line": 20
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "6",
+    "code": "(foo-unresolved)",
+    "session": "$s1",
+    "file": "foo/bar.clj",
+    "line": 30,
+    "column": 2
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "7",
+    "code": "(def pv4 1)",
+    "session": "$s1",
+    "file": "x.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "8",
+    "code": "(select-keys (meta #'pv4) [:line :column :file])",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "9",
+    "code": "(def pv5 1)",
+    "session": "$s1",
+    "line": 7
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "10",
+    "code": "(select-keys (meta #'pv5) [:line :column :file])",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "11",
+    "code": "*file*",
+    "session": "$s1",
+    "file": "q.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "12",
+    "code": "*source-path*",
+    "session": "$s1",
+    "file": "d/q.clj"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "13",
+    "code": "(+ 1",
+    "session": "$s1",
+    "file": "r.clj",
+    "line": 5,
+    "column": 3
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "14",
+    "code": "(def pv6 1)\n\n(def pv7 2)",
+    "session": "$s1",
+    "line": 100,
+    "column": 1
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "(map #(:line (meta %)) [#'pv6 #'pv7])",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "16",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "line": "12"
+   },
+   "timeout": 3
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "17",
+    "code": "(/ 1 0)",
+    "session": "$s1",
+    "line": 0
+   }
+  }
+ ]
+}

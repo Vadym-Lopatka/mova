@@ -1,0 +1,19 @@
+OK	#uuid "550e8400-e29b-41d4-a716-446655440000"
+OK	"#uuid \"550e8400-e29b-41d4-a716-446655440000\""
+OK	"550e8400-e29b-41d4-a716-446655440000"
+OK	true
+OK	java.util.UUID
+OK	true
+OK	true
+OK	true
+OK	"#uuid \"550e8400-e29b-41d4-a716-446655440000\""
+OK	false
+OK	false
+OK	false
+OK	false
+OK	true
+OK	java.util.UUID
+OK	36
+OK	false
+ERR	IllegalArgumentException
+ERR	IllegalArgumentException

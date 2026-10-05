@@ -1,0 +1,85 @@
+;;PRELUDE (require '[clojure.core.async :refer [chan >!! <!! close! timeout alts!! offer! poll! put! take! go go-loop >! <! thread onto-chan! dropping-buffer sliding-buffer]])
+;; async.corpus -- core.async channel semantics, bb-verified against REAL
+;; clojure.core.async (babashka ships it, so this corpus gets a genuine
+;; differential check, not just our own unit tests). One session, ONE FORM
+;; PER LINE (both tools/gen-golden.bb and conformance_test.rs parse the
+;; corpus line-by-line, not sexpr-aware -- a form split across lines
+;; silently desyncs corpus/golden line counts, or worse, evaluates as two
+;; separate half-forms).
+;;
+;; The `;;PRELUDE ...` line above is a gen-golden.bb-only mechanism: it's a
+;; setup form evaluated once (bringing bb's namespaced core.async vars into
+;; scope under their bare names) before this file's real forms run, and
+;; produces no golden line of its own. mova needs NO such prelude -- chan/
+;; >!!/<!!/go/close!/etc. are already global builtins there (see
+;; core/async.mova's module doc) -- so nothing on the mova side changes;
+;; the line starts with `;;` like any other comment, so both
+;; tools/gen-golden.bb's `skip-line?` and conformance_test.rs's
+;; `is_skippable` already exclude it from form/golden-line counting.
+;;
+;; A raw channel/promise/future is NEVER left as a form's printed result --
+;; bb's and mova's own object representations are unrelated strings (see
+;; collections.corpus's analogous rule for unordered map/set literals).
+;; Every form below ends on a plain value (int/bool/keyword/vector/nil).
+;; AVOIDED: anything whose observable result depends on thread-interleaving
+;; order beyond a single deterministic producer/consumer chain, anything
+;; beyond "timeout eventually reads as nil" for timing, and any put into a
+;; full fixed buffer with no consumer ever draining it (permanent deadlock).
+
+;; ---- buffered put/take ----
+(let [ch (chan 3)] (>!! ch 1) (>!! ch 2) (>!! ch 3) [(<!! ch) (<!! ch) (<!! ch)])
+(let [ch (chan 2)] [(>!! ch :x) (>!! ch :y)])
+(let [ch (chan 2)] (>!! ch 1) (<!! ch) (>!! ch 2) (>!! ch 3) [(<!! ch) (<!! ch)])
+
+;; ---- close!: puts-after-close false, takes drain then nil, idempotent ----
+(let [ch (chan 2)] (>!! ch :a) (>!! ch :b) (close! ch) [(<!! ch) (<!! ch) (<!! ch)])
+(let [ch (chan 1)] [(>!! ch :x) (close! ch) (>!! ch :y)])
+(let [ch (chan)] (close! ch) [(<!! ch) (<!! ch)])
+(let [ch (chan 1)] (close! ch) (close! ch) (>!! ch 1))
+(let [ch (chan 1)] (>!! ch :first) (close! ch) [(<!! ch) (>!! ch :second) (<!! ch)])
+
+;; ---- dropping / sliding buffers ----
+(let [ch (chan (dropping-buffer 2))] (>!! ch 1) (>!! ch 2) (>!! ch 3) (>!! ch 4) (close! ch) [(<!! ch) (<!! ch) (<!! ch)])
+(let [ch (chan (sliding-buffer 2))] (>!! ch 1) (>!! ch 2) (>!! ch 3) (>!! ch 4) (close! ch) [(<!! ch) (<!! ch) (<!! ch)])
+
+;; ---- poll! / offer!: would-block (nil) vs closed (false) vs sent (true) ----
+(let [ch (chan 1)] [(poll! ch) (offer! ch :a) (poll! ch) (offer! ch :b) (offer! ch :c) (poll! ch)])
+(let [ch (chan)] (poll! ch))
+(let [ch (chan)] (offer! ch :x))
+(let [ch (chan 1)] (close! ch) (offer! ch :a))
+(let [ch (chan 1)] (close! ch) (poll! ch))
+(let [ch (chan 1)] (>!! ch :x) (close! ch) (poll! ch))
+
+;; ---- alts!!: single ready op, default, put-op form ----
+(let [c1 (chan 1) c2 (chan 1)] (>!! c2 :from-c2) (let [[v ch] (alts!! [c1 c2])] [v (= ch c2)]))
+(let [c1 (chan) c2 (chan)] (alts!! [c1 c2] :default :nothing))
+(let [ch (chan 1)] (let [[ok c] (alts!! [[ch :val]])] [ok (= c ch) (<!! ch)]))
+(let [c1 (chan) c2 (chan 1) c3 (chan)] (>!! c2 :hit) (let [[v ch] (alts!! [c1 c2 c3])] [v (= ch c2)]))
+
+;; ---- timeout: eventually nil (blocking wait is fine, output is deterministic) ----
+(<!! (timeout 5))
+(let [ch (timeout 5) [v c] (alts!! [ch] :default :not-yet)] (or (= v :not-yet) (nil? v)))
+
+;; ---- go / go-loop ----
+(let [ch (go (+ 1 2))] (<!! ch))
+(let [ch (go (+ 1 2))] [(<!! ch) (<!! ch)])
+(let [ch (go (throw :boom))] (<!! ch))
+(let [ch (chan 10) producer (go-loop [i 0] (if (< i 10) (do (>! ch i) (recur (inc i))) (close! ch))) consumer (go-loop [acc 0] (let [v (<! ch)] (if (nil? v) acc (recur (+ acc v)))))] (<!! producer) (<!! consumer))
+(let [ch (chan 5) g (go-loop [i 0] (if (< i 5) (do (>! ch i) (recur (inc i))) (close! ch)))] (<!! g) (loop [acc []] (let [v (<!! ch)] (if (nil? v) acc (recur (conj acc v))))))
+(let [a (atom 0) g (go (reset! a 42) :done)] (<!! g) @a)
+
+;; ---- unbuffered rendezvous ----
+(let [ch (chan) g (go (>! ch :hello) :sent)] (let [v (<!! ch)] (<!! g) v))
+(let [ch (chan) t (thread (>!! ch :from-thread))] (<!! ch))
+
+;; ---- thread ----
+(let [ch (chan 1)] (thread (>!! ch (+ 2 3))) (<!! ch))
+
+;; ---- onto-chan! ----
+(let [ch (chan 10) done (onto-chan! ch [1 2 3])] (<!! done) (loop [acc []] (let [v (<!! ch)] (if (nil? v) acc (recur (conj acc v))))))
+
+;; ---- a 2-stage pipeline ----
+(let [in (chan 5) out (chan 5) stage (go-loop [] (let [v (<! in)] (if (nil? v) (close! out) (do (>! out (* v 2)) (recur))))) producer (go-loop [i 0] (if (< i 3) (do (>! in i) (recur (inc i))) (close! in)))] (<!! producer) (<!! stage) (loop [acc []] (let [v (<!! out)] (if (nil? v) acc (recur (conj acc v))))))
+
+;; ---- put!/take! (async, callback-driven, coordinated via promises) ----
+(let [p1 (promise) p2 (promise) ch (chan 1)] (put! ch :hi (fn [sent] (deliver p1 sent))) (deref p1 200 :never) (take! ch (fn [v] (deliver p2 v))) [(deref p1 200 :never) (deref p2 200 :never)])

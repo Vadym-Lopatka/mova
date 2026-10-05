@@ -1,0 +1,46 @@
+;;RUNS 5
+;; scenario 06: procs start PAUSED on both sides (gold's own `start`
+;; docstring/impl.clj `proc`'s `run` loop begins `status :paused`; mova
+;; same -- see FINDINGS.md item 3, the flow-guide.md prose that claims
+;; otherwise is WRONG, trust the code). Inject while paused, verify nothing
+;; has been processed yet, resume, verify the buffered messages are
+;; delivered in order.
+;;
+;; NOTE on how "nothing processed while paused" is checked: an EARLIER
+;; version of this scenario probed via `(deref (future (<!! out-ch)) MS
+;; :sentinel)` before resuming. That leaves a thread PERMANENTLY blocked on
+;; `<!! out-ch` if the timeout fires (deref-with-timeout abandons the
+;; future, it does not cancel it) -- after resume, that dangling reader
+;; silently STEALS the first delivered message from whichever code reads
+;; `out-ch` next, corrupting the post-resume result on BOTH sides
+;; identically (reproduced: this is a scenario-authoring pitfall, not an
+;; engine divergence). `flow/ping-proc`'s `:count` is a clean, non-
+;; consuming, bounded way to observe "has this proc processed anything
+;; yet" instead. See FINDINGS.md.
+(def out-ch (chan 20))
+
+(def sink-step
+  (flow/map->step
+   {:describe (fn [] {:ins {:in {}} :outs {}})
+    :transform (fn [s _ m] (>!! out-ch m) [s {}])}))
+
+(def fl (flow/create-flow
+         {:procs {:s {:proc (flow/process sink-step)}}
+          :conns []}))
+
+(flow/start fl)
+
+(def fut (flow/inject fl [:s :in] [1 2 3]))
+(deref fut 5000 :timed-out)
+
+(def ping1 (flow/ping-proc fl :s))
+(println "RESULT status-while-paused" (:clojure.core.async.flow/status ping1))
+(println "RESULT count-while-paused" (:clojure.core.async.flow/count ping1))
+(println (if (= (:clojure.core.async.flow/count ping1) 0) "PASS nothing-processed-while-paused" "FAIL nothing-processed-while-paused"))
+
+(flow/resume fl)
+(def result (deref (future (vec (repeatedly 3 #(<!! out-ch)))) 10000 :timed-out))
+(println "RESULT after-resume" (pr-str result))
+(println (if (= result [1 2 3]) "PASS delivered-after-resume" "FAIL delivered-after-resume"))
+
+(flow/stop fl)

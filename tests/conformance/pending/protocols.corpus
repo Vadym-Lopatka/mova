@@ -1,0 +1,9 @@
+;; protocols.corpus -- REMAINING protocol gaps after the S3 type system
+;; landed (the conforming bulk was promoted to corpus/protocols.corpus).
+;; Every form below is self-contained (do-wrapped where it needs defs)
+;; and still DIVERGES: var/meta introspection, :extend-via-metadata, and
+;; impl preservation across re-defprotocol.
+(do (defprotocol DocA "A doc" (ma [x] "method doc")) (:doc (meta (var DocA))))
+(do (defprotocol MetaP :extend-via-metadata true (mmp [x])) (mmp (with-meta {} {`mmp (fn [x] :via-meta)})))
+(do (defprotocol MetaQ :extend-via-metadata true (mmq [x])) (satisfies? MetaQ (with-meta {} {`mmq (fn [x] :via-meta)})))
+(do (defprotocol RP (rpm [x])) (extend-type Long RP (rpm [x] :long)) (defprotocol RP (rpm [x]) (rpn [x])) (rpm 1))

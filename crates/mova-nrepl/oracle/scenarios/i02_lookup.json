@@ -1,0 +1,236 @@
+{
+ "name": "i02_lookup",
+ "doc": "",
+ "sessions": [
+  "s1"
+ ],
+ "steps": [
+  {
+   "send": {
+    "op": "lookup",
+    "id": "1",
+    "session": "$s1",
+    "sym": "map"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "2",
+    "session": "$s1",
+    "sym": "when"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "3",
+    "session": "$s1",
+    "sym": "if"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "4",
+    "session": "$s1",
+    "sym": "nosuchsym-xyz"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "5",
+    "session": "$s1",
+    "sym": "join",
+    "ns": "clojure.string"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "6",
+    "session": "$s1",
+    "sym": "clojure.string/join"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "7",
+    "session": "$s1",
+    "sym": "s/join",
+    "ns": "lk.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "8",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "9",
+    "session": "$s1",
+    "sym": "String"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "10",
+    "session": "$s1",
+    "sym": "java.lang.String"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "11",
+    "session": "$s1",
+    "sym": "def"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "12",
+    "session": "$s1",
+    "sym": "*print-length*"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "13",
+    "session": "$s1",
+    "sym": "map",
+    "ns": "no.such.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "14",
+    "session": "$s1",
+    "sym": "loop"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "15",
+    "code": "(ns lk.ns (:require [clojure.string :as s]))",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "16",
+    "session": "$s1",
+    "sym": "s/join",
+    "ns": "lk.ns"
+   }
+  },
+  {
+   "send": {
+    "op": "eval",
+    "id": "17",
+    "code": "(defn lk-fn \"doc here\" [a b] 1)",
+    "session": "$s1"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "18",
+    "session": "$s1",
+    "sym": "lk-fn"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "19",
+    "session": "$s1",
+    "sym": "lk-fn",
+    "ns": "user"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "20",
+    "session": "$s1",
+    "sym": "ns"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "21",
+    "session": "$s1",
+    "sym": "Thread/sleep"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "22",
+    "session": "$s1",
+    "sym": "clojure.core"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "23",
+    "sym": "map"
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "24",
+    "session": "$s1",
+    "sym": ""
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "25",
+    "session": "$s1",
+    "sym": "..."
+   }
+  },
+  {
+   "send": {
+    "op": "lookup",
+    "id": "26",
+    "session": "$s1",
+    "sym": "-"
+   }
+  },
+  {
+   "send": {
+    "op": "eldoc",
+    "id": "27",
+    "session": "$s1",
+    "sym": "map"
+   }
+  },
+  {
+   "send": {
+    "op": "info",
+    "id": "28",
+    "session": "$s1",
+    "sym": "map"
+   }
+  }
+ ]
+}
