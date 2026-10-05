@@ -49,7 +49,7 @@ similar = "2"
 # external-classpath jar reading (clj-kondo's `core.clj`/`analysis/java.clj`,
 # clojure-lsp's `config.clj`/`java_interop.clj`) -- `zip` crate reads the
 # central directory and inflates entries on demand (src/hostclass.rs).
-zip = { version = "0.6", default-features = false, features = ["deflate"] }
+zip = { version = "8.6", default-features = false, features = ["deflate"] }
 # D5: `Value::Regex` (`#"..."` and `re-pattern`) is a `java.util.regex.
 # Pattern` stand-in, and Java's Pattern has LOOKAROUND and BACKREFERENCES;
 # the `regex` crate deliberately has neither (they are incompatible with
