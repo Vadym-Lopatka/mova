@@ -44,7 +44,7 @@ sha2 = "0.10"
 # diff`+`generateUnifiedDiff` (java-diff-utils) -- `similar`'s `TextDiff::
 # unified_diff` is the direct equivalent, git-style unified-diff format
 # (`mova.diff` native, `src/builtins/difftext.rs`).
-similar = "2"
+similar = "3"
 # lsp/kondo: `java.util.jar.JarFile`/`java.util.zip.ZipFile` veneer for
 # external-classpath jar reading (clj-kondo's `core.clj`/`analysis/java.clj`,
 # clojure-lsp's `config.clj`/`java_interop.clj`) -- `zip` crate reads the
